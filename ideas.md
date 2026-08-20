@@ -1,4 +1,4 @@
-# IntentFence Control Center — Design Direction
+# Pactline Control Center — Design Direction
 
 ## Theme Name: Signal & Stewardship
 
@@ -32,7 +32,7 @@ A contemporary fusion of **Swiss International typography** and **forensic opera
 4. **Readable authority.** Labels, timestamps, targets, and plan boundaries are always visible and human-scannable.
 
 ### Color Philosophy
-Ink-black and graphite provide a serious, low-noise field for decision-making. Warm off-white surfaces keep dense operational detail readable and human. The ownable brand color is **Signal Green (#B9F227)**: it represents permission that is active, bounded, and observable—not generic success. Amber is reserved for actions waiting on a human; cobalt-blue is reserved for trace metadata and machine context.
+Ink-black and graphite provide a serious, low-noise field for decision-making. Warm off-white surfaces keep dense operational detail readable and human. The ownable brand color is **Signal Mint (#5BE7C4)**: it represents permission that is active, bounded, and observable—not generic success. Amber is reserved for actions waiting on a human; cobalt-blue is reserved for trace metadata and machine context.
 
 ### Layout Paradigm
 A command-center layout with a **compact left rail**, a wide central work area, and a right-hand contextual drawer for the active authorization decision. Avoid a symmetrical dashboard grid. The page should feel like a decision is unfolding: current run at the top, risk queue in the middle, proof trail below.
@@ -52,7 +52,7 @@ Use brief 160–220ms transitions with a sharp ease-out. The run status indicato
 Use **Space Grotesk** for display labels and major numbers, paired with **DM Sans** for body copy and operational detail. Uppercase micro-labels use 0.12em tracking. Headline hierarchy: 12px eyebrow, 30–38px page title, 18–20px section title, 13–15px body, 11px metadata.
 
 ### Brand Essence
-IntentFence is an **operator-first control center for teams deploying autonomous agents**, built for people who need speed without surrendering authority. Personality: **exact, composed, protective**.
+Pactline is an **operator-first control center for teams deploying autonomous agents**, built for people who need speed without surrendering authority. Personality: **exact, composed, protective**.
 
 ### Brand Voice
 Headlines are short and declarative. CTAs describe the decision, not the feature. Microcopy explains why the system paused.
@@ -62,10 +62,10 @@ Example lines:
 - “This action is outside the captured intent. Decide before execution.”
 
 ### Wordmark & Logo
-The mark is a **split shield formed from two offset brackets**: the left bracket represents an agent’s open operating field, the right bracket represents the hard boundary. A single signal-green notch closes the gap, expressing a decision checkpoint. The wordmark uses a tight geometric sans with the “F” extended into a subtle fence-like terminal.
+The product is named **Pactline**. The mark is a **signed shield formed from two interlocking brackets** with a central boundary line: the left form represents autonomous action, the right form represents authority, and the crossing line represents the moment a human or policy must decide. The wordmark uses a tight geometric sans with a deliberate split between “pact” and “line,” making the name readable at sidebar scale and memorable in a demo.
 
 ### Signature Brand Color
-**Signal Green — #B9F227**
+**Signal Mint — #5BE7C4**
 
 ## File-level reminder
 Every edited CSS/component/page file should begin with a short comment reminding the implementer: “Signal & Stewardship: evidence before decoration, asymmetric command layout, ink + warm paper + Signal Green, exact operator-first copy.”
