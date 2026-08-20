@@ -1,8 +1,8 @@
-# IntentFence Round 2 Usage Guide
+# Pactline Round 2 Usage Guide
 
 ## Purpose
 
-IntentFence is a **Round 2 qualification MVP** for ArmorIQ Problem 1. It is intentionally not a full production invoice platform. The frontend is a polished control-center prototype that demonstrates the story judges need to understand: an agent completes routine work autonomously, ArmorIQ holds an action outside the captured intent, a human decides, and the audit trail proves what happened.
+Pactline is a **Round 2 qualification MVP** for ArmorIQ Problem 1. It is intentionally not a full production invoice platform. The frontend is a polished control-center prototype that demonstrates the story judges need to understand: an agent completes routine work autonomously, ArmorIQ holds an action outside the captured intent, a human decides, and the audit trail proves what happened.
 
 ## Run locally
 
@@ -49,7 +49,7 @@ Use screenshots of the desktop dashboard for the architecture, active run, captu
 
 ## Demo narration
 
-> “This is IntentFence, an operator control center for bounded autonomous agents. The agent has processed an invoice without asking for permission at every step. It has read the document, extracted the fields, and written the ledger record. The next action would send the extracted data to a recipient that was never part of the original captured intent. ArmorIQ holds that action before execution. The operator can inspect the target, data scope, and reason, then reject or approve. The audit spine preserves the entire decision trail.”
+> “This is Pactline, an operator control center for bounded autonomous agents. The agent has processed an invoice without asking for permission at every step. It has read the document, extracted the fields, and written the ledger record. The next action would send the extracted data to a recipient that was never part of the original captured intent. ArmorIQ holds that action before execution. The operator can inspect the target, data scope, and reason, then reject or approve. The audit spine preserves the entire decision trail.”
 
 ## Recording checklist
 

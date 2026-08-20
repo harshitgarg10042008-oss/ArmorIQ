@@ -28,4 +28,8 @@
 - [x] Replace the current yellow-dominant styling with a more refined premium palette.
 - [x] Implement working routes/pages for Overview, Live runs, Approval queue, Audit trail, and Intent plans.
 - [x] Verify navigation, theme switching, responsive layout, and demo interactions.
-- [ ] Push the redesign and navigation fixes to the root of the GitHub repository.
+- [x] Push the redesign and navigation fixes to the root of the GitHub repository.
+- [x] Select and document the stronger ArmorIQ solution name.
+- [x] Generate and integrate a distinctive logo mark and favicon-ready asset.
+- [x] Verify the new brand across light/dark themes and navigation pages.
+- [ ] Push the branding update to the root of GitHub.

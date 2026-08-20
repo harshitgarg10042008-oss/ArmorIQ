@@ -120,10 +120,10 @@ export default function Home() {
     <div className={`app-shell ${darkMode ? "dark-mode" : ""}`}>
       <aside className="sidebar">
         <div className="brand-lockup">
-          <div className="brand-mark-wrap"><img src="/manus-storage/intentfence-mark_dfe7d673.png" alt="IntentFence mark" /></div>
-          <div><div className="brand-name">intent<span>fence</span></div><div className="brand-sub">operator control</div></div>
+          <div className="brand-mark-wrap"><img src="/manus-storage/pactline-mark_183c1341.png" alt="Pactline mark" /></div>
+          <div><div className="brand-name">pact<span>line</span></div><div className="brand-sub">operator control</div></div>
         </div>
-        <div className="workspace-switch"><div className="workspace-avatar">IF</div><div><div className="workspace-name">Finance Ops</div><div className="workspace-meta">Protected workspace</div></div><ChevronDown size={14} /></div>
+        <div className="workspace-switch"><div className="workspace-avatar">PL</div><div><div className="workspace-name">Finance Ops</div><div className="workspace-meta">Protected workspace</div></div><ChevronDown size={14} /></div>
         <nav className="nav-stack" aria-label="Primary navigation">
           {[
             ["Overview", LayoutDashboard],
@@ -152,7 +152,7 @@ export default function Home() {
 
         {activeNav !== "Overview" ? <PageView page={activeNav} darkMode={darkMode} notify={notify} /> : <>
         <section className="hero-band">
-          <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-line" />AUTONOMOUS OPERATIONS / 01</div><h1>Autonomy is active.<br /><em>Authority is bounded.</em></h1><p>IntentFence lets your agent move through routine invoice work while ArmorIQ holds the exact moment an action leaves its captured intent.</p><div className="hero-actions"><button className="primary-button" onClick={simulateRun}><Play size={15} fill="currentColor" /> Run protected demo <ArrowUpRight size={15} /></button><button className="text-button" onClick={() => notify("Architecture view opened")}>View architecture <ChevronRight size={15} /></button></div></div>
+          <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-line" />AUTONOMOUS OPERATIONS / 01</div><h1>Autonomy is active.<br /><em>Authority is bounded.</em></h1><p>Pactline lets your agent move through routine invoice work while ArmorIQ holds the exact moment an action leaves its captured intent.</p><div className="hero-actions"><button className="primary-button" onClick={simulateRun}><Play size={15} fill="currentColor" /> Run protected demo <ArrowUpRight size={15} /></button><button className="text-button" onClick={() => notify("Architecture view opened")}>View architecture <ChevronRight size={15} /></button></div></div>
           <div className="hero-visual"><img src="/manus-storage/intentfence-hero-texture_24980018.png" alt="Abstract authorization signal texture" /><div className="hero-visual-overlay"><div className="signal-ring"><ShieldCheck size={31} /></div><div><div className="micro-label">CURRENT BOUNDARY</div><div className="hero-visual-title">Invoice handling plan</div><div className="hero-visual-meta"><span className="status-dot live" />Signed · verified · 14:32:07</div></div></div></div>
         </section>
 
@@ -176,7 +176,7 @@ export default function Home() {
         </section>
 
         </>}
-        <footer className="page-footer"><span><span className="status-dot live" /> IntentFence control center · v0.8 concept build</span><span>Last policy sync 14:32:07 <span className="footer-sep">/</span> <a href="#" onClick={(e) => { e.preventDefault(); notify("Documentation is coming in the build phase"); }}>SDK documentation <ArrowUpRight size={12} /></a></span></footer>
+        <footer className="page-footer"><span><span className="status-dot live" /> Pactline control center · v0.8 concept build</span><span>Last policy sync 14:32:07 <span className="footer-sep">/</span> <a href="#" onClick={(e) => { e.preventDefault(); notify("Documentation is coming in the build phase"); }}>SDK documentation <ArrowUpRight size={12} /></a></span></footer>
       </main>
       {toast && <div className="toast"><Zap size={15} /><span>{toast}</span></div>}
     </div>
