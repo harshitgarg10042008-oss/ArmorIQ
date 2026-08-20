@@ -124,7 +124,7 @@ export default function Home() {
     <div className={`app-shell ${darkMode ? "dark-mode" : ""}`}>
       <aside className="sidebar">
         <div className="brand-lockup">
-          <div className="brand-mark-wrap"><img src={getAssetUrl("/manus-storage/pactline-mark_183c1341.png", "/assets/pactline-mark_183c1341.jpg")} alt="Pactline mark" /></div>
+          <div className={`brand-mark-wrap ${import.meta.env.DEV ? "is-local" : ""}`}><img src={getAssetUrl("/manus-storage/pactline-mark_183c1341.png", "/assets/pactline-mark_183c1341.jpg")} alt="Pactline mark" /></div>
           <div><div className="brand-name">pact<span>line</span></div><div className="brand-sub">operator control</div></div>
         </div>
         <div className="workspace-switch"><div className="workspace-avatar">PL</div><div><div className="workspace-name">Finance Ops</div><div className="workspace-meta">Protected workspace</div></div><ChevronDown size={14} /></div>

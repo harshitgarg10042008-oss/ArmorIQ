@@ -65,6 +65,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid #5be7c4; outline-offs
 .brand-lockup { display: flex; align-items: center; gap: 10px; padding: 0 10px 27px; }
 .brand-mark-wrap { width: 29px; height: 29px; display: grid; place-items: center; background: #5be7c4; border-radius: 8px; overflow: hidden; }
 .brand-mark-wrap img { width: 25px; height: 25px; object-fit: contain; filter: brightness(.23); }
+.brand-mark-wrap.is-local { background: transparent; }
+.brand-mark-wrap.is-local img { width: 100%; height: 100%; object-fit: cover; filter: none; border-radius: 8px; }
 .brand-name { font: 700 19px/1 "Space Grotesk", sans-serif; letter-spacing: -0.04em; }
 .brand-name span { color: #5be7c4; }
 .brand-sub { margin-top: 4px; color: rgba(245,242,233,.45); font: 10px/1 "DM Sans", sans-serif; letter-spacing: .12em; text-transform: uppercase; }
