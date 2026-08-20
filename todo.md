@@ -11,3 +11,5 @@
 - [x] Capture representative screenshots for visual verification.
 - [x] Write a simple usage guide for the team’s demo recording.
 - [ ] Save a final checkpoint and deliver the project version plus usage instructions.
+- [x] Add a persistent dark-mode toggle with premium contrast and readable audit states.
+- [x] Verify the light and dark dashboard screenshots and demo interactions.

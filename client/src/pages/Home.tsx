@@ -3,6 +3,8 @@ import { useMemo, useState } from "react";
 import {
   ArrowUpRight,
   BadgeCheck,
+  Moon,
+  Sun,
   Bell,
   ChevronDown,
   ChevronRight,
@@ -53,6 +55,7 @@ export default function Home() {
   const [runState, setRunState] = useState<"idle" | "running" | "held" | "approved">("held");
   const [showDrawer, setShowDrawer] = useState(true);
   const [toast, setToast] = useState("");
+  const [darkMode, setDarkMode] = useState(() => new URLSearchParams(window.location.search).get("theme") === "dark" || window.localStorage.getItem("intentfence-theme") === "dark");
 
   const stateCopy = useMemo(() => {
     if (runState === "approved") return { label: "Action approved", sub: "Run resumed · 14:33:01", tone: "green" };
@@ -60,6 +63,15 @@ export default function Home() {
     if (runState === "idle") return { label: "Awaiting a run", sub: "Drop an invoice to begin", tone: "muted" };
     return { label: "Human decision required", sub: "1 action held by ArmorIQ", tone: "amber" };
   }, [runState]);
+
+  const toggleDarkMode = () => {
+    setDarkMode((current) => {
+      const next = !current;
+      window.localStorage.setItem("intentfence-theme", next ? "dark" : "light");
+      return next;
+    });
+    notify(darkMode ? "Light mode enabled" : "Dark mode enabled");
+  };
 
   const notify = (message: string) => {
     setToast(message);
@@ -85,7 +97,7 @@ export default function Home() {
   };
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${darkMode ? "dark-mode" : ""}`}>
       <aside className="sidebar">
         <div className="brand-lockup">
           <div className="brand-mark-wrap"><img src="/manus-storage/intentfence-mark_dfe7d673.png" alt="IntentFence mark" /></div>
@@ -115,7 +127,7 @@ export default function Home() {
       <main className="main-canvas">
         <header className="topbar">
           <div className="breadcrumbs"><span>Finance Ops</span><ChevronRight size={14} /><strong>Control center</strong></div>
-          <div className="top-actions"><div className="search-box"><Search size={15} /><span>Search runs, invoices…</span><kbd>⌘ K</kbd></div><button className="icon-button" aria-label="Notifications" onClick={() => notify("No new notifications")}><Bell size={17} /><span className="notification-dot" /></button><button className="mobile-menu" aria-label="Open menu"><Menu size={18} /></button></div>
+          <div className="top-actions"><div className="search-box"><Search size={15} /><span>Search runs, invoices…</span><kbd>⌘ K</kbd></div><button className="icon-button theme-toggle" aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"} onClick={toggleDarkMode}>{darkMode ? <Sun size={17} /> : <Moon size={17} />}</button><button className="icon-button" aria-label="Notifications" onClick={() => notify("No new notifications")}><Bell size={17} /><span className="notification-dot" /></button><button className="mobile-menu" aria-label="Open menu"><Menu size={18} /></button></div>
         </header>
 
         <section className="hero-band">

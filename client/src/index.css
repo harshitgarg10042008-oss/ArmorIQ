@@ -147,3 +147,70 @@ button:focus-visible, a:focus-visible { outline: 2px solid #b9f227; outline-offs
 @media (prefers-reduced-motion: reduce) { *, *:before, *:after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
 @media (max-width: 1050px) { .sidebar { width: 205px; }.topbar, .hero-band, .status-strip, .content-grid { padding-left: 28px; padding-right: 28px; }.content-grid { grid-template-columns: 1fr; }.right-column { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }.right-column .section-heading { grid-column: 1 / -1; margin-top: 0; }.mini-card, .principle-card { margin-top: 0; }.decision-card { grid-row: span 2; } }
 @media (max-width: 750px) { .sidebar { position: fixed; z-index: 10; left: -215px; transition: left .2s ease; }.main-canvas { width: 100%; }.topbar { padding: 0 18px; }.search-box { display: none; }.mobile-menu { display: grid; place-items: center; width: 32px; height: 32px; }.hero-band { min-height: 435px; padding: 37px 21px; }.hero-visual { top: auto; bottom: 0; width: 100%; min-width: 0; height: 180px; opacity: .62; }.hero-visual:after { background: linear-gradient(0deg, #141817 0%, rgba(20,24,23,.5) 100%); }.hero-visual-overlay { right: 21px; bottom: 22px; }.hero-copy { max-width: none; }.hero-copy p { max-width: 390px; }.status-strip { align-items: flex-start; flex-direction: column; padding: 17px 21px; gap: 18px; }.status-metrics { justify-content: space-between; width: 100%; gap: 9px; }.status-metrics > div { display: grid; gap: 4px; }.content-grid { padding: 28px 18px; }.run-card-top { flex-wrap: wrap; }.run-progress { width: calc(100% - 47px); margin-left: 47px; order: 4; }.tool-latency { display: none; }.right-column { display: block; }.decision-card { margin-bottom: 18px; }.mini-card, .principle-card { margin-top: 18px; }.page-footer { flex-direction: column; padding: 0 18px 22px; }.page-footer > span:last-child { align-items: flex-start; flex-wrap: wrap; }.audit-footer { flex-direction: column; gap: 7px; }.ribbon-proof { display: none; } }
+
+/* Dark mode: the same Signal & Stewardship system translated into ink, graphite, and moon-paper surfaces. */
+.app-shell.dark-mode { background: #0e1211; color: #f5f2e9; }
+.app-shell.dark-mode .main-canvas { background: #0e1211; }
+.app-shell.dark-mode .topbar { border-color: rgba(245,242,233,.1); background: #121715; }
+.app-shell.dark-mode .breadcrumbs { color: rgba(245,242,233,.46); }
+.app-shell.dark-mode .breadcrumbs strong { color: #f5f2e9; }
+.app-shell.dark-mode .search-box { color: rgba(245,242,233,.44); }
+.app-shell.dark-mode .search-box kbd { border-color: rgba(245,242,233,.13); color: rgba(245,242,233,.55); background: rgba(245,242,233,.08); }
+.app-shell.dark-mode .icon-button { color: rgba(245,242,233,.75); }
+.app-shell.dark-mode .icon-button:hover { background: rgba(245,242,233,.1); }
+.app-shell.dark-mode .theme-toggle { color: #b9f227; background: rgba(185,242,39,.1); }
+.app-shell.dark-mode .hero-band { background: #0b0f0e; }
+.app-shell.dark-mode .status-strip { border-color: rgba(245,242,233,.1); background: #171d1a; }
+.app-shell.dark-mode .status-title { color: #f5f2e9; }
+.app-shell.dark-mode .status-code { color: #70a9e4; }
+.app-shell.dark-mode .status-divider { background: rgba(245,242,233,.12); }
+.app-shell.dark-mode .micro-label { color: rgba(245,242,233,.46); }
+.app-shell.dark-mode .content-grid { background: #0e1211; }
+.app-shell.dark-mode .section-heading h2 { color: #f5f2e9; }
+.app-shell.dark-mode .ghost-button { color: rgba(245,242,233,.52); }
+.app-shell.dark-mode .ghost-button:hover { color: #b9f227; }
+.app-shell.dark-mode .run-card,
+.app-shell.dark-mode .audit-card,
+.app-shell.dark-mode .mini-card,
+.app-shell.dark-mode .decision-card { border-color: rgba(245,242,233,.12); background: #171d1a; box-shadow: 0 15px 35px rgba(0,0,0,.22); }
+.app-shell.dark-mode .run-card-top { background: #171d1a; }
+.app-shell.dark-mode .file-info strong,
+.app-shell.dark-mode .tool-main strong,
+.app-shell.dark-mode .audit-copy strong,
+.app-shell.dark-mode .mini-card-head h3 { color: #f5f2e9; }
+.app-shell.dark-mode .file-info span,
+.app-shell.dark-mode .tool-main span,
+.app-shell.dark-mode .audit-copy > span,
+.app-shell.dark-mode .health-row span,
+.app-shell.dark-mode .tool-latency { color: rgba(245,242,233,.47); }
+.app-shell.dark-mode .intent-ribbon { border-color: rgba(245,242,233,.1); background: #202823; }
+.app-shell.dark-mode .intent-copy { color: rgba(245,242,233,.72); }
+.app-shell.dark-mode .ribbon-proof { border-color: rgba(112,169,228,.28); color: #81b8ed; background: rgba(69,123,185,.11); }
+.app-shell.dark-mode .ribbon-proof svg { color: #81b8ed; }
+.app-shell.dark-mode .tool-row { border-color: rgba(245,242,233,.08); }
+.app-shell.dark-mode .tool-row.is-held { border-color: rgba(199,137,49,.44); background: #2a2418; }
+.app-shell.dark-mode .tool-index,
+.app-shell.dark-mode .tool-chevron,
+.app-shell.dark-mode .audit-event time { color: rgba(245,242,233,.38); }
+.app-shell.dark-mode .audit-line { background: linear-gradient(to bottom, #b9f227 0%, #b9f227 70%, #d39a3e 100%); }
+.app-shell.dark-mode .audit-card { background: #171d1a; }
+.app-shell.dark-mode .audit-icon { border-color: #171d1a; }
+.app-shell.dark-mode .audit-footer { border-color: rgba(245,242,233,.08); color: rgba(245,242,233,.45); }
+.app-shell.dark-mode .audit-footer span:first-child,
+.app-shell.dark-mode .audit-run { color: #81b8ed; }
+.app-shell.dark-mode .decision-summary { color: rgba(245,242,233,.62); }
+.app-shell.dark-mode .decision-fields { background: #202823; }
+.app-shell.dark-mode .decision-fields span { color: rgba(245,242,233,.46); }
+.app-shell.dark-mode .decision-fields strong { color: rgba(245,242,233,.82); }
+.app-shell.dark-mode .decision-reason { color: #c8df78; background: rgba(185,242,39,.08); }
+.app-shell.dark-mode .reject-button { border-color: rgba(245,242,233,.18); color: rgba(245,242,233,.67); }
+.app-shell.dark-mode .reject-button:hover { background: rgba(245,242,233,.08); }
+.app-shell.dark-mode .decision-foot,
+.app-shell.dark-mode .health-bars > div { color: rgba(245,242,233,.42); }
+.app-shell.dark-mode .health-bars i,
+.app-shell.dark-mode .progress-track { background: rgba(245,242,233,.12); }
+.app-shell.dark-mode .count-pill { background: rgba(199,137,49,.16); color: #e1ae66; }
+.app-shell.dark-mode .principle-card { border-color: rgba(245,242,233,.12); background: #080c0b; }
+.app-shell.dark-mode .page-footer { color: rgba(245,242,233,.42); }
+.app-shell.dark-mode .page-footer a { color: #81b8ed; }
+.app-shell.dark-mode .footer-sep { color: rgba(245,242,233,.25); }
