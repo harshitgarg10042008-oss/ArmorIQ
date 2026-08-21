@@ -2,7 +2,7 @@
   "plan": {
     "id": "plan_pactline_invoice_v1",
     "status": "signed-local-proof",
-    "capturedAt": "2026-08-21T06:34:47.897Z",
+    "capturedAt": "2026-08-21T06:37:32.341Z",
     "goal": "Process invoice and notify the approved finance recipient",
     "allowedActions": [
       "read_invoice",
@@ -18,7 +18,7 @@
   "events": [
     {
       "id": "evt_001",
-      "time": "2026-08-21T06:34:47.897Z",
+      "time": "2026-08-21T06:37:32.351Z",
       "event": "plan_captured",
       "planId": "plan_pactline_invoice_v1",
       "goal": "Process invoice and notify the approved finance recipient",
@@ -31,17 +31,17 @@
     },
     {
       "id": "evt_002",
-      "time": "2026-08-21T06:34:47.903Z",
+      "time": "2026-08-21T06:37:32.355Z",
       "event": "authorization_decision",
       "action": "read_invoice",
-      "target": "/home/ubuntu/intentfence-control-center-v2/agent/sample-invoice.json",
+      "target": "C:\\Users\\vishe\\OneDrive\\Desktop\\Goal\\microsoft hack\\agent\\sample-invoice.json",
       "decision": "allow",
       "reason": "Action is inside captured intent",
       "sideEffectExecuted": false
     },
     {
       "id": "evt_003",
-      "time": "2026-08-21T06:34:47.903Z",
+      "time": "2026-08-21T06:37:32.356Z",
       "event": "tool_executed",
       "action": "read_invoice",
       "result": {
@@ -53,7 +53,7 @@
     },
     {
       "id": "evt_004",
-      "time": "2026-08-21T06:34:47.903Z",
+      "time": "2026-08-21T06:37:32.356Z",
       "event": "authorization_decision",
       "action": "extract_fields",
       "target": "invoice.document",
@@ -63,7 +63,7 @@
     },
     {
       "id": "evt_005",
-      "time": "2026-08-21T06:34:47.904Z",
+      "time": "2026-08-21T06:37:32.356Z",
       "event": "tool_executed",
       "action": "extract_fields",
       "result": {
@@ -79,7 +79,7 @@
     },
     {
       "id": "evt_006",
-      "time": "2026-08-21T06:34:47.904Z",
+      "time": "2026-08-21T06:37:32.356Z",
       "event": "authorization_decision",
       "action": "write_record",
       "target": "ledger.invoices",
@@ -89,7 +89,7 @@
     },
     {
       "id": "evt_007",
-      "time": "2026-08-21T06:34:47.904Z",
+      "time": "2026-08-21T06:37:32.357Z",
       "event": "tool_executed",
       "action": "write_record",
       "result": {
@@ -100,7 +100,7 @@
     },
     {
       "id": "evt_008",
-      "time": "2026-08-21T06:34:47.904Z",
+      "time": "2026-08-21T06:37:32.357Z",
       "event": "authorization_decision",
       "action": "send_email",
       "target": "external-review@protonmail.test",
@@ -110,7 +110,7 @@
     },
     {
       "id": "evt_009",
-      "time": "2026-08-21T06:34:47.904Z",
+      "time": "2026-08-21T06:37:32.357Z",
       "event": "human_decision",
       "decision": "rejected",
       "heldAction": "send_email",
