@@ -132,3 +132,12 @@
 - [ ] Replace `ARMORIQ_API_KEY` locally and validate only its presence, never its value.
 - [ ] Add `USER_EMAIL` and confirm the MCP/policy identifiers.
 - [ ] Configure the same server-side variables in Vercel after local validation.
+
+## Complete non-hardcoded vertical slice
+- [ ] Use a real invoice fixture as the source of tool data.
+- [ ] Persist ledger records in SQLite.
+- [ ] Route safe test-mail behavior through a controlled outbox or sandbox mailbox.
+- [ ] Wire the official ArmorIQ SDK into the server execution path.
+- [ ] Persist SDK decision and audit metadata.
+- [ ] Make the frontend render only backend-derived run and audit state.
+- [ ] Test real allow, hold, reject, and approve paths without exposing credentials.

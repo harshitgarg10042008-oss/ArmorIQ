@@ -1,0 +1,13 @@
+{
+  "invoiceId": "INV-044",
+  "vendor": "Northstar Components",
+  "date": "2026-08-21",
+  "amount": 1480.5,
+  "currency": "INR",
+  "lineItems": [
+    { "description": "Microcontroller Unit", "quantity": 10, "unitPrice": 100, "total": 1000 },
+    { "description": "Resistor Pack", "quantity": 50, "unitPrice": 5, "total": 250 },
+    { "description": "Shipping & Handling", "quantity": 1, "unitPrice": 230.5, "total": 230.5 }
+  ],
+  "approvedRecipient": "finance@company.test"
+}
