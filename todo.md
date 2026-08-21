@@ -141,3 +141,11 @@
 - [ ] Persist SDK decision and audit metadata.
 - [ ] Make the frontend render only backend-derived run and audit state.
 - [ ] Test real allow, hold, reject, and approve paths without exposing credentials.
+
+## Final live verification sequence
+- [ ] Pull GitHub commit `b58233a` into the Windows project.
+- [ ] Confirm `agent\armoriq-live-test.mjs` exists locally.
+- [ ] Confirm `@armoriq/sdk` is installed locally.
+- [ ] Load `.env` into the current PowerShell process without printing secrets.
+- [ ] Run the sanitized one-action SDK smoke test.
+- [ ] Redeploy only after the local smoke test succeeds.

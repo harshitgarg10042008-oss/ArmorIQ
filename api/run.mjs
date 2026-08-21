@@ -9,7 +9,11 @@ const state = { run: null, runs: [] };
 function now() { return new Date().toISOString(); }
 function cors(res) { res.setHeader("Access-Control-Allow-Origin", "*"); res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key"); res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); }
 function json(res, status, body) { res.status(status).setHeader("Content-Type", "application/json"); res.end(JSON.stringify(body)); }
-function publicRun(run) { if (!run) return null; const { intentToken: _intentToken, ...safe } = run; return safe; }
+function publicRun(run) {
+  if (!run) return null;
+  const { intentToken: _intentToken, client: _client, userEmail: _userEmail, mcpName: _mcpName, ...safe } = run;
+  return safe;
+}
 
 async function execute(client, mcpName, action, args, userEmail, audit, target) {
   const started = Date.now();

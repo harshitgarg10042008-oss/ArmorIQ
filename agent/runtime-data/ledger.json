@@ -1,0 +1,11 @@
+[
+  {
+    "recordId": "INV-044",
+    "invoiceId": "INV-044",
+    "vendor": "Northstar Components",
+    "amount": 1480.5,
+    "currency": "INR",
+    "lineItems": [],
+    "writtenAt": "2026-08-21T16:35:03.292Z"
+  }
+]

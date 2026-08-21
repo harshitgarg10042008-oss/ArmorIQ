@@ -1,0 +1,10 @@
+[
+  {
+    "messageId": "msg_1787330103293",
+    "recipient": "finance@company.test",
+    "invoiceId": "INV-044",
+    "dataScope": "all",
+    "sentAt": "2026-08-21T16:35:03.293Z",
+    "transport": "controlled-test-outbox"
+  }
+]
