@@ -126,3 +126,9 @@
 - [x] Add Vercel configuration and environment-variable documentation.
 - [x] Test the endpoint locally and push it to GitHub.
 - [x] Send pull and Vercel deployment commands.
+
+## Live ArmorIQ credential setup
+- [ ] Obtain the real ArmorIQ API key without sharing it in chat or committing it.
+- [ ] Replace `ARMORIQ_API_KEY` locally and validate only its presence, never its value.
+- [ ] Add `USER_EMAIL` and confirm the MCP/policy identifiers.
+- [ ] Configure the same server-side variables in Vercel after local validation.
