@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       status: "ok",
       mode: process.env.ARMORIQ_LIVE === "true" ? "armoriq-sdk-ready" : "safe-simulation",
       mcpName: defaultMcpName,
-      endpoints: { health: "/api/agent", evaluate: "POST /api/agent" },
+      endpoints: { health: "/api/agent", evaluate: "POST /api/agent", mcp: "POST /api/mcp" },
     });
   }
 
