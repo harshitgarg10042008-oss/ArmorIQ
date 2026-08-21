@@ -96,7 +96,11 @@
 - [ ] Save a screenshot of the ArmorIQ Pactline details page as registration evidence.
 - [ ] Open Pactline Control Center and record the allow/allow/allow/hold/reject workflow using localhost:3000.
 - [ ] Describe the integration honestly as ArmorIQ-registered and SDK-ready, not live-enforced.
-- [ ] Document the distinction between simulated frontend behavior, SDK-ready adapter code, deployed safe-simulation API, and a live SDK connection.
+- [x] Document the distinction between simulated frontend behavior, SDK-ready adapter code, deployed safe-simulation API, and a live SDK connection.
+- [ ] Replace hardcoded frontend state with API-fetched run, tool, approval, and audit data.
+- [ ] Wire the real server-side ArmorIQ SDK to the registered Pactline MCP.
+- [ ] Add server endpoints for starting runs, reading state, submitting approvals, and reading audit events.
+- [ ] Test live behavior with real credentials without exposing secrets.
 - [x] Confirm that MCP setup should precede policy setup for the stronger ArmorIQ integration path.
 - [ ] Build a real remote Pactline MCP endpoint exposing the four invoice tools.
 - [ ] Register the MCP server in ArmorIQ and confirm tool discovery.

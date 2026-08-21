@@ -1,5 +1,6 @@
 /* Signal & Stewardship: evidence before decoration, asymmetric command layout, ink + warm paper + Signal Green, exact operator-first copy. */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { fetchRunState, startPactlineRun, submitPactlineDecision, type PactlineRun } from "@/lib/pactline-api";
 import {
   ArrowUpRight,
   BadgeCheck,
@@ -72,13 +73,22 @@ function PageView({ page, darkMode, notify }: { page: string; darkMode: boolean;
 
 export default function Home() {
   const [activeNav, setActiveNav] = useState(() => new URLSearchParams(window.location.search).get("page") || "Overview");
-  const [runState, setRunState] = useState<"idle" | "running" | "held" | "approved">("held");
+  const [runState, setRunState] = useState<"idle" | "running" | "held" | "approved" | "rejected">("held");
+  const [liveRun, setLiveRun] = useState<PactlineRun | null>(null);
+  const [apiError, setApiError] = useState("");
   const [showDrawer, setShowDrawer] = useState(true);
   const [toast, setToast] = useState("");
   const [darkMode, setDarkMode] = useState(() => new URLSearchParams(window.location.search).get("theme") === "dark" || window.localStorage.getItem("intentfence-theme") === "dark");
 
+  useEffect(() => {
+    fetchRunState().then((data) => {
+      if (data.currentRun) { setLiveRun(data.currentRun); setRunState(data.currentRun.status === "held" ? "held" : data.currentRun.status); }
+    }).catch(() => setApiError("Live API is unavailable; showing the local proof state."));
+  }, []);
+
   const stateCopy = useMemo(() => {
-    if (runState === "approved") return { label: "Action approved", sub: "Run resumed · 14:33:01", tone: "green" };
+    if (runState === "approved") return { label: "Action approved", sub: "Run resumed · live API", tone: "green" };
+    if (runState === "rejected") return { label: "Action rejected", sub: "Unauthorized action cancelled", tone: "muted" };
     if (runState === "running") return { label: "Agent is working", sub: "Evaluating tool call 04 of 04", tone: "blue" };
     if (runState === "idle") return { label: "Awaiting a run", sub: "Drop an invoice to begin", tone: "muted" };
     return { label: "Human decision required", sub: "1 action held by ArmorIQ", tone: "amber" };
@@ -98,23 +108,33 @@ export default function Home() {
     window.setTimeout(() => setToast(""), 2600);
   };
 
-  const simulateRun = () => {
+  const simulateRun = async () => {
     setRunState("running");
-    notify("Intent captured · agent run started");
-    window.setTimeout(() => setRunState("held"), 1300);
+    setApiError("");
+    notify("Intent captured · starting live run");
+    try {
+      const nextRun = await startPactlineRun();
+      setLiveRun(nextRun);
+      setRunState(nextRun.status);
+      setShowDrawer(true);
+    } catch {
+      setApiError("Live API unavailable; run not started.");
+      setRunState("held");
+      notify("Live API unavailable · local state unchanged");
+    }
   };
 
-  const approve = () => {
-    setRunState("approved");
-    setShowDrawer(false);
-    notify("Approved · agent resumed through ArmorIQ");
+  const approve = async () => {
+    try { const nextRun = await submitPactlineDecision("approve"); setLiveRun(nextRun); setRunState("approved"); setShowDrawer(false); notify("Approved · run updated by API"); }
+    catch { setApiError("Approval could not be submitted."); }
   };
 
-  const reject = () => {
-    setRunState("idle");
-    setShowDrawer(false);
-    notify("Rejected · unauthorized action did not execute");
+  const reject = async () => {
+    try { const nextRun = await submitPactlineDecision("reject"); setLiveRun(nextRun); setRunState("rejected"); setShowDrawer(false); notify("Rejected · unauthorized action did not execute"); }
+    catch { setApiError("Rejection could not be submitted."); }
   };
+
+  const displayedToolCalls = liveRun?.actions || toolCalls;
 
   return (
     <div className={`app-shell ${darkMode ? "dark-mode" : ""}`}>
@@ -153,15 +173,15 @@ export default function Home() {
         {activeNav !== "Overview" ? <PageView page={activeNav} darkMode={darkMode} notify={notify} /> : <>
         <section className="hero-band">
           <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-line" />AUTONOMOUS OPERATIONS / 01</div><h1>Autonomy is active.<br /><em>Authority is bounded.</em></h1><p>Pactline lets your agent move through routine invoice work while ArmorIQ holds the exact moment an action leaves its captured intent.</p><div className="hero-actions"><button className="primary-button" onClick={simulateRun}><Play size={15} fill="currentColor" /> Run protected demo <ArrowUpRight size={15} /></button><button className="text-button" onClick={() => notify("Architecture view opened")}>View architecture <ChevronRight size={15} /></button></div></div>
-          <div className="hero-visual"><img src="/manus-storage/intentfence-hero-texture_24980018.png" alt="Abstract authorization signal texture" /><div className="hero-visual-overlay"><div className="signal-ring"><ShieldCheck size={31} /></div><div><div className="micro-label">CURRENT BOUNDARY</div><div className="hero-visual-title">Invoice handling plan</div><div className="hero-visual-meta"><span className="status-dot live" />Signed · verified · 14:32:07</div></div></div></div>
+          <div className="hero-visual"><img src="/manus-storage/intentfence-hero-texture_24980018.png" alt="Abstract authorization signal texture" /><div className="hero-visual-overlay"><div className="signal-ring"><ShieldCheck size={31} /></div><div><div className="micro-label">CURRENT BOUNDARY</div><div className="hero-visual-title">Invoice handling plan</div><div className="hero-visual-meta"><span className="status-dot live" />{liveRun ? `${liveRun.plan.status} · ${liveRun.mode}` : "Connecting to Pactline API…"}</div></div></div></div>
         </section>
 
-        <section className="status-strip"><div className="status-primary"><div className={`status-pulse ${stateCopy.tone}`}><span /></div><div><div className="micro-label">RUN STATUS</div><div className="status-title">{stateCopy.label}</div></div><div className="status-divider" /><div><div className="micro-label">RUN ID</div><div className="status-code">run_7F3A9C</div></div></div><div className="status-metrics"><div><div className="micro-label">ALLOWED TODAY</div><strong>128</strong><span className="metric-up">+12%</span></div><div><div className="micro-label">HELD FOR REVIEW</div><strong className="amber-text">01</strong></div><div><div className="micro-label">AVG. DECISION</div><strong>380<span className="unit">ms</span></strong></div></div></section>
+        <section className="status-strip"><div className="status-primary"><div className={`status-pulse ${stateCopy.tone}`}><span /></div><div><div className="micro-label">RUN STATUS</div><div className="status-title">{stateCopy.label}</div></div><div className="status-divider" /><div><div className="micro-label">RUN ID</div><div className="status-code">{liveRun?.runId || "run_pending"}</div></div></div><div className="status-metrics"><div><div className="micro-label">ALLOWED TODAY</div><strong>128</strong><span className="metric-up">+12%</span></div><div><div className="micro-label">HELD FOR REVIEW</div><strong className="amber-text">01</strong></div><div><div className="micro-label">AVG. DECISION</div><strong>380<span className="unit">ms</span></strong></div></div></section>
 
         <section className="content-grid">
           <div className="primary-column">
             <div className="section-heading"><div><div className="eyebrow"><span className="eyebrow-line" />ACTIVE RUN</div><h2>Invoice #044 <span className="inline-status amber">Human decision required</span></h2></div><button className="ghost-button" onClick={() => setShowDrawer(true)}>Open run details <ArrowUpRight size={14} /></button></div>
-            <div className="run-card"><div className="run-card-top"><div className="file-badge"><FileText size={18} /></div><div className="file-info"><strong>northstar_invoice_044.pdf</strong><span>Received 14:32:07 · 482 KB · source: inbox</span></div><div className="run-progress"><div className="progress-label"><span>3 of 4 actions complete</span><span>75%</span></div><div className="progress-track"><div className="progress-fill" style={{ width: runState === "approved" ? "100%" : "75%" }} /></div></div><button className="icon-button quiet"><MoreHorizontal size={17} /></button></div><div className="intent-ribbon"><div className="ribbon-icon"><LockKeyhole size={14} /></div><div><div className="micro-label">CAPTURED INTENT</div><div className="intent-copy">Read invoice → normalize fields → write ledger record → notify approved recipient</div></div><div className="ribbon-proof"><BadgeCheck size={15} /><span>plan_2b90…8a1</span></div></div><div className="tool-list">{toolCalls.map((call, index) => <div className={`tool-row ${call.tone === "amber" ? "is-held" : ""}`} key={call.name}><div className="tool-index">0{index + 1}</div><div className="tool-main"><strong>{call.name}</strong><span>{call.target}</span></div><div className={`tool-result ${call.tone}`}><span className="result-dot" />{call.result}</div><div className="tool-latency">{call.latency}</div><ChevronRight size={15} className="tool-chevron" /></div>)}</div></div>
+            <div className="run-card"><div className="run-card-top"><div className="file-badge"><FileText size={18} /></div><div className="file-info"><strong>northstar_invoice_044.pdf</strong><span>Received 14:32:07 · 482 KB · source: inbox</span></div><div className="run-progress"><div className="progress-label"><span>3 of 4 actions complete</span><span>75%</span></div><div className="progress-track"><div className="progress-fill" style={{ width: runState === "approved" ? "100%" : "75%" }} /></div></div><button className="icon-button quiet"><MoreHorizontal size={17} /></button></div><div className="intent-ribbon"><div className="ribbon-icon"><LockKeyhole size={14} /></div><div><div className="micro-label">CAPTURED INTENT</div><div className="intent-copy">Read invoice → normalize fields → write ledger record → notify approved recipient</div></div><div className="ribbon-proof"><BadgeCheck size={15} /><span>plan_2b90…8a1</span></div></div><div className="tool-list">{displayedToolCalls.map((call, index) => { const isHeld = "decision" in call ? call.decision === "held" : call.tone === "amber"; const result = "decision" in call ? call.decision : call.result.toLowerCase(); const tone = isHeld ? "amber" : result === "rejected" ? "muted" : "green"; return <div className={`tool-row ${isHeld ? "is-held" : ""}`} key={call.name}><div className="tool-index">0{index + 1}</div><div className="tool-main"><strong>{call.name}</strong><span>{call.target}</span></div><div className={`tool-result ${tone}`}><span className="result-dot" />{result}</div><div className="tool-latency">{call.latency}</div><ChevronRight size={15} className="tool-chevron" /></div>; })}</div></div>
 
             <div className="section-heading compact"><div><div className="eyebrow"><span className="eyebrow-line" />PROOF OF WORK</div><h2>Decision trail</h2></div><button className="ghost-button" onClick={() => { setActiveNav("Audit trail"); notify("Audit trail view selected"); }}>View full audit <ArrowUpRight size={14} /></button></div>
             <div className="audit-card"><div className="audit-line" />{events.map((event, index) => { const Icon = event.icon; return <div className="audit-event" key={event.time}><div className={`audit-icon ${event.state}`}><Icon size={15} /></div><div className="audit-copy"><div><strong>{event.label}</strong><span className={`inline-status ${event.state}`}>{event.state === "held" ? "Held" : "Allowed"}</span></div><span>{event.detail}</span></div><time>{event.time}</time>{index < events.length - 1 && <div className="audit-connector" />}</div> })}<div className="audit-footer"><span><Fingerprint size={14} /> Proof path attached to every decision</span><span className="audit-run">run_7F3A9C · today</span></div></div>
@@ -176,6 +196,7 @@ export default function Home() {
         </section>
 
         </>}
+        {apiError && <div className="api-status" role="status">{apiError}</div>}
         <footer className="page-footer"><span><span className="status-dot live" /> Pactline control center · v0.8 concept build</span><span>Last policy sync 14:32:07 <span className="footer-sep">/</span> <a href="#" onClick={(e) => { e.preventDefault(); notify("Documentation is coming in the build phase"); }}>SDK documentation <ArrowUpRight size={12} /></a></span></footer>
       </main>
       {toast && <div className="toast"><Zap size={15} /><span>{toast}</span></div>}
