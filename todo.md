@@ -99,7 +99,11 @@
 - [x] Document the distinction between simulated frontend behavior, SDK-ready adapter code, deployed safe-simulation API, and a live SDK connection.
 - [x] Replace hardcoded frontend state with API-fetched run, approval, and audit data.
 - [ ] Add an animated loading state while fetching the initial run state.
-- [ ] Fix broken Pactline logo and hero banner asset references in the dashboard.
+- [x] Fix broken Pactline logo and hero banner asset references in the dashboard.
+- [ ] Audit every visible dashboard control for a real action or clear disabled state.
+- [ ] Ensure reject and approve update backend state and refresh all views.
+- [ ] Remove misleading static metrics, owner labels, and connection claims.
+- [ ] Fix the sticky sidebar and scrolling behavior so the user card does not appear detached or misleading.
 - [ ] Add a retryable inline error state when the backend fetch fails.
 - [ ] Add request-pending feedback and disabled controls for start/approve/reject actions.
 - [ ] Wire the real server-side ArmorIQ SDK to the registered Pactline MCP.
