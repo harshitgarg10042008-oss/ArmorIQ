@@ -58,7 +58,56 @@
 - [ ] Register the agent/MCP and create the default-deny policy.
 - [ ] Run one safe live SDK allow/hold test.
 - [x] Prepare a separate stateless Vercel agent endpoint without exposing secrets.
-- [ ] Deploy and test the public HTTPS endpoint.
+- [x] Correct the Vercel Root Directory to `vercel-agent`.
+- [x] Remove the incompatible explicit Vercel runtime declaration.
+- [x] Push the Vercel configuration fix and verify the commit.
+- [ ] Confirm Vercel is connected to the correct GitHub repository and `main` branch.
+- [ ] Redeploy the corrected commit `45ea5ae` with Root Directory `vercel-agent`.
+- [ ] Verify the new deployment uses the corrected commit and serves `/api/agent`.
+- [ ] Configure only the required endpoint environment variables.
+- [ ] Redeploy and test `GET /api/agent` and the hold decision endpoint.
+- [x] Set Vercel Framework Preset to Other and use `echo "No build required"` as the required no-build command.
+- [ ] Redeploy the corrected API-only project.
+- [ ] Verify the public `/api/agent` health and hold endpoints.
+- [ ] Create a fresh Vercel project connected to `harshitgarg10042008-oss/ArmorIQ` at repository root.
+- [ ] Set Framework Preset to Other and the no-build command.
+- [x] Capture the final Vercel error lines after dependency installation: stale `outputDirectory` requires missing `dist`.
+- [ ] Remove the stale `outputDirectory` from the root Vercel configuration and push the fix.
+- [ ] Deploy and verify `/api/agent`.
+- [ ] Register the verified endpoint in ArmorIQ.and branch `main`.
+- [ ] Verify `vercel-agent` exists at the GitHub `main` root.
+- [ ] Correct the Vercel repository, branch, or Root Directory setting based on the verified structure.
+- [ ] Set Root Directory to `vercel-agent` and Framework Preset to Other.
+- [ ] Set the no-build command and deploy the new API project.
+- [x] Add a root-level `/api/agent` endpoint so Vercel needs no Root Directory setting.
+- [x] Add root-level API-only Vercel configuration and test it.
+- [x] Push the simplified root deployment and send one-step Vercel instructions.
+- [ ] Confirm the Vercel project is connected to `harshitgarg10042008-oss/ArmorIQ`, branch `main`, and root directory is the repository root.
+- [ ] Deploy fresh from commit `0402ebb` instead of the stale `45ea5ae` deployment.
+- [x] Verify the new production domain serves `/api/agent` JSON: `https://pactline-agent.vercel.app/api/agent` returns `status: ok`.
+- [x] Register the verified endpoint in ArmorIQ; Pactline appears in the registry with a starter policy attached.
+- [x] Run the ArmorIQ security scan; the optional scan returned no findings for the minimal JSON endpoint and can be omitted from the demo.
+- [x] Capture evidence of the registered agent and starter policy for the Round 2 demo.
+- [ ] Validate one live allow/hold decision path or use the Phase 1 local evidence honestly if live decision APIs are not yet configured.
+- [ ] Keep the working API deployment unchanged at `pactline-agent.vercel.app`.
+- [ ] Optional: deploy the Pactline frontend publicly as a separate Vercel project using the Vite build; do not block submission on this.
+- [ ] Add real ArmorIQ environment variables only if the organizers provide them.
+- [x] Freeze the working local dashboard, deployed API, and ArmorIQ registration as the judge-demo baseline.
+- [ ] Save a screenshot of the ArmorIQ Pactline details page as registration evidence.
+- [ ] Open Pactline Control Center and record the allow/allow/allow/hold/reject workflow using localhost:3000.
+- [ ] Describe the integration honestly as ArmorIQ-registered and SDK-ready, not live-enforced.
+- [ ] Document the distinction between simulated frontend behavior, SDK-ready adapter code, deployed safe-simulation API, and a live SDK connection.
+- [x] Confirm that MCP setup should precede policy setup for the stronger ArmorIQ integration path.
+- [ ] Build a real remote Pactline MCP endpoint exposing the four invoice tools.
+- [ ] Register the MCP server in ArmorIQ and confirm tool discovery.
+- [ ] Create and attach Pactline’s least-privilege policy after MCP discovery.
+- [ ] Capture the final audit trail and empty outbox state.
+- [ ] Register the verified endpoint in ArmorIQ.
+- [ ] Open the active domain plus `/api/agent` and verify Pactline JSON.
+- [ ] Register the active endpoint URL in ArmorIQ using Connect by URL.
+- [ ] Register the full `/api/agent` URL in ArmorIQ using Connect by URL.
+- [ ] Configure live credentials and policy after registration.
+- [ ] Run the first safe allow/hold test.
 - [ ] Register the endpoint in ArmorIQ using Connect by URL.
 - [ ] Configure policy and approval behavior for the live endpoint.
 - [x] Implement the minimal Vercel-ready Pactline HTTP agent endpoint.
