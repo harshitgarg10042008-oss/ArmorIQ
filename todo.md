@@ -32,4 +32,11 @@
 - [x] Select and document the stronger ArmorIQ solution name.
 - [x] Generate and integrate a distinctive logo mark and favicon-ready asset.
 - [x] Verify the new brand across light/dark themes and navigation pages.
-- [ ] Push the branding update to the root of GitHub.
+- [x] Push the branding update to the root of GitHub.
+- [x] Implement Phase 1 agent proof with explicit authorization and hold states.
+- [x] Document the Phase 1 SDK-ready mapping and clearly label simulated versus live behavior.
+- [x] Verify the Phase 1 evidence path: plan, allowed actions, held action, human decision, audit.
+- [ ] Prepare PPT content covering problem, novelty, architecture, workflow, feasibility, and future scope.
+- [ ] Prepare and record a concise demo video with a scripted judge-facing narrative.
+- [ ] Run a final honesty, UX, build, and submission-readiness review.
+- [ ] Push the Phase 1 agent proof to the root of GitHub and verify the commit.
