@@ -76,15 +76,26 @@ export default function Home() {
   const [runState, setRunState] = useState<"idle" | "running" | "held" | "approved" | "rejected">("held");
   const [liveRun, setLiveRun] = useState<PactlineRun | null>(null);
   const [apiError, setApiError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [pendingAction, setPendingAction] = useState<"start" | "approve" | "reject" | null>(null);
   const [showDrawer, setShowDrawer] = useState(true);
   const [toast, setToast] = useState("");
   const [darkMode, setDarkMode] = useState(() => new URLSearchParams(window.location.search).get("theme") === "dark" || window.localStorage.getItem("intentfence-theme") === "dark");
 
-  useEffect(() => {
-    fetchRunState().then((data) => {
+  const loadRunState = async () => {
+    setIsLoading(true);
+    setApiError("");
+    try {
+      const data = await fetchRunState();
       if (data.currentRun) { setLiveRun(data.currentRun); setRunState(data.currentRun.status === "held" ? "held" : data.currentRun.status); }
-    }).catch(() => setApiError("Live API is unavailable; showing the local proof state."));
-  }, []);
+    } catch {
+      setApiError("Could not reach the Pactline backend. Check the API and retry.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => { void loadRunState(); }, []);
 
   const stateCopy = useMemo(() => {
     if (runState === "approved") return { label: "Action approved", sub: "Run resumed · live API", tone: "green" };
@@ -110,6 +121,7 @@ export default function Home() {
 
   const simulateRun = async () => {
     setRunState("running");
+    setPendingAction("start");
     setApiError("");
     notify("Intent captured · starting live run");
     try {
@@ -118,20 +130,28 @@ export default function Home() {
       setRunState(nextRun.status);
       setShowDrawer(true);
     } catch {
-      setApiError("Live API unavailable; run not started.");
-      setRunState("held");
-      notify("Live API unavailable · local state unchanged");
+      setApiError("Could not start the run. Please retry.");
+      setRunState("idle");
+      notify("Run could not start · please retry");
+    } finally {
+      setPendingAction(null);
     }
   };
 
   const approve = async () => {
+    setPendingAction("approve");
+    setApiError("");
     try { const nextRun = await submitPactlineDecision("approve"); setLiveRun(nextRun); setRunState("approved"); setShowDrawer(false); notify("Approved · run updated by API"); }
-    catch { setApiError("Approval could not be submitted."); }
+    catch { setApiError("Approval could not be submitted. Please retry."); }
+    finally { setPendingAction(null); }
   };
 
   const reject = async () => {
+    setPendingAction("reject");
+    setApiError("");
     try { const nextRun = await submitPactlineDecision("reject"); setLiveRun(nextRun); setRunState("rejected"); setShowDrawer(false); notify("Rejected · unauthorized action did not execute"); }
-    catch { setApiError("Rejection could not be submitted."); }
+    catch { setApiError("Rejection could not be submitted. Please retry."); }
+    finally { setPendingAction(null); }
   };
 
   const displayedToolCalls = liveRun?.actions || toolCalls;
@@ -165,6 +185,8 @@ export default function Home() {
       </aside>
 
       <main className="main-canvas">
+        {isLoading && <div className="loading-bar" role="status" aria-live="polite"><span className="loading-bar-fill" /><span>Syncing live run state…</span></div>}
+        {apiError && <div className="api-error" role="alert"><CircleAlert size={15} /><span>{apiError}</span><button onClick={() => void loadRunState()} disabled={isLoading}>{isLoading ? "Retrying…" : "Retry"}</button></div>}
         <header className="topbar">
           <div className="breadcrumbs"><span>Finance Ops</span><ChevronRight size={14} /><strong>Control center</strong></div>
           <div className="top-actions"><div className="search-box"><Search size={15} /><span>Search runs, invoices…</span><kbd>⌘ K</kbd></div><button className="icon-button theme-toggle" aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"} onClick={toggleDarkMode}>{darkMode ? <Sun size={17} /> : <Moon size={17} />}</button><button className="icon-button" aria-label="Notifications" onClick={() => notify("No new notifications")}><Bell size={17} /><span className="notification-dot" /></button><button className="mobile-menu" aria-label="Open menu"><Menu size={18} /></button></div>
@@ -172,8 +194,8 @@ export default function Home() {
 
         {activeNav !== "Overview" ? <PageView page={activeNav} darkMode={darkMode} notify={notify} /> : <>
         <section className="hero-band">
-          <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-line" />AUTONOMOUS OPERATIONS / 01</div><h1>Autonomy is active.<br /><em>Authority is bounded.</em></h1><p>Pactline lets your agent move through routine invoice work while ArmorIQ holds the exact moment an action leaves its captured intent.</p><div className="hero-actions"><button className="primary-button" onClick={simulateRun}><Play size={15} fill="currentColor" /> Run protected demo <ArrowUpRight size={15} /></button><button className="text-button" onClick={() => notify("Architecture view opened")}>View architecture <ChevronRight size={15} /></button></div></div>
-          <div className="hero-visual"><img src="/manus-storage/intentfence-hero-texture_24980018.png" alt="Abstract authorization signal texture" /><div className="hero-visual-overlay"><div className="signal-ring"><ShieldCheck size={31} /></div><div><div className="micro-label">CURRENT BOUNDARY</div><div className="hero-visual-title">Invoice handling plan</div><div className="hero-visual-meta"><span className="status-dot live" />{liveRun ? `${liveRun.plan.status} · ${liveRun.mode}` : "Connecting to Pactline API…"}</div></div></div></div>
+          <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-line" />AUTONOMOUS OPERATIONS / 01</div><h1>Autonomy is active.<br /><em>Authority is bounded.</em></h1><p>Pactline lets your agent move through routine invoice work while ArmorIQ holds the exact moment an action leaves its captured intent.</p><div className="hero-actions"><button className="primary-button" onClick={() => void simulateRun()} disabled={pendingAction === "start" || isLoading}>{pendingAction === "start" ? <><TimerReset size={15} className="spin" /> Starting…</> : <><Play size={15} fill="currentColor" /> Run protected demo <ArrowUpRight size={15} /></>}</button><button className="text-button" onClick={() => notify("Architecture view opened")}>View architecture <ChevronRight size={15} /></button></div></div>
+          <div className="hero-visual"><img src="/manus-storage/intentfence-hero-texture_24980018.png" alt="Abstract authorization signal texture" /><div className="hero-visual-overlay"><div className="signal-ring"><ShieldCheck size={31} /></div><div><div className="micro-label">CURRENT BOUNDARY</div><div className="hero-visual-title">Invoice handling plan</div><div className="hero-visual-meta"><span className="status-dot live" />{isLoading ? "Connecting to Pactline API…" : liveRun ? `${liveRun.plan.status} · ${liveRun.mode}` : "No active run"}</div></div></div></div>
         </section>
 
         <section className="status-strip"><div className="status-primary"><div className={`status-pulse ${stateCopy.tone}`}><span /></div><div><div className="micro-label">RUN STATUS</div><div className="status-title">{stateCopy.label}</div></div><div className="status-divider" /><div><div className="micro-label">RUN ID</div><div className="status-code">{liveRun?.runId || "run_pending"}</div></div></div><div className="status-metrics"><div><div className="micro-label">ALLOWED TODAY</div><strong>128</strong><span className="metric-up">+12%</span></div><div><div className="micro-label">HELD FOR REVIEW</div><strong className="amber-text">01</strong></div><div><div className="micro-label">AVG. DECISION</div><strong>380<span className="unit">ms</span></strong></div></div></section>
@@ -189,7 +211,7 @@ export default function Home() {
 
           <aside className="right-column">
             <div className="section-heading compact"><div><div className="eyebrow"><span className="eyebrow-line" />BOUNDARY WATCH</div><h2>What needs you</h2></div><span className="count-pill">01 pending</span></div>
-            <div className={`decision-card ${showDrawer ? "open" : ""}`}><div className="decision-top"><div className="risk-mark"><CircleAlert size={18} /></div><div><div className="micro-label amber-label">ARMORIQ HOLD</div><h3>Recipient outside plan</h3></div><button className="card-close" onClick={() => setShowDrawer(false)}><X size={15} /></button></div><p className="decision-summary">The agent wants to send extracted invoice data to a recipient that was not included in the original authorization.</p><div className="decision-fields"><div><span>PROPOSED ACTION</span><strong>send_email</strong></div><div><span>DATA SCOPE</span><strong>Vendor + totals + line items</strong></div><div><span>DESTINATION</span><strong className="destination">external-review@protonmail.test</strong></div></div><div className="decision-reason"><ShieldCheck size={15} /><span>Blocked by intent mismatch, not a keyword rule.</span></div><div className="decision-actions"><button className="reject-button" onClick={reject}>Reject action</button><button className="approve-button" onClick={approve}><BadgeCheck size={15} /> Approve & resume</button></div><div className="decision-foot"><span><Clock3 size={13} /> Held 38s ago</span><span>policy: intent-bound-v1</span></div></div>
+            <div className={`decision-card ${showDrawer ? "open" : ""}`}><div className="decision-top"><div className="risk-mark"><CircleAlert size={18} /></div><div><div className="micro-label amber-label">ARMORIQ HOLD</div><h3>Recipient outside plan</h3></div><button className="card-close" onClick={() => setShowDrawer(false)}><X size={15} /></button></div><p className="decision-summary">The agent wants to send extracted invoice data to a recipient that was not included in the original authorization.</p><div className="decision-fields"><div><span>PROPOSED ACTION</span><strong>send_email</strong></div><div><span>DATA SCOPE</span><strong>Vendor + totals + line items</strong></div><div><span>DESTINATION</span><strong className="destination">external-review@protonmail.test</strong></div></div><div className="decision-reason"><ShieldCheck size={15} /><span>Blocked by intent mismatch, not a keyword rule.</span></div><div className="decision-actions"><button className="reject-button" onClick={() => void reject()} disabled={pendingAction !== null}>{pendingAction === "reject" ? "Rejecting…" : "Reject action"}</button><button className="approve-button" onClick={() => void approve()} disabled={pendingAction !== null}>{pendingAction === "approve" ? <><TimerReset size={15} className="spin" /> Approving…</> : <><BadgeCheck size={15} /> Approve & resume</>}</button></div><div className="decision-foot"><span><Clock3 size={13} /> Held 38s ago</span><span>policy: intent-bound-v1</span></div></div>
             <div className="mini-card"><div className="mini-card-head"><div><div className="eyebrow"><span className="eyebrow-line" />SYSTEM PULSE</div><h3>Agent health</h3></div><Gauge size={17} /></div><div className="health-row"><div><strong>99.8%</strong><span>availability</span></div><div><strong>4.2k</strong><span>actions / week</span></div><div><strong>0</strong><span>silent failures</span></div></div><div className="health-bars"><div><span>Tool execution</span><i><b style={{ width: "96%" }} /></i><em>96%</em></div><div><span>Plan adherence</span><i><b style={{ width: "100%" }} /></i><em>100%</em></div></div></div>
             <div className="principle-card"><div className="principle-number">01</div><div><div className="micro-label">DESIGN PRINCIPLE</div><h3>Do not slow the agent down.</h3><p>Make the boundary precise enough that routine work stays invisible—and meaningful decisions become impossible to miss.</p></div></div>
           </aside>
