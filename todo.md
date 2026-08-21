@@ -39,4 +39,9 @@
 - [ ] Prepare PPT content covering problem, novelty, architecture, workflow, feasibility, and future scope.
 - [ ] Prepare and record a concise demo video with a scripted judge-facing narrative.
 - [ ] Run a final honesty, UX, build, and submission-readiness review.
-- [ ] Push the Phase 1 agent proof to the root of GitHub and verify the commit.
+- [x] Push the Phase 1 agent proof to the root of GitHub and verify the commit.
+- [x] Inspect the shared ArmorIQ reference repository and extract the official integration pattern.
+- [x] Add configuration checks for agent URL, policy metadata, approval mode, and delegation amounts.
+- [x] Add diagnostics and fallback behavior for registration, policy, approval, and SDK metadata failures.
+- [x] Re-test the hardened Phase 1 path and document external ArmorIQ dependencies.
+- [ ] Push the integration-hardening update to GitHub.
