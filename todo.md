@@ -49,3 +49,19 @@
 - [x] Test the corrected agent and generated audit/outbox evidence.
 - [x] Push and verify the Windows path fix on GitHub.
 - [x] Send exact PowerShell update and run instructions.
+- [ ] Confirm Node.js/npm versions and install the organizer-approved ArmorIQ SDK version.
+- [ ] Diagnose the npm 11 resolver error without deleting project files.
+- [ ] Install `@armoriq/sdk@0.6.10` through a working package-manager path.
+- [ ] Verify the SDK package and project lockfile remain healthy.
+- [ ] Configure local ArmorIQ credentials without committing secrets.
+- [ ] Run the ArmorIQ preflight successfully.
+- [ ] Register the agent/MCP and create the default-deny policy.
+- [ ] Run one safe live SDK allow/hold test.
+- [x] Prepare a separate stateless Vercel agent endpoint without exposing secrets.
+- [ ] Deploy and test the public HTTPS endpoint.
+- [ ] Register the endpoint in ArmorIQ using Connect by URL.
+- [ ] Configure policy and approval behavior for the live endpoint.
+- [x] Implement the minimal Vercel-ready Pactline HTTP agent endpoint.
+- [x] Add Vercel configuration and environment-variable documentation.
+- [x] Test the endpoint locally and push it to GitHub.
+- [x] Send pull and Vercel deployment commands.
