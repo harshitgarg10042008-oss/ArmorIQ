@@ -45,3 +45,7 @@
 - [x] Add diagnostics and fallback behavior for registration, policy, approval, and SDK metadata failures.
 - [x] Re-test the hardened Phase 1 path and document external ArmorIQ dependencies.
 - [x] Push the integration-hardening update to GitHub.
+- [x] Fix the Phase 1 agent path construction for Windows and URL-encoded paths.
+- [x] Test the corrected agent and generated audit/outbox evidence.
+- [x] Push and verify the Windows path fix on GitHub.
+- [x] Send exact PowerShell update and run instructions.

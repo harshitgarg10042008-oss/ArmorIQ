@@ -12,8 +12,11 @@
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = dirname(new URL(import.meta.url).pathname);
+// Convert the module URL with Node's cross-platform helper. Using URL.pathname
+// directly breaks Windows paths by duplicating the drive letter and encoding spaces.
+const ROOT = dirname(fileURLToPath(import.meta.url));
 const INPUT = resolve(ROOT, "sample-invoice.json");
 const OUTBOX = resolve(ROOT, "outbox.json");
 const AUDIT = resolve(ROOT, "audit.json");
