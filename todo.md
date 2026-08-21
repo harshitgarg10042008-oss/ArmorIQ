@@ -97,7 +97,10 @@
 - [ ] Open Pactline Control Center and record the allow/allow/allow/hold/reject workflow using localhost:3000.
 - [ ] Describe the integration honestly as ArmorIQ-registered and SDK-ready, not live-enforced.
 - [x] Document the distinction between simulated frontend behavior, SDK-ready adapter code, deployed safe-simulation API, and a live SDK connection.
-- [ ] Replace hardcoded frontend state with API-fetched run, tool, approval, and audit data.
+- [x] Replace hardcoded frontend state with API-fetched run, approval, and audit data.
+- [ ] Add an animated loading state while fetching the initial run state.
+- [ ] Add a retryable inline error state when the backend fetch fails.
+- [ ] Add request-pending feedback and disabled controls for start/approve/reject actions.
 - [ ] Wire the real server-side ArmorIQ SDK to the registered Pactline MCP.
 - [ ] Add server endpoints for starting runs, reading state, submitting approvals, and reading audit events.
 - [ ] Test live behavior with real credentials without exposing secrets.
