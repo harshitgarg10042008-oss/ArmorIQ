@@ -33,6 +33,21 @@ export async function listAvailableInvoices() {
   return fixture ? [fixture] : [];
 }
 
+async function storeInvoiceDocument(invoiceId, fileName, bytes, mimeType) {
+  const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+  try {
+    return await storagePut(`invoices/${invoiceId}/${safeName}`, bytes, mimeType);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (!message.startsWith("Storage config missing:")) throw error;
+    const localKey = `local-invoices/${invoiceId}/${safeName}`;
+    const localPath = join(DATA_DIR, "uploads", invoiceId, safeName);
+    await mkdir(dirname(localPath), { recursive: true });
+    await writeFile(localPath, bytes);
+    return { key: localKey, url: `local-storage://${localKey}` };
+  }
+}
+
 async function extractDocumentFields(bytes, mimeType) {
   if (mimeType === "application/pdf") {
     const parsed = await pdfParse(bytes);
@@ -81,7 +96,7 @@ export async function registerInvoice(invoice) {
   if (documentBase64) {
     const allowedTypes = new Set(["application/json", "application/pdf", "image/png", "image/jpeg"]);
     if (!allowedTypes.has(normalized.mimeType)) throw new Error("Supported invoice documents are JSON, PDF, PNG, and JPEG");
-    const stored = await storagePut(`invoices/${normalized.invoiceId}/${normalized.fileName}`, documentBytes, normalized.mimeType);
+    const stored = await storeInvoiceDocument(normalized.invoiceId, normalized.fileName, documentBytes, normalized.mimeType);
     normalized.sourceKey = stored.key;
     normalized.sourceUrl = stored.url;
   }

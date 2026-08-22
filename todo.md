@@ -372,3 +372,10 @@
 - [x] Reject duplicate invoice identifiers instead of silently overwriting records.
 - [x] Re-run syntax, tests, type checking, and production build after the safety change.
 - [ ] Add image OCR extraction and duplicate/ambiguity review workflow.
+
+## Local invoice storage fallback
+- [x] Trace why local invoice uploads require managed storage credentials.
+- [x] Add a safe local document-storage fallback without weakening production managed storage.
+- [x] Preserve source metadata and uploaded bytes for local testing.
+- [x] Validate JSON and PDF uploads plus existing run behavior.
+- [ ] Save checkpoint and synchronize the repair to GitHub.
