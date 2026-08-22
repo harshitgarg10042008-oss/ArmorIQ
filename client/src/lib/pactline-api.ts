@@ -43,4 +43,5 @@ export async function fetchRunState(): Promise<RunResponse> { return request<Run
 export async function fetchInvoices(): Promise<InvoiceResponse> { return request<InvoiceResponse>("/api/invoices"); }
 export async function registerInvoice(invoice: PactlineInvoice): Promise<PactlineInvoice> { const result = await request<{ invoice: PactlineInvoice }>("/api/invoices", { method: "POST", body: JSON.stringify(invoice) }); return result.invoice; }
 export async function startPactlineRun(invoiceId?: string): Promise<PactlineRun> { return request<PactlineRun>("/api/run", { method: "POST", body: JSON.stringify({ operation: "start", invoiceId }) }); }
-export async function submitPactlineDecision(decision: "approve" | "reject"): Promise<PactlineRun> { return request<PactlineRun>("/api/run", { method: "POST", body: JSON.stringify({ operation: "decide", decision }) }); }
+export async function submitPactlineDecision(decision: "approve" | "reject", comment?: string): Promise<PactlineRun> { return request<PactlineRun>("/api/run", { method: "POST", body: JSON.stringify({ operation: "decide", decision, comment, idempotencyKey: `${Date.now()}-${decision}` }) }); }
+export async function resetPactlineRun(): Promise<RunResponse> { return request<RunResponse>("/api/run", { method: "POST", body: JSON.stringify({ operation: "reset" }) }); }

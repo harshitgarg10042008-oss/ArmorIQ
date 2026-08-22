@@ -1,7 +1,7 @@
 /* Signal & Stewardship: evidence before decoration, asymmetric command layout, ink + warm paper + Signal Green, exact operator-first copy. */
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useEffect, useMemo, useState } from "react";
-import { fetchInvoices, fetchRunState, registerInvoice, startPactlineRun, submitPactlineDecision, type PactlineInvoice, type PactlineRun } from "@/lib/pactline-api";
+import { fetchInvoices, fetchRunState, registerInvoice, resetPactlineRun, startPactlineRun, submitPactlineDecision, type PactlineInvoice, type PactlineRun } from "@/lib/pactline-api";
 import {
   ArrowUpRight,
   BadgeCheck,
@@ -174,6 +174,19 @@ export default function Home() {
     finally { setPendingAction(null); }
   };
 
+  const resetRun = async () => {
+    setPendingAction("start");
+    setApiError("");
+    try {
+      await resetPactlineRun();
+      setLiveRun(null);
+      setRunState("idle");
+      setShowDrawer(false);
+      notify("Active run cleared · history preserved");
+    } catch { setApiError("The active run could not be cleared. Please retry."); }
+    finally { setPendingAction(null); }
+  };
+
   const reject = async () => {
     setPendingAction("reject");
     setApiError("");
@@ -226,7 +239,7 @@ export default function Home() {
 
         {activeNav !== "Overview" ? <PageView page={activeNav} darkMode={darkMode} notify={notify} liveRun={liveRun} onApprove={approve} onReject={reject} /> : <>
         <section className="hero-band">
-          <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-line" />AUTONOMOUS OPERATIONS / 01</div><h1>Autonomy is active.<br /><em>Authority is bounded.</em></h1><p>Pactline lets your agent move through routine invoice work while ArmorIQ holds the exact moment an action leaves its captured intent.</p><div className="invoice-input-row"><label className="invoice-input-label">INVOICE ID<input className="invoice-input" list="pactline-invoice-list" value={invoiceId} onChange={(event) => setInvoiceId(event.target.value)} placeholder="INV-044" /><datalist id="pactline-invoice-list">{availableInvoices.map((invoice) => <option key={invoice.invoiceId} value={invoice.invoiceId}>{invoice.vendor}</option>)}</datalist></label><label className="invoice-upload-button">IMPORT JSON<input type="file" accept="application/json,.json" onChange={handleInvoiceFile} /></label></div><div className="hero-actions"><button className="primary-button" onClick={() => void simulateRun()} disabled={pendingAction === "start" || isLoading}>{pendingAction === "start" ? <><TimerReset size={15} className="spin" /> Starting…</> : <><Play size={15} fill="currentColor" /> Run protected demo <ArrowUpRight size={15} /></>}</button><button className="text-button" onClick={() => { setActiveNav("Intent plans"); notify("Intent plans view selected"); }}>View architecture <ChevronRight size={15} /></button></div></div>
+          <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-line" />AUTONOMOUS OPERATIONS / 01</div><h1>Autonomy is active.<br /><em>Authority is bounded.</em></h1><p>Pactline lets your agent move through routine invoice work while ArmorIQ holds the exact moment an action leaves its captured intent.</p><div className="invoice-input-row"><label className="invoice-input-label">INVOICE ID<input className="invoice-input" list="pactline-invoice-list" value={invoiceId} onChange={(event) => setInvoiceId(event.target.value)} placeholder="INV-044" /><datalist id="pactline-invoice-list">{availableInvoices.map((invoice) => <option key={invoice.invoiceId} value={invoice.invoiceId}>{invoice.vendor}</option>)}</datalist></label><label className="invoice-upload-button">IMPORT JSON<input type="file" accept="application/json,.json" onChange={handleInvoiceFile} /></label></div><div className="hero-actions"><button className="primary-button" onClick={() => void simulateRun()} disabled={pendingAction === "start" || isLoading}>{pendingAction === "start" ? <><TimerReset size={15} className="spin" /> Starting…</> : <><Play size={15} fill="currentColor" /> Run protected demo <ArrowUpRight size={15} /></>}</button><button className="text-button" onClick={() => { setActiveNav("Intent plans"); notify("Intent plans view selected"); }}>View architecture <ChevronRight size={15} /></button>{liveRun && <button className="text-button" onClick={() => void resetRun()} disabled={pendingAction !== null}><TimerReset size={15} /> New run</button>}</div></div>
           <div className="hero-visual"><img src="/manus-storage/intentfence-hero-texture_28f71cca.png" alt="Abstract authorization signal texture" /><div className="hero-visual-overlay"><div className="signal-ring"><ShieldCheck size={31} /></div><div><div className="micro-label">CURRENT BOUNDARY</div><div className="hero-visual-title">Invoice handling plan</div><div className="hero-visual-meta"><span className="status-dot live" />{isLoading ? "Connecting to Pactline API…" : liveRun ? `${liveRun.plan.status} · ${liveRun.mode}` : "No active run"}</div></div></div></div>
         </section>
 
