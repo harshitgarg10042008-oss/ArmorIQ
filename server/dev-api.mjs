@@ -24,6 +24,7 @@ try {
 
 const app = express();
 app.use(express.json());
+app.get("/", (_req, res) => res.status(200).type("html").send("<!doctype html><title>Pactline API</title><main style=\"font-family:system-ui;max-width:680px;margin:48px auto;padding:0 20px\"><h1>Pactline API is running</h1><p>The frontend is served separately by Vite at <a href=\"http://localhost:5173/\">http://localhost:5173/</a>.</p><p>API health: <a href=\"/api/health\">/api/health</a></p></main>"));
 if (process.env.OAUTH_SERVER_URL) registerOAuthRoutes(app);
 else console.log("[OAuth] Local demo mode: OAuth routes disabled because OAUTH_SERVER_URL is not configured.");
 app.use("/api/trpc", createExpressMiddleware({ router: appRouter, createContext }));

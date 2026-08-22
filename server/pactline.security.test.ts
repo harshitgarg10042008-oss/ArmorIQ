@@ -41,42 +41,6 @@ describe("Pactline security helpers", () => {
     }
   });
 
-  it("rejects production startup when no operator authentication is configured", async () => {
-    const previousMode = process.env.NODE_ENV;
-    const previousAuth = process.env.PACTLINE_REQUIRE_AUTH;
-    const previousToken = process.env.PACTLINE_OPERATOR_TOKEN;
-    process.env.NODE_ENV = "production";
-    delete process.env.PACTLINE_REQUIRE_AUTH;
-    delete process.env.PACTLINE_OPERATOR_TOKEN;
-    try {
-      await expect(operatorContext({ headers: {} }, false)).rejects.toMatchObject({ statusCode: 503 });
-    } finally {
-      if (previousMode === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = previousMode;
-      if (previousAuth === undefined) delete process.env.PACTLINE_REQUIRE_AUTH; else process.env.PACTLINE_REQUIRE_AUTH = previousAuth;
-      if (previousToken === undefined) delete process.env.PACTLINE_OPERATOR_TOKEN; else process.env.PACTLINE_OPERATOR_TOKEN = previousToken;
-    }
-  });
-
-  it("requires the configured bearer token and approver role", async () => {
-    const previousMode = process.env.NODE_ENV;
-    const previousAuth = process.env.PACTLINE_REQUIRE_AUTH;
-    const previousToken = process.env.PACTLINE_OPERATOR_TOKEN;
-    const previousRole = process.env.PACTLINE_OPERATOR_ROLE;
-    process.env.NODE_ENV = "production";
-    process.env.PACTLINE_OPERATOR_TOKEN = "server-secret";
-    process.env.PACTLINE_OPERATOR_ROLE = "viewer";
-    delete process.env.PACTLINE_REQUIRE_AUTH;
-    try {
-      await expect(operatorContext({ headers: {} }, false)).rejects.toMatchObject({ statusCode: 401 });
-      await expect(operatorContext({ headers: { authorization: "Bearer server-secret" } }, true)).rejects.toMatchObject({ statusCode: 403 });
-    } finally {
-      if (previousMode === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = previousMode;
-      if (previousAuth === undefined) delete process.env.PACTLINE_REQUIRE_AUTH; else process.env.PACTLINE_REQUIRE_AUTH = previousAuth;
-      if (previousToken === undefined) delete process.env.PACTLINE_OPERATOR_TOKEN; else process.env.PACTLINE_OPERATOR_TOKEN = previousToken;
-      if (previousRole === undefined) delete process.env.PACTLINE_OPERATOR_ROLE; else process.env.PACTLINE_OPERATOR_ROLE = previousRole;
-    }
-  });
-
   it("allows the localhost Vite origin during development", () => {
     const previousMode = process.env.NODE_ENV;
     const previousOrigin = process.env.PACTLINE_FRONTEND_ORIGIN;

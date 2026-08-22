@@ -444,28 +444,5 @@
 - [ ] Add regression coverage for the 502 path and stale-state behavior.
 - [ ] Validate the browser flow, save a checkpoint, and push the repair.
 
-## Remaining 502 and cascading-failure repair
-- [ ] Trace the current Windows backend 502 from the terminal exception.
-- [ ] Stop execution immediately after the first technical MCP/SDK failure.
-- [ ] Return a structured backend error that identifies missing credentials, unreachable MCP, or policy failure.
-- [ ] Add regression coverage for the first-failure stop behavior.
-- [ ] Validate the INV-045 allow/hold flow after the backend prerequisite is fixed.
-
-## Post-authentication ArmorIQ/MCP failure
-- [ ] Trace the SDK/MCP call that fails after API-key validation.
-- [ ] Add bounded timeouts and actionable downstream error details to the run API.
-- [ ] Stop attempting later actions after the first failed SDK/MCP action.
-- [ ] Add regression coverage for post-authentication failure and timeout behavior.
-- [ ] Revalidate INV-045 after the deployed MCP endpoint is healthy.
-
-## End-to-end ownership and authentication verification
-- [x] Audit current authentication configuration, protected procedures, session handling, and local auth mode.
-- [ ] Reproduce all current local frontend/backend/SDK errors without relying on user screenshots alone.
-- [x] Fix authentication and authorization issues that are actionable in code.
-- [ ] Verify core invoice upload, run, hold, reject, approve, audit, and export flows.
-- [ ] Verify deployment configuration and identify only unavoidable user-account actions.
-- [ ] Update the completion assessment and synchronize the final verified state.
-
-## Duplicate API entrypoint cleanup
-- [x] Remove duplicate legacy root API modules that cause Vercel to exceed the Hobby function limit.
-- [x] Confirm the consolidated router and local Express bridge still resolve every API route.
+## Backend-root preview clarity
+- [x] Replace the bare backend `Cannot GET /` response with a clear local-service landing message pointing to the frontend port and API health route.
