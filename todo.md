@@ -430,9 +430,9 @@
 - [ ] Push the deployment repair and provide the required Vercel redeploy step.
 
 ## All-actions-held bug repair
-- [ ] Trace why MCP technical errors become held actions in the run state and UI.
-- [ ] Represent technical execution failures separately from ArmorIQ authorization holds.
-- [ ] Ensure a failed precondition stops the run without creating a misleading approval request.
+- [x] Trace why MCP technical errors become held actions in the run state and UI.
+- [x] Represent technical execution failures separately from ArmorIQ authorization holds.
+- [x] Ensure a failed precondition stops the run without creating a misleading approval request.
 - [ ] Add regression tests for allowed actions, true authorization hold, and technical MCP failure.
 - [ ] Validate INV-045 locally and push the repair for redeployment.
 
@@ -446,3 +446,10 @@
 
 ## Backend-root preview clarity
 - [x] Replace the bare backend `Cannot GET /` response with a clear local-service landing message pointing to the frontend port and API health route.
+
+## Renewed end-to-end completion pass
+- [ ] Audit the current checkpoint, GitHub branch, deployment topology, and authentication configuration.
+- [ ] Reproduce remaining backend and frontend errors independently.
+- [ ] Complete actionable authentication, authorization, and runtime fixes.
+- [ ] Verify core invoice, ArmorIQ, approval, audit, and export flows.
+- [ ] Synchronize the final verified implementation and update the honest completion score.

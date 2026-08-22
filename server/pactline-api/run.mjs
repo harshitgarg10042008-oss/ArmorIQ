@@ -88,18 +88,20 @@ async function createRun({
   const audit = { intentToken: token, events: [{ event: "intent_captured", name: "capture_plan", target: invoiceId, decision: "allowed", reason: "Intent token issued by ArmorIQ", timestamp: now(), latency: "—" }] };
   const actions = [];
   const invoiceContext = { invoiceId: invoice.invoiceId, vendor: invoice.vendor, amount: invoice.amount, currency: invoice.currency, date: invoice.date, lineItems: invoice.lineItems || [] };
-  actions.push(await execute(client, mcpName, "read_invoice", { invoiceId, invoice: invoiceContext }, userEmail, audit, `invoice/${invoiceId}`));
-  actions.push(await execute(client, mcpName, "extract_fields", { invoiceId, invoice: invoiceContext }, userEmail, audit, `invoice/${invoiceId}/document`));
-  const extracted = actions[1]?.result || invoice;
-  actions.push(await execute(client, mcpName, "write_record", { invoiceId, invoice: invoiceContext, vendor: extracted.vendor || invoice.vendor, amount: extracted.amount || invoice.amount, currency: extracted.currency || invoice.currency, lineItems: extracted.lineItems || invoice.lineItems || [] }, userEmail, audit, `ledger.invoices/${invoiceId}`));
-
-  if (actions.some((action) => action.decision === "failed")) {
+  const persistFailedRun = async () => {
     const failedRun = { runId, actor, status: "failed", invoice: { id: invoice.invoiceId, fileName: invoice.fileName || invoice.source || `${invoice.invoiceId}.json`, vendor: invoice.vendor, amount: invoice.amount }, plan: { id: `plan_${randomUUID().slice(0, 8)}`, ...plan, status: "armoriq-sdk-captured", mcpName }, actions, audit: audit.events, outbox: [], createdAt: startedAt, mode: "armoriq-sdk-live", intentToken: token, userEmail, mcpName };
     increment("runs.failed");
     observe("runs.durationMs", Date.now() - runStartedAt);
     await saveRun(failedRun);
     return failedRun;
-  }
+  };
+  actions.push(await execute(client, mcpName, "read_invoice", { invoiceId, invoice: invoiceContext }, userEmail, audit, `invoice/${invoiceId}`));
+  if (actions.at(-1)?.decision === "failed") return persistFailedRun();
+  actions.push(await execute(client, mcpName, "extract_fields", { invoiceId, invoice: invoiceContext }, userEmail, audit, `invoice/${invoiceId}/document`));
+  if (actions.at(-1)?.decision === "failed") return persistFailedRun();
+  const extracted = actions[1]?.result || invoice;
+  actions.push(await execute(client, mcpName, "write_record", { invoiceId, invoice: invoiceContext, vendor: extracted.vendor || invoice.vendor, amount: extracted.amount || invoice.amount, currency: extracted.currency || invoice.currency, lineItems: extracted.lineItems || invoice.lineItems || [] }, userEmail, audit, `ledger.invoices/${invoiceId}`));
+  if (actions.at(-1)?.decision === "failed") return persistFailedRun();
 
   const heldOrAllowed = await execute(client, mcpName, "send_email", { recipient: UNSAFE_RECIPIENT, dataScope: "vendor + totals + line items", invoiceId, approved: false }, userEmail, audit, UNSAFE_RECIPIENT);
   if (heldOrAllowed.decision === "held") heldOrAllowed.requiresHumanApproval = true;

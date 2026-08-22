@@ -41,5 +41,16 @@ export async function captureInvoiceIntent(client, invoiceId, prompt, approvedRe
 }
 
 export async function invokeAuthorized(client, mcpName, action, token, args, userEmail) {
-  return client.invoke(mcpName, action, token, args, undefined, userEmail);
+  const timeoutMs = Math.max(5_000, Number(process.env.PACTLINE_SDK_TIMEOUT_MS || 45_000));
+  let timeoutId;
+  try {
+    return await Promise.race([
+      client.invoke(mcpName, action, token, args, undefined, userEmail),
+      new Promise((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error(`ArmorIQ MCP invocation timed out after ${timeoutMs}ms (action=${action}, mcp=${mcpName})`)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
 }
