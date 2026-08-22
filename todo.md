@@ -179,6 +179,14 @@
 - [ ] Start the Windows frontend locally from the synchronized repository.
 - [ ] Verify localhost frontend calls the backend and starts a real run.
 
+## send_email live response normalization repair
+- [x] Capture the actual SDK/MCP send_email failure payload from the failing run: nested policy message `Tool 'send_email' held for approval by member policy rule`.
+- [x] Trace every transformation from the SDK response to persisted action and UI status.
+- [x] Normalize the real authorization-denial shape to held without masking technical failures.
+- [x] Add regression coverage for the real response shape and public run state at the execution-event layer.
+- [ ] Verify the browser-visible approval queue and decision transitions.
+- [ ] Push and checkpoint the consolidated repair.
+
 ## invoice catalog 400 repair
 - [x] Capture the exact `/api/invoices` 400 response and backend cause; current backend and Vite proxy now return 200 with INV-045.
 - [x] Repair invoice listing compatibility without hiding real storage failures by eliminating stale browser responses with `cache: no-store`.

@@ -53,10 +53,21 @@ function normalizeToolResult(result) {
   try { return JSON.parse(text); } catch { return candidate; }
 }
 
+function describeExecutionError(error) {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === "string") return error;
+  try {
+    const serialized = JSON.stringify(error);
+    return serialized && serialized !== "{}" ? serialized : "ArmorIQ did not authorize the action";
+  } catch {
+    return "ArmorIQ did not authorize the action";
+  }
+}
+
 export function isAuthorizationHoldError(error) {
   if (error?.decision === "hold" || error?.status === "hold" || error?.code === "AUTHORIZATION_HOLD") return true;
-  const message = String(error?.message || error || "");
-  return /(?:hold|approval required|outside (?:the )?(?:captured )?intent|not permitted by (?:the )?policy|policy decision).*?(?:authorization|intent|action|approval)|(?:authorization|intent|action|approval).*?(?:hold|outside|not permitted)/i.test(message);
+  const message = describeExecutionError(error);
+  return /held for approval|authorization hold|approval required|outside (?:the )?(?:captured )?intent|not permitted by (?:the )?policy|policy decision.*(?:hold|approval)|(?:hold|outside|not permitted).*?(?:authorization|intent|action|approval)/i.test(message);
 }
 
 async function execute(client, mcpName, action, args, userEmail, audit, target) {
@@ -72,7 +83,7 @@ async function execute(client, mcpName, action, args, userEmail, audit, target) 
     audit.events.push({ ...event, event: toolDeclined ? "authorization_held" : "tool_allowed" });
     return event;
   } catch (error) {
-    const reason = error instanceof Error ? error.message : "ArmorIQ did not authorize the action";
+    const reason = describeExecutionError(error);
     if (isAuthorizationHoldError(error)) {
       const event = { name: action, target, decision: "held", reason, timestamp: now(), latency: "Awaiting decision", requiresHumanApproval: true, technicalFailure: false };
       audit.events.push({ ...event, event: "authorization_held" });
