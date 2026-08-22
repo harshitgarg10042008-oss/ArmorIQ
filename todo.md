@@ -265,3 +265,10 @@
 - [x] Allow authenticated operators to update their own profile and notification preferences without requiring approver role.
 - [x] Keep workspace boundary settings restricted to the appropriate workspace role.
 - [x] Re-test profile, notification, and export authorization behavior.
+
+## Windows local startup repair
+- [x] Prevent the Vite frontend from serving before the local API is ready.
+- [x] Remove the child-process shell warning from the development launcher.
+- [x] Avoid malformed analytics script requests when optional analytics variables are absent.
+- [x] Validate `pnpm dev` startup and `/api/run` reachability on the local stack.
+- [ ] Save checkpoint and synchronize the Windows startup fix.
