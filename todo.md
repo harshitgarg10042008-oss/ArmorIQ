@@ -310,5 +310,13 @@
 - [x] Trace why local API sets `Access-Control-Allow-Origin` to an undefined value.
 - [x] Add a safe CORS fallback for absent origin configuration.
 - [x] Add regression coverage for requests with and without browser origins.
-- [ ] Validate all Settings API endpoints locally.
-- [ ] Save checkpoint and synchronize the repair to GitHub.
+- [x] Validate all Settings API endpoints locally.
+- [x] Save checkpoint and synchronize the repair to GitHub.
+
+## End-to-end run testing and decision-control accuracy
+- [ ] Guide fresh-run verification to an ArmorIQ hold without changing the ArmorIQ console policy.
+- [x] Hide or disable decision controls after a run is approved or rejected.
+- [x] Ensure resolved action status and decision-trail copy match the backend state.
+- [ ] Test rejection with no outbox effect.
+- [ ] Test approval with controlled outbox effect and audit evidence.
+- [ ] Save checkpoint and synchronize the final testing/UI correction to GitHub.
