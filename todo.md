@@ -367,3 +367,8 @@
 - [x] Fail safely when a PDF is ambiguous or lacks required invoice fields.
 - [x] Prevent the PDF library debug fixture from breaking the test suite.
 - [ ] Add image OCR extraction and duplicate/ambiguity review workflow.
+
+## Phase 2C — Intake safety
+- [x] Reject duplicate invoice identifiers instead of silently overwriting records.
+- [x] Re-run syntax, tests, type checking, and production build after the safety change.
+- [ ] Add image OCR extraction and duplicate/ambiguity review workflow.
