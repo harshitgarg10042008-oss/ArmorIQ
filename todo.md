@@ -378,4 +378,12 @@
 - [x] Add a safe local document-storage fallback without weakening production managed storage.
 - [x] Preserve source metadata and uploaded bytes for local testing.
 - [x] Validate JSON and PDF uploads plus existing run behavior.
+- [x] Save checkpoint and synchronize the repair to GitHub.
+
+## Uploaded invoice execution alignment
+- [x] Trace why MCP execution cannot find a newly uploaded invoice ID.
+- [x] Share the uploaded invoice catalog with the authorized tool execution path.
+- [x] Preserve ArmorIQ authorization and held-action behavior for uploaded invoices.
+- [x] Add regression coverage for uploaded invoice execution.
+- [ ] Validate the uploaded invoice start → allowed steps → hold flow.
 - [ ] Save checkpoint and synchronize the repair to GitHub.

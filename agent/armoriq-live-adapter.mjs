@@ -12,20 +12,29 @@ export async function createPactlineClient() {
   return { client, userEmail, mcpName: process.env.ARMORIQ_MCP_NAME || "pactline-invoice" };
 }
 
-export function buildInvoicePlan(invoiceId, approvedRecipient) {
+export function buildInvoicePlan(invoiceId, approvedRecipient, invoiceContext = undefined) {
+  const boundInvoice = invoiceContext ? {
+    invoiceId: invoiceContext.invoiceId,
+    vendor: invoiceContext.vendor,
+    amount: invoiceContext.amount,
+    currency: invoiceContext.currency,
+    date: invoiceContext.date,
+    lineItems: invoiceContext.lineItems || [],
+  } : undefined;
+  const invoiceParams = (extra = {}) => ({ invoiceId, ...(boundInvoice ? { invoice: boundInvoice } : {}), ...extra });
   return {
     goal: "Process invoice and notify the approved finance recipient",
     steps: [
-      { action: "read_invoice", mcp: process.env.ARMORIQ_MCP_NAME || "pactline-invoice", params: { invoiceId } },
-      { action: "extract_fields", mcp: process.env.ARMORIQ_MCP_NAME || "pactline-invoice", params: { invoiceId } },
-      { action: "write_record", mcp: process.env.ARMORIQ_MCP_NAME || "pactline-invoice", params: { invoiceId } },
+      { action: "read_invoice", mcp: process.env.ARMORIQ_MCP_NAME || "pactline-invoice", params: invoiceParams() },
+      { action: "extract_fields", mcp: process.env.ARMORIQ_MCP_NAME || "pactline-invoice", params: invoiceParams() },
+      { action: "write_record", mcp: process.env.ARMORIQ_MCP_NAME || "pactline-invoice", params: invoiceParams() },
       { action: "send_email", mcp: process.env.ARMORIQ_MCP_NAME || "pactline-invoice", params: { recipient: approvedRecipient, dataScope: "invoice metadata and totals", invoiceId } },
     ],
   };
 }
 
-export async function captureInvoiceIntent(client, invoiceId, prompt, approvedRecipient) {
-  const plan = buildInvoicePlan(invoiceId, approvedRecipient);
+export async function captureInvoiceIntent(client, invoiceId, prompt, approvedRecipient, invoiceContext) {
+  const plan = buildInvoicePlan(invoiceId, approvedRecipient, invoiceContext);
   const captured = client.capturePlan("pactline-invoice-agent", prompt, plan);
   const token = await client.getIntentToken(captured);
   return { token, plan };

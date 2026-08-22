@@ -103,13 +103,18 @@ export async function registerInvoice(invoice) {
   return saveInvoice(normalized);
 }
 
-export async function readInvoice(invoiceId = "INV-044") {
-  const invoice = await requireInvoice(invoiceId);
+function contextInvoice(invoiceId, context) {
+  if (!context || context.invoiceId !== invoiceId || typeof context.vendor !== "string" || !Number.isFinite(Number(context.amount))) return null;
+  return { invoiceId, vendor: context.vendor, amount: Number(context.amount), currency: String(context.currency || "INR").toUpperCase(), date: context.date || new Date().toISOString().slice(0, 10), lineItems: Array.isArray(context.lineItems) ? context.lineItems : [], source: "signed-intent-context", fileName: context.fileName || `${invoiceId}.json` };
+}
+
+export async function readInvoice(invoiceId = "INV-044", context) {
+  const invoice = contextInvoice(invoiceId, context) || await requireInvoice(invoiceId);
   return { invoiceId: invoice.invoiceId, vendor: invoice.vendor, amount: invoice.amount, currency: invoice.currency, date: invoice.date };
 }
 
-export async function extractFields(invoiceId = "INV-044") {
-  const invoice = await requireInvoice(invoiceId);
+export async function extractFields(invoiceId = "INV-044", context) {
+  const invoice = contextInvoice(invoiceId, context) || await requireInvoice(invoiceId);
   return { invoiceId: invoice.invoiceId, vendor: invoice.vendor, amount: invoice.amount, currency: invoice.currency, date: invoice.date, lineItems: invoice.lineItems || [], confidence: invoice.confidence ?? 1, source: invoice.source || "invoice-catalog" };
 }
 
