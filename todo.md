@@ -293,7 +293,7 @@
 - [x] Remove the missing favicon browser error.
 - [x] Add regression coverage for local run authorization and origin handling.
 - [ ] Validate start, hold, reject, approve, and outbox behavior locally.
-- [ ] Save checkpoint and synchronize the complete auth repair to GitHub.
+- [x] Save checkpoint and synchronize the complete auth repair to GitHub.
 
 ## Simplified local demo and Settings redesign
 - [x] Make `pnpm dev` the only required local startup command after one-time `.env` setup.
@@ -304,4 +304,11 @@
 - [x] Preserve backend-backed profile, notification, and workspace persistence in the redesigned Settings page.
 - [x] Add tests for local auth mode and Settings persistence paths.
 - [ ] Verify the complete dashboard run flow and Settings interactions.
-- [ ] Save checkpoint and synchronize all changes to GitHub.
+- [x] Save checkpoint and synchronize all changes to GitHub.
+
+## Settings API 500 / undefined CORS header
+- [x] Trace why local API sets `Access-Control-Allow-Origin` to an undefined value.
+- [x] Add a safe CORS fallback for absent origin configuration.
+- [x] Add regression coverage for requests with and without browser origins.
+- [ ] Validate all Settings API endpoints locally.
+- [ ] Save checkpoint and synchronize the repair to GitHub.

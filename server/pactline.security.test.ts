@@ -12,6 +12,7 @@ describe("Pactline security helpers", () => {
     expect(requestId).toMatch(/^req_/);
     expect(allowedOrigin(req)).toBe(true);
     expect(res.setHeader).toHaveBeenCalledWith("X-Content-Type-Options", "nosniff");
+    expect(res.setHeader).not.toHaveBeenCalledWith("Access-Control-Allow-Origin", undefined);
   });
 
   it("rejects malformed run decisions and MCP tool arguments", () => {
