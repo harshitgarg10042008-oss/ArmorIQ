@@ -279,3 +279,10 @@
 - [x] Add or update a regression test for profile read/update authorization.
 - [ ] Validate profile save and reload from the localhost Settings page.
 - [ ] Save checkpoint and synchronize the fix to GitHub.
+
+## Current architecture audit
+- [x] Audit the frontend, backend, ArmorIQ SDK adapter, MCP surface, and durable storage boundaries.
+- [x] Verify the latest GitHub `main` commit and key integration files.
+- [x] Create the current architecture and honest integration-status report.
+- [x] Create and render the end-to-end Pactline architecture flowchart.
+- [ ] Save checkpoint and synchronize the architecture files to GitHub.
