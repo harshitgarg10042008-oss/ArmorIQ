@@ -344,3 +344,11 @@
 - [ ] Phase 4: add real integrations, retries, and safe side-effect delivery.
 - [ ] Phase 5: harden operations, monitoring, backups, security, and quality.
 - [ ] After every phase, run validation, save a checkpoint, synchronize GitHub, and provide the user’s next exact action.
+
+## Phase 2A — Structured invoice upload
+- [x] Upload structured invoice JSON through the frontend to the backend.
+- [x] Persist the uploaded document in managed storage when available.
+- [x] Persist filename and source metadata with the invoice.
+- [x] Use the uploaded invoice as the next protected run input.
+- [x] Validate tests, type checking, and production build.
+- [ ] Extend intake to PDF/image parsing and extraction.

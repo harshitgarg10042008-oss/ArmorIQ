@@ -18,6 +18,11 @@ export type PactlineInvoice = {
   date?: string;
   lineItems?: Array<Record<string, unknown>>;
   source?: string;
+  fileName?: string;
+  mimeType?: string;
+  documentBase64?: string;
+  sourceKey?: string;
+  sourceUrl?: string;
 };
 export type PactlineRun = {
   runId: string;

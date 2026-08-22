@@ -97,7 +97,7 @@ async function createRun({
   const status = heldOrAllowed.decision === "held" ? "held" : "approved";
   increment(status === "held" ? "runs.held" : "runs.completed");
   observe("runs.durationMs", Date.now() - runStartedAt);
-  const run = { runId, actor, status, invoice: { id: invoice.invoiceId, fileName: `${invoice.invoiceId}.json`, vendor: invoice.vendor, amount: invoice.amount }, plan: { id: `plan_${randomUUID().slice(0, 8)}`, ...plan, status: "armoriq-sdk-captured", mcpName }, actions, audit: audit.events, outbox: [], createdAt: startedAt, mode: "armoriq-sdk-live", intentToken: token, userEmail, mcpName };
+  const run = { runId, actor, status, invoice: { id: invoice.invoiceId, fileName: invoice.fileName || invoice.source || `${invoice.invoiceId}.json`, vendor: invoice.vendor, amount: invoice.amount }, plan: { id: `plan_${randomUUID().slice(0, 8)}`, ...plan, status: "armoriq-sdk-captured", mcpName }, actions, audit: audit.events, outbox: [], createdAt: startedAt, mode: "armoriq-sdk-live", intentToken: token, userEmail, mcpName };
   await saveRun(run);
   return run;
 }
