@@ -463,4 +463,10 @@
 ## Vercel invocation crash repair
 - [x] Replace eager imports in the consolidated API router with route-scoped lazy loading.
 - [x] Validate `/api/agent`, `/api/mcp`, `/api/health`, and `/api/run` after lazy dispatch.
-- [ ] Redeploy and verify the public Vercel health endpoint after synchronization.
+- [x] Redeploy and verify the public Vercel health endpoint after synchronization.
+
+## Connected Vercel live verification
+- [ ] Inspect the connected Vercel project and current public deployment logs.
+- [ ] Apply any deployment/runtime fix identified by the live logs.
+- [x] Verify public health, MCP discovery, and agent decision endpoints after redeployment.
+- [ ] Update the honest completion score after live verification.
