@@ -417,7 +417,7 @@
 - [ ] Add relational approval rows, user ownership, workspace membership, and organization isolation.
 
 ## GitHub synchronization repair
-- [ ] Inspect the selected repository remote and local branch state without printing credentials.
-- [ ] Repair GitHub authentication using the preconfigured CLI path.
-- [ ] Push the latest local commits to `harshitgarg10042008-oss/ArmorIQ` `main`.
-- [ ] Verify the remote commit and branch contents.
+- [x] Inspect the selected repository remote and local branch state without printing credentials.
+- [x] Repair GitHub authentication using the preconfigured CLI path.
+- [x] Push the latest local commits to `harshitgarg10042008-oss/ArmorIQ` `main`.
+- [x] Verify the remote commit and branch contents.
