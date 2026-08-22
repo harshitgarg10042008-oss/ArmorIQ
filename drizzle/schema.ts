@@ -52,7 +52,7 @@ export const workspaceMembers = mysqlTable("workspaceMembers", {
 export const invoices = mysqlTable("invoices", {
   id: int("id").autoincrement().primaryKey(),
   workspaceId: int("workspaceId").notNull(),
-  externalId: varchar("externalId", { length: 128 }).notNull(),
+  externalId: varchar("externalId", { length: 128 }).notNull().unique(),
   vendor: varchar("vendor", { length: 255 }).notNull(),
   amountCents: int("amountCents").notNull(),
   currency: varchar("currency", { length: 3 }).notNull(),
@@ -65,6 +65,15 @@ export const invoices = mysqlTable("invoices", {
   workspaceExternalIdUnique: uniqueIndex("invoices_workspace_external_id_unique").on(table.workspaceId, table.externalId),
   workspaceStatusIndex: index("invoices_workspace_status_idx").on(table.workspaceId, table.status),
 }));
+
+export const pactlineRunSnapshots = mysqlTable("pactlineRunSnapshots", {
+  id: int("id").autoincrement().primaryKey(),
+  workspaceKey: varchar("workspaceKey", { length: 128 }).notNull(),
+  runKey: varchar("runKey", { length: 64 }).notNull().unique(),
+  snapshot: json("snapshot").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
 
 export const pactlineRunSnapshots = mysqlTable("pactlineRunSnapshots", {
   id: int("id").autoincrement().primaryKey(),
