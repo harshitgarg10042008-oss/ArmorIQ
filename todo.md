@@ -428,3 +428,18 @@
 - [ ] Verify the deployed MCP endpoint receives uploaded invoice context and executes read, extract, and write actions.
 - [ ] Verify only the unauthorized send_email action is held for INV-045.
 - [ ] Push the deployment repair and provide the required Vercel redeploy step.
+
+## All-actions-held bug repair
+- [ ] Trace why MCP technical errors become held actions in the run state and UI.
+- [ ] Represent technical execution failures separately from ArmorIQ authorization holds.
+- [ ] Ensure a failed precondition stops the run without creating a misleading approval request.
+- [ ] Add regression tests for allowed actions, true authorization hold, and technical MCP failure.
+- [ ] Validate INV-045 locally and push the repair for redeployment.
+
+## Local 502 and stale held-state repair
+- [x] Identify the exact exception causing POST `/api/run` to return 502 locally.
+- [x] Repair the backend runtime path and preserve useful structured error responses.
+- [x] Clear or replace stale run state after a failed start request.
+- [x] Render technical failures distinctly from ArmorIQ authorization holds.
+- [ ] Add regression coverage for the 502 path and stale-state behavior.
+- [ ] Validate the browser flow, save a checkpoint, and push the repair.

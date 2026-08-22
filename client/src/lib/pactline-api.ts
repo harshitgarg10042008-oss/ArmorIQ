@@ -1,5 +1,5 @@
 /* Signal & Stewardship: the control center is a live operator surface; network state is explicit, auditable, and never silently invented. */
-export type PactlineDecision = "allowed" | "held" | "approved" | "rejected";
+export type PactlineDecision = "allowed" | "held" | "approved" | "rejected" | "failed";
 export type PactlineAction = {
   name: string;
   target: string;
@@ -26,7 +26,7 @@ export type PactlineInvoice = {
 };
 export type PactlineRun = {
   runId: string;
-  status: "held" | "approved" | "rejected";
+  status: "held" | "approved" | "rejected" | "failed";
   invoice: { id: string; fileName: string; vendor: string; amount: number };
   plan: { id: string; goal: string; steps: Array<Record<string, unknown>>; status: string; mcpName: string };
   actions: PactlineAction[];

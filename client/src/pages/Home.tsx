@@ -83,7 +83,7 @@ export default function Home() {
   // startLogin() during render (no href={startLogin()}) — it mints a one-time
   // nonce cookie and must run only at the moment of navigation.
   const [activeNav, setActiveNav] = useState(() => new URLSearchParams(window.location.search).get("page") || "Overview");
-  const [runState, setRunState] = useState<"idle" | "running" | "held" | "approved" | "rejected">("idle");
+  const [runState, setRunState] = useState<"idle" | "running" | "held" | "approved" | "rejected" | "failed">("idle");
   const [liveRun, setLiveRun] = useState<PactlineRun | null>(null);
   const [runHistory, setRunHistory] = useState<PactlineRun[]>([]);
   const [availableInvoices, setAvailableInvoices] = useState<PactlineInvoice[]>([]);
@@ -103,8 +103,12 @@ export default function Home() {
       const data = await fetchRunState();
       setRunHistory(data.runs || []);
       if (data.currentRun) { setLiveRun(data.currentRun); setRunState(data.currentRun.status === "held" ? "held" : data.currentRun.status); setShowDrawer(data.currentRun.status === "held" ); }
+      else { setLiveRun(null); setRunState("idle"); setShowDrawer(false); }
     } catch {
-      setApiError("Could not reach the Pactline backend. Check the API and retry.");
+      setLiveRun(null);
+      setRunState("failed");
+      setShowDrawer(false);
+      setApiError("Could not reach the Pactline backend. The previous run was cleared; start the API and retry.");
     } finally {
       setIsLoading(false);
     }
@@ -121,6 +125,7 @@ export default function Home() {
   const stateCopy = useMemo(() => {
     if (runState === "approved") return { label: "Action approved", sub: "Run resumed · live API", tone: "green" };
     if (runState === "rejected") return { label: "Action rejected", sub: "Unauthorized action cancelled", tone: "muted" };
+    if (runState === "failed") return { label: "Run failed", sub: "Technical error · no approval requested", tone: "red" };
     if (runState === "running") return { label: "Agent is working", sub: "Evaluating tool call 04 of 04", tone: "blue" };
     if (runState === "idle") return { label: "Awaiting a run", sub: "Drop an invoice to begin", tone: "muted" };
     return { label: "Human decision required", sub: "1 action held by ArmorIQ", tone: "amber" };
@@ -176,10 +181,12 @@ export default function Home() {
       setRunHistory((current) => [nextRun, ...current.filter((run) => run.runId !== nextRun.runId)]);
       setRunState(nextRun.status);
       setShowDrawer(true);
-    } catch {
-      setApiError("Could not start the run. Please retry.");
-      setRunState("idle");
-      notify("Run could not start · please retry");
+    } catch (error) {
+      setLiveRun(null);
+      setRunState("failed");
+      setShowDrawer(false);
+      setApiError(error instanceof Error ? error.message : "Could not start the run. Please retry.");
+      notify("Run failed · no approval was created");
     } finally {
       setPendingAction(null);
     }
@@ -219,6 +226,7 @@ export default function Home() {
   const totalActionCount = liveRun?.actions.length || 4;
   const progressPercent = liveRun ? Math.round((completedActionCount / totalActionCount) * 100) : 0;
   const heldAction = liveRun?.actions.find((action) => action.decision === "held");
+  const failedAction = liveRun?.actions.find((action) => action.decision === "failed");
 
   return (
     <div className={`app-shell ${darkMode ? "dark-mode" : ""} ${mobileMenuOpen ? "mobile-menu-open" : ""}`}>
@@ -266,11 +274,11 @@ export default function Home() {
 
         <section className="content-grid">
           <div className="primary-column">
-            <div className="section-heading"><div><div className="eyebrow"><span className="eyebrow-line" />ACTIVE RUN</div><h2>{liveRun ? `Invoice #${liveRun.invoice.id.replace("INV-", "")}` : "No active invoice"} {liveRun && <span className={`inline-status ${liveRun.status === "held" ? "amber" : liveRun.status === "rejected" ? "held" : "green"}`}>{liveRun.status === "held" ? "Human decision required" : liveRun.status === "approved" ? "Run approved" : "Action rejected"}</span>}</h2></div><button className="ghost-button" onClick={() => liveRun ? setShowDrawer(true) : notify("Start a protected run first")}>Open run details <ArrowUpRight size={14} /></button></div>
-            <div className="run-card"><div className="run-card-top"><div className="file-badge"><FileText size={18} /></div><div className="file-info"><strong>{liveRun?.invoice.fileName || "Waiting for an invoice run"}</strong><span>{liveRun ? `${liveRun.invoice.vendor} · source: inbox` : "Start a run to load invoice data"}</span></div><div className="run-progress"><div className="progress-label"><span>{completedActionCount} of {totalActionCount} actions complete</span><span>{progressPercent}%</span></div><div className="progress-track"><div className="progress-fill" style={{ width: `${progressPercent}%` }} /></div></div><button className="icon-button quiet" onClick={() => { setActiveNav("Live runs"); notify(liveRun ? "Run actions opened" : "Start a protected run to create run actions"); }}><MoreHorizontal size={17} /></button></div><div className="intent-ribbon"><div className="ribbon-icon"><LockKeyhole size={14} /></div><div><div className="micro-label">CAPTURED INTENT</div><div className="intent-copy">Read invoice → normalize fields → write ledger record → notify approved recipient</div></div><div className="ribbon-proof"><BadgeCheck size={15} /><span>{liveRun?.plan.id || "Awaiting plan capture"}</span></div></div><div className="tool-list">{displayedToolCalls.map((call, index) => { const isHeld = call.decision === "held"; const result = call.decision; const tone = isHeld ? "amber" : result === "rejected" ? "muted" : "green"; return <div className={`tool-row ${isHeld ? "is-held" : ""}`} key={call.name}><div className="tool-index">0{index + 1}</div><div className="tool-main"><strong>{call.name}</strong><span>{call.target}</span></div><div className={`tool-result ${tone}`}><span className="result-dot" />{result}</div><div className="tool-latency">{call.latency}</div><ChevronRight size={15} className="tool-chevron" /></div>; })}</div></div>
+            <div className="section-heading"><div><div className="eyebrow"><span className="eyebrow-line" />ACTIVE RUN</div><h2>{liveRun ? `Invoice #${liveRun.invoice.id.replace("INV-", "")}` : "No active invoice"} {liveRun && <span className={`inline-status ${liveRun.status === "held" ? "amber" : liveRun.status === "failed" ? "failed" : liveRun.status === "rejected" ? "held" : "green"}`}>{liveRun.status === "held" ? "Human decision required" : liveRun.status === "approved" ? "Run approved" : liveRun.status === "failed" ? "Run failed" : "Action rejected"}</span>}</h2></div><button className="ghost-button" onClick={() => liveRun ? setShowDrawer(true) : notify("Start a protected run first")}>Open run details <ArrowUpRight size={14} /></button></div>
+            <div className="run-card"><div className="run-card-top"><div className="file-badge"><FileText size={18} /></div><div className="file-info"><strong>{liveRun?.invoice.fileName || "Waiting for an invoice run"}</strong><span>{liveRun ? `${liveRun.invoice.vendor} · source: inbox` : "Start a run to load invoice data"}</span></div><div className="run-progress"><div className="progress-label"><span>{completedActionCount} of {totalActionCount} actions complete</span><span>{progressPercent}%</span></div><div className="progress-track"><div className="progress-fill" style={{ width: `${progressPercent}%` }} /></div></div><button className="icon-button quiet" onClick={() => { setActiveNav("Live runs"); notify(liveRun ? "Run actions opened" : "Start a protected run to create run actions"); }}><MoreHorizontal size={17} /></button></div><div className="intent-ribbon"><div className="ribbon-icon"><LockKeyhole size={14} /></div><div><div className="micro-label">CAPTURED INTENT</div><div className="intent-copy">Read invoice → normalize fields → write ledger record → notify approved recipient</div></div><div className="ribbon-proof"><BadgeCheck size={15} /><span>{liveRun?.plan.id || "Awaiting plan capture"}</span></div></div><div className="tool-list">{displayedToolCalls.map((call, index) => { const isHeld = call.decision === "held"; const result = call.decision; const tone = isHeld ? "amber" : result === "failed" ? "red" : result === "rejected" ? "muted" : "green"; return <div className={`tool-row ${isHeld ? "is-held" : ""}`} key={call.name}><div className="tool-index">0{index + 1}</div><div className="tool-main"><strong>{call.name}</strong><span>{call.target}</span></div><div className={`tool-result ${tone}`}><span className="result-dot" />{result}</div><div className="tool-latency">{call.latency}</div><ChevronRight size={15} className="tool-chevron" /></div>; })}</div></div>
 
             <div className="section-heading compact"><div><div className="eyebrow"><span className="eyebrow-line" />PROOF OF WORK</div><h2>Decision trail</h2></div><button className="ghost-button" onClick={() => { setActiveNav("Audit trail"); notify("Audit trail view selected"); }}>View full audit <ArrowUpRight size={14} /></button></div>
-            <div className="audit-card"><div className="audit-line" />{liveRun ? liveRun.actions.map((action, index) => { const Icon = action.name === "send_email" ? Send : FileCheck2; const state = action.decision === "held" ? "held" : action.decision === "rejected" ? "rejected" : "allowed"; return <div className="audit-event" key={`${action.name}-${index}`}><div className={`audit-icon ${state}`}><Icon size={15} /></div><div className="audit-copy"><div><strong>{action.name}</strong><span className={`inline-status ${state}`}>{state}</span></div><span>{action.target}</span></div><time>{new Date(action.timestamp).toLocaleTimeString()}</time>{index < liveRun.actions.length - 1 && <div className="audit-connector" />}</div> }) : <div className="audit-empty"><Fingerprint size={18} /><span>Start a protected run to populate the live audit trail.</span></div>}<div className="audit-footer"><span><Fingerprint size={14} /> {liveRun ? "Proof path attached to every decision" : "No audit events loaded"}</span><span className="audit-run">{liveRun?.runId || "run_pending"}</span></div></div>
+            <div className="audit-card"><div className="audit-line" />{liveRun ? liveRun.actions.map((action, index) => { const Icon = action.name === "send_email" ? Send : FileCheck2; const state = action.decision === "held" ? "held" : action.decision === "failed" ? "failed" : action.decision === "rejected" ? "rejected" : "allowed"; return <div className="audit-event" key={`${action.name}-${index}`}><div className={`audit-icon ${state}`}><Icon size={15} /></div><div className="audit-copy"><div><strong>{action.name}</strong><span className={`inline-status ${state}`}>{state}</span></div><span>{action.target}</span></div><time>{new Date(action.timestamp).toLocaleTimeString()}</time>{index < liveRun.actions.length - 1 && <div className="audit-connector" />}</div> }) : <div className="audit-empty"><Fingerprint size={18} /><span>Start a protected run to populate the live audit trail.</span></div>}<div className="audit-footer"><span><Fingerprint size={14} /> {liveRun ? "Proof path attached to every decision" : "No audit events loaded"}</span><span className="audit-run">{liveRun?.runId || "run_pending"}</span></div></div>
           </div>
 
           <aside className="right-column">

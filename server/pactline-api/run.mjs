@@ -68,8 +68,8 @@ async function execute(client, mcpName, action, args, userEmail, audit, target) 
   } catch (error) {
     increment("sdk.errors");
     const reason = error instanceof Error ? error.message : "ArmorIQ did not authorize the action";
-    const event = { name: action, target, decision: "held", reason, timestamp: now(), latency: "Awaiting decision", requiresHumanApproval: true };
-    audit.events.push({ ...event, event: "authorization_held" });
+    const event = { name: action, target, decision: "failed", reason, timestamp: now(), latency: `${Date.now() - started}ms`, requiresHumanApproval: false, technicalFailure: true };
+    audit.events.push({ ...event, event: "tool_execution_failed" });
     return event;
   }
 }
@@ -93,11 +93,19 @@ async function createRun({
   const extracted = actions[1]?.result || invoice;
   actions.push(await execute(client, mcpName, "write_record", { invoiceId, invoice: invoiceContext, vendor: extracted.vendor || invoice.vendor, amount: extracted.amount || invoice.amount, currency: extracted.currency || invoice.currency, lineItems: extracted.lineItems || invoice.lineItems || [] }, userEmail, audit, `ledger.invoices/${invoiceId}`));
 
+  if (actions.some((action) => action.decision === "failed")) {
+    const failedRun = { runId, actor, status: "failed", invoice: { id: invoice.invoiceId, fileName: invoice.fileName || invoice.source || `${invoice.invoiceId}.json`, vendor: invoice.vendor, amount: invoice.amount }, plan: { id: `plan_${randomUUID().slice(0, 8)}`, ...plan, status: "armoriq-sdk-captured", mcpName }, actions, audit: audit.events, outbox: [], createdAt: startedAt, mode: "armoriq-sdk-live", intentToken: token, userEmail, mcpName };
+    increment("runs.failed");
+    observe("runs.durationMs", Date.now() - runStartedAt);
+    await saveRun(failedRun);
+    return failedRun;
+  }
+
   const heldOrAllowed = await execute(client, mcpName, "send_email", { recipient: UNSAFE_RECIPIENT, dataScope: "vendor + totals + line items", invoiceId, approved: false }, userEmail, audit, UNSAFE_RECIPIENT);
   if (heldOrAllowed.decision === "held") heldOrAllowed.requiresHumanApproval = true;
   actions.push(heldOrAllowed);
-  const status = heldOrAllowed.decision === "held" ? "held" : "approved";
-  increment(status === "held" ? "runs.held" : "runs.completed");
+  const status = heldOrAllowed.decision === "failed" ? "failed" : heldOrAllowed.decision === "held" ? "held" : "approved";
+  increment(status === "failed" ? "runs.failed" : status === "held" ? "runs.held" : "runs.completed");
   observe("runs.durationMs", Date.now() - runStartedAt);
   const run = { runId, actor, status, invoice: { id: invoice.invoiceId, fileName: invoice.fileName || invoice.source || `${invoice.invoiceId}.json`, vendor: invoice.vendor, amount: invoice.amount }, plan: { id: `plan_${randomUUID().slice(0, 8)}`, ...plan, status: "armoriq-sdk-captured", mcpName }, actions, audit: audit.events, outbox: [], createdAt: startedAt, mode: "armoriq-sdk-live", intentToken: token, userEmail, mcpName };
   await saveRun(run);
