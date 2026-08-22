@@ -53,6 +53,12 @@ function normalizeToolResult(result) {
   try { return JSON.parse(text); } catch { return candidate; }
 }
 
+export function isAuthorizationHoldError(error) {
+  if (error?.decision === "hold" || error?.status === "hold" || error?.code === "AUTHORIZATION_HOLD") return true;
+  const message = String(error?.message || error || "");
+  return /(?:hold|approval required|outside (?:the )?(?:captured )?intent|not permitted by (?:the )?policy|policy decision).*?(?:authorization|intent|action|approval)|(?:authorization|intent|action|approval).*?(?:hold|outside|not permitted)/i.test(message);
+}
+
 async function execute(client, mcpName, action, args, userEmail, audit, target) {
   const started = Date.now();
   try {
@@ -66,8 +72,13 @@ async function execute(client, mcpName, action, args, userEmail, audit, target) 
     audit.events.push({ ...event, event: toolDeclined ? "authorization_held" : "tool_allowed" });
     return event;
   } catch (error) {
-    increment("sdk.errors");
     const reason = error instanceof Error ? error.message : "ArmorIQ did not authorize the action";
+    if (isAuthorizationHoldError(error)) {
+      const event = { name: action, target, decision: "held", reason, timestamp: now(), latency: "Awaiting decision", requiresHumanApproval: true, technicalFailure: false };
+      audit.events.push({ ...event, event: "authorization_held" });
+      return event;
+    }
+    increment("sdk.errors");
     const event = { name: action, target, decision: "failed", reason, timestamp: now(), latency: `${Date.now() - started}ms`, requiresHumanApproval: false, technicalFailure: true };
     audit.events.push({ ...event, event: "tool_execution_failed" });
     return event;
@@ -199,4 +210,4 @@ export default async function handler(req, res) {
   }
 }
 
-export { createRun, decide, classifyExecutionError };
+export { createRun, decide, classifyExecutionError, execute };

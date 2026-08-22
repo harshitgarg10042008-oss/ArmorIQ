@@ -179,6 +179,13 @@
 - [ ] Start the Windows frontend locally from the synchronized repository.
 - [ ] Verify localhost frontend calls the backend and starts a real run.
 
+## send_email authorization hold repair
+- [x] Trace the SDK/MCP decision returned for send_email and the frontend action-status mapping.
+- [x] Ensure an authorization hold is persisted as pending/held, never as technical failure.
+- [ ] Ensure the approval queue shows the held action and reject/approve transitions update the run correctly.
+- [x] Add regression coverage for hold classification and UI/API status consistency through classifier and execution-level API events.
+- [ ] Verify and synchronize the corrected hold flow.
+
 ## write_record failure repair
 - [x] Capture the exact write_record failure reason and affected persistence path: Vercel `/var/task/agent/runtime-data/ledger.json` was read-only (EROFS).
 - [x] Repair write_record so a valid invoice reaches the fourth action without bypassing authorization by using the writable serverless runtime directory.
