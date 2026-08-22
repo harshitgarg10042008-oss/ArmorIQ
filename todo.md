@@ -333,4 +333,14 @@
 - [x] Keep CSV/PDF audit export controls on the Audit trail experience.
 - [x] Add distinct empty states and labels so the pages are not visually duplicated.
 - [x] Validate navigation and page rendering.
-- [ ] Save checkpoint and synchronize the correction to GitHub.
+- [x] Save checkpoint and synchronize the correction to GitHub.
+
+## Production roadmap execution
+- [x] Save a stable baseline checkpoint for the current hackathon-ready demo.
+- [x] Document the remaining production roadmap and phase acceptance criteria.
+- [ ] Phase 1: wire active runtime records to Drizzle/MySQL with tenant-safe access.
+- [ ] Phase 2: build real invoice intake and document processing.
+- [ ] Phase 3: add organizations, team roles, and approval assignment.
+- [ ] Phase 4: add real integrations, retries, and safe side-effect delivery.
+- [ ] Phase 5: harden operations, monitoring, backups, security, and quality.
+- [ ] After every phase, run validation, save a checkpoint, synchronize GitHub, and provide the user’s next exact action.
