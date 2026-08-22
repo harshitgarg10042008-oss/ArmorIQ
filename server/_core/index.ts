@@ -20,6 +20,12 @@ import mcpHandler from "../../api/mcp.mjs";
 import settingsHandler from "../../api/settings.mjs";
 // @ts-ignore The handlers are shared ESM endpoints used by local and Vercel runtimes.
 import dashboardHandler from "../../api/dashboard.mjs";
+// @ts-ignore Shared ESM handlers are mounted in the managed server.
+import profileHandler from "../../api/profile.mjs";
+// @ts-ignore Shared ESM handlers are mounted in the managed server.
+import notificationsHandler from "../../api/notifications.mjs";
+// @ts-ignore Shared ESM handler is mounted in the managed server.
+import exportHandler from "../../api/export.mjs";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -54,6 +60,9 @@ async function startServer() {
   app.all("/api/mcp", mcpHandler as any);
   app.all("/api/settings", settingsHandler as any);
   app.all("/api/dashboard", dashboardHandler as any);
+  app.all("/api/profile", profileHandler as any);
+  app.all("/api/notifications", notificationsHandler as any);
+  app.all("/api/export", exportHandler as any);
   // tRPC API
   app.use(
     "/api/trpc",

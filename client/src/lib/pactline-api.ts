@@ -33,8 +33,15 @@ export type PactlineRun = {
 export type RunResponse = { currentRun: PactlineRun | null; runs: PactlineRun[]; evidence?: { ledger: unknown[]; outbox: unknown[] } };
 type InvoiceResponse = { invoices: PactlineInvoice[] };
 export type PactlineSettings = { workspaceName: string; workspaceDescription: string; approvalMode: string; defaultRecipient: string; retentionDays: number; updatedAt?: string };
+export type PactlineProfile = { displayName: string; initials: string; avatarColor: "mint" | "cobalt" | "violet" | "amber"; updatedAt?: string };
+export type PactlineNotificationPreferences = { approvalHolds: boolean; runFailures: boolean; weeklyDigest: boolean; updatedAt?: string };
 export async function fetchSettings(): Promise<PactlineSettings> { const result = await request<{ settings: PactlineSettings }>("/api/settings"); return result.settings; }
 export async function updateSettings(patch: Partial<PactlineSettings>): Promise<PactlineSettings> { const result = await request<{ settings: PactlineSettings }>("/api/settings", { method: "PUT", body: JSON.stringify(patch) }); return result.settings; }
+export async function fetchProfile(): Promise<PactlineProfile> { const result = await request<{ profile: PactlineProfile }>("/api/profile"); return result.profile; }
+export async function updateProfile(patch: Partial<PactlineProfile>): Promise<PactlineProfile> { const result = await request<{ profile: PactlineProfile }>("/api/profile", { method: "PUT", body: JSON.stringify(patch) }); return result.profile; }
+export async function fetchNotificationPreferences(): Promise<PactlineNotificationPreferences> { const result = await request<{ preferences: PactlineNotificationPreferences }>("/api/notifications"); return result.preferences; }
+export async function updateNotificationPreferences(patch: Partial<PactlineNotificationPreferences>): Promise<PactlineNotificationPreferences> { const result = await request<{ preferences: PactlineNotificationPreferences }>("/api/notifications", { method: "PUT", body: JSON.stringify(patch) }); return result.preferences; }
+export async function downloadReport(kind: "audit" | "runs", format: "csv" | "pdf"): Promise<Blob> { const response = await fetch(`${API_URL}/api/export?kind=${kind}&format=${format}`); if (!response.ok) { const payload = await response.json().catch(() => ({})); throw new Error(payload.error || `Export failed (${response.status})`); } return response.blob(); }
 const API_URL = (import.meta.env.VITE_PACTLINE_API_URL || "").replace(/\/$/, "");
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, { ...options, headers: { "Content-Type": "application/json", ...(options?.headers || {}) } });

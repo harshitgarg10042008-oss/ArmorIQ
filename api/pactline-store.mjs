@@ -8,6 +8,8 @@ const RUNS_FILE = join(DATA_DIR, "runs.json");
 const INVOICES_FILE = join(DATA_DIR, "invoices.json");
 const APPROVALS_FILE = join(DATA_DIR, "approvals.json");
 const SETTINGS_FILE = join(DATA_DIR, "settings.json");
+const PROFILE_FILE = join(DATA_DIR, "profile.json");
+const NOTIFICATIONS_FILE = join(DATA_DIR, "notifications.json");
 
 async function readJson(file, fallback) {
   try {
@@ -70,6 +72,12 @@ export async function listApprovals() {
 const DEFAULT_SETTINGS = { workspaceName: "Finance Ops", workspaceDescription: "Protected invoice operations", approvalMode: "human-in-the-loop", defaultRecipient: "finance@company.test", retentionDays: 90 };
 export async function getSettings() { return { ...DEFAULT_SETTINGS, ...(await readJson(SETTINGS_FILE, {})) }; }
 export async function saveSettings(patch) { const next = { ...(await getSettings()), ...patch, updatedAt: new Date().toISOString() }; await writeJson(SETTINGS_FILE, next); return next; }
+const DEFAULT_PROFILE = { displayName: "Pactline Operator", initials: "PO", avatarColor: "mint" };
+export async function getProfile() { return { ...DEFAULT_PROFILE, ...(await readJson(PROFILE_FILE, {})) }; }
+export async function saveProfile(patch) { const next = { ...(await getProfile()), ...patch, updatedAt: new Date().toISOString() }; await writeJson(PROFILE_FILE, next); return next; }
+const DEFAULT_NOTIFICATIONS = { approvalHolds: true, runFailures: true, weeklyDigest: false };
+export async function getNotificationPreferences() { return { ...DEFAULT_NOTIFICATIONS, ...(await readJson(NOTIFICATIONS_FILE, {})) }; }
+export async function saveNotificationPreferences(patch) { const next = { ...(await getNotificationPreferences()), ...patch, updatedAt: new Date().toISOString() }; await writeJson(NOTIFICATIONS_FILE, next); return next; }
 
 export async function appendApproval(approval) {
   const approvals = await listApprovals();
