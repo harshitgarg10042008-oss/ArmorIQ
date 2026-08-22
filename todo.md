@@ -179,6 +179,13 @@
 - [ ] Start the Windows frontend locally from the synchronized repository.
 - [ ] Verify localhost frontend calls the backend and starts a real run.
 
+## write_record failure repair
+- [ ] Capture the exact write_record failure reason and affected persistence path.
+- [ ] Repair write_record so a valid invoice reaches the fourth action without bypassing authorization.
+- [ ] Add regression coverage for write_record persistence and failure classification.
+- [ ] Run a fresh protected workflow and verify three allowed actions plus the intended email hold.
+- [ ] Push and checkpoint the verified write_record repair.
+
 ## Uploaded invoice selection repair
 - [x] Trace the registered invoice response and active invoice ID state after upload.
 - [x] Ensure the uploaded invoice becomes the selected run input and no fallback ID overwrites it.

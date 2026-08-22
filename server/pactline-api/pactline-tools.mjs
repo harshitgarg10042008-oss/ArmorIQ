@@ -9,8 +9,12 @@ import { createWorker } from "tesseract.js";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const FIXTURE = join(ROOT, "../agent/invoice_044.json");
-const LEDGER_FILE = join(DATA_DIR, "ledger.json");
-const OUTBOX_FILE = join(DATA_DIR, "outbox.json");
+function runtimeFile(name) {
+  const serverless = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
+  const directory = serverless ? "/tmp/pactline-runtime" : DATA_DIR;
+  const overrideKey = `PACTLINE_${name.replace(/[^a-z]/gi, "_").toUpperCase()}_FILE`;
+  return process.env[overrideKey] || join(directory, name);
+}
 
 async function readJson(path, fallback) {
   try { return JSON.parse(await readFile(path, "utf8")); } catch { return fallback; }
@@ -47,7 +51,7 @@ async function storeInvoiceDocument(invoiceId, fileName, bytes, mimeType) {
     const message = error instanceof Error ? error.message : String(error);
     if (!message.startsWith("Storage config missing:")) throw error;
     const localKey = `local-invoices/${invoiceId}/${safeName}`;
-    const localPath = join(DATA_DIR, "uploads", invoiceId, safeName);
+    const localPath = join(dirname(runtimeFile("uploads.marker")), "uploads", invoiceId, safeName);
     await mkdir(dirname(localPath), { recursive: true });
     await writeFile(localPath, bytes);
     return { key: localKey, url: `local-storage://${localKey}` };
@@ -146,25 +150,25 @@ export async function extractFields(invoiceId = "INV-044", context) {
 }
 
 export async function writeRecord({ invoiceId, vendor, amount, currency = "INR", lineItems = [] }) {
-  const ledger = await readJson(LEDGER_FILE, []);
+  const ledger = await readJson(runtimeFile("ledger.json"), []);
   const existing = ledger.find((item) => item.invoiceId === invoiceId);
   if (existing) return { recordId: existing.recordId, store: "runtime-ledger", persisted: true, idempotent: true, writtenAt: existing.writtenAt };
   const record = { recordId: invoiceId, invoiceId, vendor, amount, currency, lineItems, writtenAt: new Date().toISOString() };
-  await writeJson(LEDGER_FILE, [...ledger, record]);
+  await writeJson(runtimeFile("ledger.json"), [...ledger, record]);
   return { recordId: invoiceId, store: "runtime-ledger", persisted: true, idempotent: false, writtenAt: record.writtenAt };
 }
 
 export async function sendEmail({ recipient, invoiceId, dataScope, approved = false }) {
   const approvedRecipient = process.env.PACTLINE_APPROVED_RECIPIENT || "finance@company.test";
   if (!approved || recipient !== approvedRecipient) return { executed: false, recipient, invoiceId, dataScope, reason: "Email requires an ArmorIQ-approved decision before execution" };
-  const outbox = await readJson(OUTBOX_FILE, []);
+  const outbox = await readJson(runtimeFile("outbox.json"), []);
   const existing = outbox.find((item) => item.invoiceId === invoiceId && item.recipient === recipient);
   if (existing) return { executed: true, ...existing, idempotent: true };
   const message = { messageId: `msg_${Date.now()}`, recipient, invoiceId, dataScope, sentAt: new Date().toISOString(), transport: "controlled-test-outbox", idempotent: false };
-  await writeJson(OUTBOX_FILE, [...outbox, message]);
+  await writeJson(runtimeFile("outbox.json"), [...outbox, message]);
   return { executed: true, ...message };
 }
 
 export async function readRuntimeEvidence() {
-  return { ledger: await readJson(LEDGER_FILE, []), outbox: await readJson(OUTBOX_FILE, []) };
+  return { ledger: await readJson(runtimeFile("ledger.json"), []), outbox: await readJson(runtimeFile("outbox.json"), []) };
 }
