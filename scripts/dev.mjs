@@ -4,11 +4,11 @@ import path from "node:path";
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const children = [
-  spawn("pnpm", ["vite", "--host"], { cwd: root, stdio: "inherit", env: process.env, shell: process.platform === "win32" ? true : false }),
+  spawn(process.platform === "win32" ? "pnpm.cmd" : "pnpm", ["vite", "--host"], { cwd: root, stdio: "inherit", env: process.env }),
 ];
 let apiChild;
 const apiTimer = setTimeout(() => {
-  apiChild = spawn("pnpm", ["tsx", "server/dev-api.mjs"], { cwd: root, stdio: "inherit", env: process.env, shell: process.platform === "win32" ? true : false });
+  apiChild = spawn(process.platform === "win32" ? "pnpm.cmd" : "pnpm", ["tsx", "server/dev-api.mjs"], { cwd: root, stdio: "inherit", env: process.env });
   children.push(apiChild);
   apiChild.on("exit", (code, signal) => {
     if (signal !== "SIGTERM") shutdown(code ?? 1);

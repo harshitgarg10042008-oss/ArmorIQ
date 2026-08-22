@@ -232,3 +232,15 @@
 - [x] Derive operator roles only from trusted server-side authentication or token mapping; ignore client role headers in production.
 - [x] Make approval records tamper-evident and use the tamper-evident record in the live decision path.
 - [x] Add real counters and latency metrics for starts, holds, approvals, rejections, MCP errors, and expose them safely.
+
+## SaaS production completion
+- [x] Restore and verify the Pactline logo asset in the actual running dashboard build.
+- [x] Build real Settings navigation and workspace configuration view.
+- [x] Replace static subpage events, timestamps, plan metadata, and health metrics with API-derived data.
+- [ ] Make visible buttons perform real actions or show honest disabled states.
+- [x] Add backend-backed workspace settings read/update endpoints with authentication.
+- [ ] Add real audit, run-history, and approval data endpoints for the dashboard.
+- [ ] Add production-safe authentication redirect, authorization, CORS, validation, and error handling.
+- [ ] Add UI tests/integration tests for settings, navigation, run reset, approve, and reject.
+- [x] Verify logo, responsive layout, all major routes, and production build.
+- [ ] Save checkpoint and synchronize the SaaS completion changes to GitHub.
