@@ -272,3 +272,10 @@
 - [x] Avoid malformed analytics script requests when optional analytics variables are absent.
 - [x] Validate `pnpm dev` startup and `/api/run` reachability on the local stack.
 - [ ] Save checkpoint and synchronize the Windows startup fix.
+
+## Settings localhost authorization bug
+- [x] Diagnose the localhost `/api/profile` 403 shown when saving profile settings.
+- [x] Apply a secure local-development-compatible authorization fix without weakening production authorization.
+- [x] Add or update a regression test for profile read/update authorization.
+- [ ] Validate profile save and reload from the localhost Settings page.
+- [ ] Save checkpoint and synchronize the fix to GitHub.

@@ -13,8 +13,8 @@ export function applySecurity(req, res) {
   res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   const configuredOrigin = process.env.PACTLINE_FRONTEND_ORIGIN;
   const requestOrigin = req.headers?.origin;
-  if (configuredOrigin && requestOrigin === configuredOrigin) {
-    res.setHeader("Access-Control-Allow-Origin", configuredOrigin);
+  if (isAllowedOrigin(requestOrigin)) {
+    res.setHeader("Access-Control-Allow-Origin", requestOrigin || configuredOrigin);
     res.setHeader("Vary", "Origin");
   }
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key, X-Request-ID");
@@ -35,11 +35,19 @@ export function rateLimit(req, res, limit = MAX_REQUESTS) {
   return false;
 }
 
-export function allowedOrigin(req) {
+function isLocalOrigin(origin) {
+  return typeof origin === "string" && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+}
+
+function isAllowedOrigin(origin) {
   const configuredOrigin = process.env.PACTLINE_FRONTEND_ORIGIN;
-  const requestOrigin = req.headers?.origin;
-  if (!requestOrigin) return true;
-  return Boolean(configuredOrigin && requestOrigin === configuredOrigin);
+  if (!origin) return true;
+  if (process.env.NODE_ENV !== "production" && isLocalOrigin(origin)) return true;
+  return Boolean(configuredOrigin && origin === configuredOrigin);
+}
+
+export function allowedOrigin(req) {
+  return isAllowedOrigin(req.headers?.origin);
 }
 
 export function isPlainObject(value) {

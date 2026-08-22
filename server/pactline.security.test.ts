@@ -20,6 +20,22 @@ describe("Pactline security helpers", () => {
     expect(validateToolArguments("read_invoice", { invoiceId: "INV-044" })).toBeNull();
   });
 
+  it("allows the localhost Vite origin during development", () => {
+    const previousMode = process.env.NODE_ENV;
+    const previousOrigin = process.env.PACTLINE_FRONTEND_ORIGIN;
+    process.env.NODE_ENV = "development";
+    delete process.env.PACTLINE_FRONTEND_ORIGIN;
+    try {
+      expect(allowedOrigin({ headers: { origin: "http://localhost:5173" } })).toBe(true);
+      expect(allowedOrigin({ headers: { origin: "http://127.0.0.1:3000" } })).toBe(true);
+    } finally {
+      if (previousMode === undefined) delete process.env.NODE_ENV;
+      else process.env.NODE_ENV = previousMode;
+      if (previousOrigin === undefined) delete process.env.PACTLINE_FRONTEND_ORIGIN;
+      else process.env.PACTLINE_FRONTEND_ORIGIN = previousOrigin;
+    }
+  });
+
   it("rejects an origin that differs from the configured frontend", () => {
     const previous = process.env.PACTLINE_FRONTEND_ORIGIN;
     process.env.PACTLINE_FRONTEND_ORIGIN = "https://pactline.example";
