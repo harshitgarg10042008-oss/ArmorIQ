@@ -149,3 +149,17 @@
 - [ ] Load `.env` into the current PowerShell process without printing secrets.
 - [ ] Run the sanitized one-action SDK smoke test.
 - [ ] Redeploy only after the local smoke test succeeds.
+
+## Complete today
+- [ ] Pull and verify the latest implementation on Windows.
+- [ ] Run the real ArmorIQ SDK smoke test and resolve any error.
+- [ ] Redeploy the latest MCP/run API after live-path validation.
+- [ ] Test allow, hold, reject, and approve branches with outbox evidence.
+- [ ] Record the one-minute demo.
+- [ ] Create and review the maximum-10-slide PPT.
+- [ ] Finalize honest claims and submit all required links/files.
+
+## SDK smoke-test correction
+- [ ] Align `armoriq-live-test.mjs` imports with the exports in `armoriq-live-adapter.mjs`.
+- [ ] Validate the corrected SDK runner and synchronize it to GitHub.
+- [ ] Rerun the smoke test with the already configured local credentials.

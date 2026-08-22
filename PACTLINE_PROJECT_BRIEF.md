@@ -230,3 +230,54 @@ After a successful live SDK decision is visible in ArmorIQ, the wording can beco
 [4]: https://docs.armoriq.ai/platform/api-keys "ArmorIQ API Keys"
 
 [5]: https://docs.armoriq.ai/platform "ArmorIQ Platform Documentation"
+
+
+## 13. Exact Windows error and complete repair
+
+The exact error received on Windows was:
+
+```text
+PS C:\Users\vishe\OneDrive\Desktop\Goal\microsoft hack> node agent\armoriq-live-test.mjs
+
+Error: Cannot find module 'C:\Users\vishe\OneDrive\Desktop\Goal\microsoft hack\agent\armoriq-live-test.mjs'
+  code: 'MODULE_NOT_FOUND'
+```
+
+This error does **not** mean that the API key is invalid, the ArmorIQ SDK is broken, or the MCP server failed. It means the Windows copy of the repository did not yet contain the newly created file. The file existed in the development workspace and was then synchronized to GitHub; the Windows project must pull the latest commit before Node can execute it.
+
+The repair sequence is:
+
+```powershell
+cd "C:\Users\vishe\OneDrive\Desktop\Goal\microsoft hack"
+git pull origin main
+Test-Path .\agent\armoriq-live-test.mjs
+pnpm install
+```
+
+`Test-Path` must return `True`. If it returns `False`, the folder is not the synchronized Git repository or the pull did not complete. In that case, run `git status`, confirm the remote is the ArmorIQ repository, and run `git pull origin main` again. Do not create a substitute file manually, because that would cause the local project to diverge from the tested implementation.
+
+The official SDK package must also exist in the same Windows project:
+
+```powershell
+pnpm list @armoriq/sdk
+```
+
+The expected dependency is `@armoriq/sdk 0.6.10`. The `.env` file must remain local and must never be committed. Because a plain `.env` file is not automatically loaded by every Node execution path, load it into the current PowerShell session using the previously validated command, then run the diagnostics without printing secret values:
+
+```powershell
+Get-Content .env | Where-Object { $_ -and $_ -notmatch '^\s*#' } | ForEach-Object { $parts = $_ -split '=', 2; if ($parts.Length -eq 2) { Set-Item -Path "Env:$($parts[0].Trim())" -Value $parts[1].Trim() } }
+node agent\armoriq-preflight.mjs
+node agent\armoriq-live-test.mjs
+```
+
+The preflight should report `ARMORIQ_API_KEY present: true`, `USER_EMAIL present: true`, and no errors. The smoke test should report only sanitized fields such as `status`, `decision`, `sideEffectExecuted`, and `error`. Never send the API key, authorization header, full SDK response, or a screenshot containing the secret.
+
+## 14. No-hardcoded-input rule
+
+The target implementation must not accept a fake decision from the browser or use a fixed frontend event list as its source of truth. The browser may request `start`, `approve`, or `reject`, but the server must own the run state. The server must read the invoice fixture, invoke the MCP tool, call ArmorIQ for authorization, persist the tool result, and return the resulting decision to the frontend. A reject must leave the outbox empty. An approval may write exactly one controlled test-outbox message. If ArmorIQ credentials are missing or the SDK call fails, the system must show an explicit error instead of silently converting the run into a fabricated success.
+
+The current implementation has the real tool runtime and the SDK execution path in the repository, but live verification still depends on the private Windows credentials. The current checkpoint therefore represents a tested implementation path, not proof that the organizer’s live ArmorIQ endpoint has already recorded a successful decision.
+
+## 15. What to do next, in order
+
+First synchronize the Windows repository and confirm that `agent\\armoriq-live-test.mjs` exists. Second install dependencies and run the preflight plus sanitized smoke test. Third, if the smoke test succeeds, configure the same server-side variables in the Vercel project and redeploy. Fourth, run one public invoice workflow and inspect ArmorIQ API logs for a real decision. Fifth, verify both branches: rejection leaves the controlled outbox empty, while approval creates one controlled test message. Only after these checks should the video claim that the SDK is actively enforcing the boundary.
