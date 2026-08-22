@@ -415,3 +415,20 @@
 - [x] Keep snapshot and JSON fallback behavior safe when relational persistence is unavailable.
 - [x] Validate syntax, tests, type checking, and production build.
 - [ ] Add relational approval rows, user ownership, workspace membership, and organization isolation.
+
+## GitHub synchronization repair
+- [x] Inspect the selected repository remote and local branch state without printing credentials.
+- [x] Repair GitHub authentication using the preconfigured CLI path.
+- [x] Push the latest local commits to `harshitgarg10042008-oss/ArmorIQ` `main`.
+- [x] Verify the remote commit and branch contents.
+
+## GitHub CI evidence
+- [x] Verify the latest main commit has a successful Pactline CI run.
+- [x] Record the successful CI URLs and commit hashes in `GITHUB_CI_STATUS.md`.
+
+## Uploaded invoice live MCP deployment alignment
+- [ ] Confirm the ArmorIQ-registered MCP endpoint URL and its deployed revision.
+- [ ] Confirm the updated signed invoice-context MCP code is present in the deployable endpoint.
+- [ ] Prepare the MCP deployment update without exposing credentials or changing the registered endpoint unnecessarily.
+- [ ] Verify `INV-045` reaches allowed actions followed by the intended `send_email` hold.
+- [ ] Document any user-only deployment or ArmorIQ-console action required.
