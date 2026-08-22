@@ -352,3 +352,10 @@
 - [x] Use the uploaded invoice as the next protected run input.
 - [x] Validate tests, type checking, and production build.
 - [ ] Extend intake to PDF/image parsing and extraction.
+
+## Sidebar theme and scroll correction
+- [x] Make the sidebar use the same light/dark theme tokens as the main content.
+- [x] Remove hard-coded dark-only sidebar colors and borders.
+- [x] Keep the sidebar visually filled and stable while the main content scrolls.
+- [ ] Validate light and dark screenshots plus the invoice upload regression.
+- [ ] Save checkpoint and synchronize the UI correction to GitHub.
