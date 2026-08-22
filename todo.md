@@ -180,11 +180,11 @@
 - [ ] Verify localhost frontend calls the backend and starts a real run.
 
 ## write_record failure repair
-- [ ] Capture the exact write_record failure reason and affected persistence path.
-- [ ] Repair write_record so a valid invoice reaches the fourth action without bypassing authorization.
-- [ ] Add regression coverage for write_record persistence and failure classification.
+- [x] Capture the exact write_record failure reason and affected persistence path: Vercel `/var/task/agent/runtime-data/ledger.json` was read-only (EROFS).
+- [x] Repair write_record so a valid invoice reaches the fourth action without bypassing authorization by using the writable serverless runtime directory.
+- [x] Add regression coverage for write_record persistence and failure classification.
 - [ ] Run a fresh protected workflow and verify three allowed actions plus the intended email hold.
-- [ ] Push and checkpoint the verified write_record repair.
+- [ ] Push and checkpoint the verified write_record repair. (Pushed as 7da0823; checkpoint follows.)
 
 ## Uploaded invoice selection repair
 - [x] Trace the registered invoice response and active invoice ID state after upload.
