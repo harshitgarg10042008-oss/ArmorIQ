@@ -320,3 +320,9 @@
 - [ ] Test rejection with no outbox effect.
 - [ ] Test approval with controlled outbox effect and audit evidence.
 - [ ] Save checkpoint and synchronize the final testing/UI correction to GitHub.
+
+## Approval queue resolved-state correction
+- [x] Hide Approval queue decision buttons when no action is held.
+- [x] Show accurate resolved/empty queue copy and status.
+- [ ] Validate queue behavior after reject and approve decisions.
+- [ ] Save checkpoint and synchronize the correction to GitHub.
