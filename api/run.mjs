@@ -1,7 +1,7 @@
 import { randomUUID, timingSafeEqual } from "node:crypto";
 import { createPactlineClient, captureInvoiceIntent, invokeAuthorized } from "../agent/armoriq-live-adapter.mjs";
 import { readInvoice, extractFields, writeRecord, sendEmail, readRuntimeEvidence } from "./pactline-tools.mjs";
-import { appendApproval, getCurrentRun, listRuns, saveRun } from "./pactline-store.mjs";
+import { appendApproval, getCurrentRun, listRuns, resetCurrentRun, saveRun } from "./pactline-store.mjs";
 import { allowedOrigin, applySecurity, rateLimit, validateRunRequest } from "./security.mjs";
 import { sdk } from "../server/_core/sdk";
 import { increment, observe } from "./metrics.mjs";
@@ -164,12 +164,17 @@ export default async function handler(req, res) {
     if (typeof body === "string") { try { body = JSON.parse(body); } catch { return json(res, 400, { error: "Request body must be valid JSON" }); } }
     const validationError = validateRunRequest(body);
     if (validationError) return json(res, 400, { error: validationError, requestId: req.pactlineRequestId });
+    if (body?.operation === "reset") {
+      await operatorContext(req, false);
+      await resetCurrentRun();
+      return json(res, 200, { currentRun: null, runs: await listRuns(), reset: true });
+    }
     if (body?.operation === "start") {
       const auth = await operatorContext(req, false);
       return json(res, 201, publicRun(await createRun({ invoiceId: body.invoiceId, actor: auth.actor })));
     }
     if (body?.operation === "decide" && ["approve", "reject"].includes(body.decision)) return json(res, 200, publicRun(await decide(body.decision, req, body.comment, body.idempotencyKey)));
-    return json(res, 400, { error: "Expected operation=start or operation=decide with approve/reject" });
+    return json(res, 400, { error: "Expected operation=start or operation=decide with approve/reject or operation=reset" });
   } catch (error) {
     const statusCode = Number(error?.statusCode) || 502;
     return json(res, statusCode, { error: error instanceof Error ? error.message : "Pactline live execution failed", mode: "armoriq-sdk-live" });

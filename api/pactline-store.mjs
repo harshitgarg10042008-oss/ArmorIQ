@@ -32,6 +32,13 @@ export async function getCurrentRun() {
   return runs[0] || null;
 }
 
+export async function resetCurrentRun() {
+  const runs = await listRuns();
+  const [current, ...history] = runs;
+  if (current) await writeJson(RUNS_FILE, history);
+  return current || null;
+}
+
 export async function saveRun(run) {
   const runs = await listRuns();
   const next = [run, ...runs.filter((item) => item.runId !== run.runId)].slice(0, 50);

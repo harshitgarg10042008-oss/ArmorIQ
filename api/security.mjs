@@ -58,7 +58,8 @@ export function validateRunRequest(body) {
     if (body.idempotencyKey !== undefined && (typeof body.idempotencyKey !== "string" || body.idempotencyKey.length < 8 || body.idempotencyKey.length > 128)) return "idempotencyKey must be 8–128 characters";
     return null;
   }
-  return "Expected operation=start or operation=decide";
+  if (body.operation === "reset") return null;
+  return "Expected operation=start, operation=decide, or operation=reset";
 }
 
 export function validateToolArguments(name, args = {}) {
