@@ -326,3 +326,11 @@
 - [x] Show accurate resolved/empty queue copy and status.
 - [ ] Validate queue behavior after reject and approve decisions.
 - [ ] Save checkpoint and synchronize the correction to GitHub.
+
+## Intent plans and Audit trail separation
+- [x] Make Intent plans focus on captured plan identity, steps, policy, MCP, and authorization metadata.
+- [x] Make Audit trail focus on chronological backend evidence and decision outcomes.
+- [x] Keep CSV/PDF audit export controls on the Audit trail experience.
+- [x] Add distinct empty states and labels so the pages are not visually duplicated.
+- [x] Validate navigation and page rendering.
+- [ ] Save checkpoint and synchronize the correction to GitHub.
