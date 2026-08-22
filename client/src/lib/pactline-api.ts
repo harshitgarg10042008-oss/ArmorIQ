@@ -26,7 +26,7 @@ export type PactlineRun = {
 
 type RunResponse = { currentRun: PactlineRun | null; runs: PactlineRun[] };
 
-const API_URL = (import.meta.env.VITE_PACTLINE_API_URL || "https://pactline-agent.vercel.app").replace(/\/$/, "");
+const API_URL = (import.meta.env.VITE_PACTLINE_API_URL || "").replace(/\/$/, "");
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
