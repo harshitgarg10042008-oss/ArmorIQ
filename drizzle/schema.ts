@@ -1,4 +1,4 @@
-import { boolean, int, json, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, int, json, mysqlEnum, mysqlTable, text, timestamp, varchar, uniqueIndex, index } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -44,12 +44,15 @@ export const workspaceMembers = mysqlTable("workspaceMembers", {
   userId: int("userId").notNull(),
   role: mysqlEnum("role", ["viewer", "operator", "approver", "admin"]).default("viewer").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => ({
+  workspaceUserUnique: uniqueIndex("workspaceMembers_workspace_user_unique").on(table.workspaceId, table.userId),
+  workspaceRoleIndex: index("workspaceMembers_workspace_role_idx").on(table.workspaceId, table.role),
+}));
 
 export const invoices = mysqlTable("invoices", {
   id: int("id").autoincrement().primaryKey(),
   workspaceId: int("workspaceId").notNull(),
-  externalId: varchar("externalId", { length: 128 }).notNull().unique(),
+  externalId: varchar("externalId", { length: 128 }).notNull(),
   vendor: varchar("vendor", { length: 255 }).notNull(),
   amountCents: int("amountCents").notNull(),
   currency: varchar("currency", { length: 3 }).notNull(),
@@ -58,7 +61,10 @@ export const invoices = mysqlTable("invoices", {
   extractedData: json("extractedData"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => ({
+  workspaceExternalIdUnique: uniqueIndex("invoices_workspace_external_id_unique").on(table.workspaceId, table.externalId),
+  workspaceStatusIndex: index("invoices_workspace_status_idx").on(table.workspaceId, table.status),
+}));
 
 export const pactlineRunSnapshots = mysqlTable("pactlineRunSnapshots", {
   id: int("id").autoincrement().primaryKey(),
