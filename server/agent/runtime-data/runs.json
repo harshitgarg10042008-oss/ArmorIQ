@@ -1,0 +1,1147 @@
+[
+  {
+    "runId": "run_A6E3CD",
+    "actor": "local-demo-operator",
+    "status": "failed",
+    "invoice": {
+      "id": "INV-045",
+      "fileName": "INV-045.json",
+      "vendor": "BluePeak Industrial Supplies",
+      "amount": 2840.75
+    },
+    "plan": {
+      "id": "plan_932caf7c",
+      "goal": "Process invoice and notify the approved finance recipient",
+      "steps": [
+        {
+          "action": "read_invoice",
+          "mcp": "pactline-invoice",
+          "params": {
+            "invoiceId": "INV-045",
+            "invoice": {
+              "invoiceId": "INV-045",
+              "vendor": "BluePeak Industrial Supplies",
+              "amount": 2840.75,
+              "currency": "INR",
+              "date": "2026-08-22",
+              "lineItems": []
+            }
+          }
+        },
+        {
+          "action": "extract_fields",
+          "mcp": "pactline-invoice",
+          "params": {
+            "invoiceId": "INV-045",
+            "invoice": {
+              "invoiceId": "INV-045",
+              "vendor": "BluePeak Industrial Supplies",
+              "amount": 2840.75,
+              "currency": "INR",
+              "date": "2026-08-22",
+              "lineItems": []
+            }
+          }
+        },
+        {
+          "action": "write_record",
+          "mcp": "pactline-invoice",
+          "params": {
+            "invoiceId": "INV-045",
+            "invoice": {
+              "invoiceId": "INV-045",
+              "vendor": "BluePeak Industrial Supplies",
+              "amount": 2840.75,
+              "currency": "INR",
+              "date": "2026-08-22",
+              "lineItems": []
+            }
+          }
+        },
+        {
+          "action": "send_email",
+          "mcp": "pactline-invoice",
+          "params": {
+            "recipient": "finance@company.test",
+            "dataScope": "invoice metadata and totals",
+            "invoiceId": "INV-045"
+          }
+        }
+      ],
+      "status": "armoriq-sdk-captured",
+      "mcpName": "pactline-invoice"
+    },
+    "actions": [
+      {
+        "name": "read_invoice",
+        "target": "invoice/INV-045",
+        "decision": "failed",
+        "reason": "MCP tool error (-32000): Invoice not found: INV-045 - ",
+        "timestamp": "2026-08-22T09:18:25.057Z",
+        "latency": "2023ms",
+        "requiresHumanApproval": false,
+        "technicalFailure": true
+      },
+      {
+        "name": "extract_fields",
+        "target": "invoice/INV-045/document",
+        "decision": "failed",
+        "reason": "MCP tool error (-32000): Invoice not found: INV-045 - ",
+        "timestamp": "2026-08-22T09:18:26.747Z",
+        "latency": "1690ms",
+        "requiresHumanApproval": false,
+        "technicalFailure": true
+      },
+      {
+        "name": "write_record",
+        "target": "ledger.invoices/INV-045",
+        "decision": "failed",
+        "reason": "MCP tool error (-32000): EROFS: read-only file system, open '/var/task/agent/runtime-data/ledger.json' - ",
+        "timestamp": "2026-08-22T09:18:27.953Z",
+        "latency": "1206ms",
+        "requiresHumanApproval": false,
+        "technicalFailure": true
+      }
+    ],
+    "audit": [
+      {
+        "event": "intent_captured",
+        "name": "capture_plan",
+        "target": "INV-045",
+        "decision": "allowed",
+        "reason": "Intent token issued by ArmorIQ",
+        "timestamp": "2026-08-22T09:18:23.033Z",
+        "latency": "—"
+      },
+      {
+        "name": "read_invoice",
+        "target": "invoice/INV-045",
+        "decision": "failed",
+        "reason": "MCP tool error (-32000): Invoice not found: INV-045 - ",
+        "timestamp": "2026-08-22T09:18:25.057Z",
+        "latency": "2023ms",
+        "requiresHumanApproval": false,
+        "technicalFailure": true,
+        "event": "tool_execution_failed"
+      },
+      {
+        "name": "extract_fields",
+        "target": "invoice/INV-045/document",
+        "decision": "failed",
+        "reason": "MCP tool error (-32000): Invoice not found: INV-045 - ",
+        "timestamp": "2026-08-22T09:18:26.747Z",
+        "latency": "1690ms",
+        "requiresHumanApproval": false,
+        "technicalFailure": true,
+        "event": "tool_execution_failed"
+      },
+      {
+        "name": "write_record",
+        "target": "ledger.invoices/INV-045",
+        "decision": "failed",
+        "reason": "MCP tool error (-32000): EROFS: read-only file system, open '/var/task/agent/runtime-data/ledger.json' - ",
+        "timestamp": "2026-08-22T09:18:27.953Z",
+        "latency": "1206ms",
+        "requiresHumanApproval": false,
+        "technicalFailure": true,
+        "event": "tool_execution_failed"
+      }
+    ],
+    "outbox": [],
+    "createdAt": "2026-08-22T09:18:18.515Z",
+    "mode": "armoriq-sdk-live",
+    "intentToken": {
+      "tokenId": "701b7dbab13e4c0787197332552289ed",
+      "planHash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+      "planId": "97074d25-9b37-4eab-9ec0-7129033e8352",
+      "signature": "3044022070131f4e20ce8243666337b2f5925b2c5eeb55d4b986b548c26d1395ea7db9480220333bd8fa56269b4936c7144d826d2d5625784cf6798659a64cfd5b0820f6c788",
+      "issuedAt": 1787390299,
+      "expiresAt": 1787390359,
+      "policy": {},
+      "compositeIdentity": "",
+      "policyValidation": {
+        "domain": "pactline-agent.vercel.app",
+        "requested_tools": [
+          "read_invoice",
+          "extract_fields",
+          "write_record",
+          "send_email"
+        ],
+        "allowed_tools": [
+          "extract_fields",
+          "read_invoice",
+          "send_email",
+          "write_record"
+        ],
+        "denied_tools": [],
+        "denied_reasons": [],
+        "matched_policies": [
+          {
+            "policyId": "984c23e9-10e4-45e1-af78-6c9ad693ab0f",
+            "policyName": "Pactline Invoice Intent Boundary",
+            "priority": 50,
+            "defaultEnforcementAction": "block",
+            "rules": {}
+          }
+        ],
+        "default_enforcement_action": "block",
+        "decision_source": "opa",
+        "policy_ref": "armoriq:b7077e22ec12:1a028c398b6"
+      },
+      "stepProofs": [
+        {
+          "path": "/steps/[0]/tool",
+          "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+          "kind": "step",
+          "proof": [
+            {
+              "position": "R",
+              "sibling_hash": "32965c7696d9a3cb211f17dfa8eec488b021e5359d16ada080389cd7d44450c7"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "c8c36c5fe09b97371ca119d019acb37d8c368c0f4b22876bae56fcd2da9d45ed"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "9cf505255befd3cb45191080b8d15e3a15e058558799a55a6e62dd9619faf39d"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "8b8e01309662af9c0947cf9335c21dc48611b077c2dbc099fb54c44c9250e330"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "176ea2e155638b4ab32a62d8ed8896f984a6a59fda8b7d3eb08eb56b50a4f269"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "fdde5b97a37dc1365921cd6b8db2f6e9720212781c9b1613ff975bb26fb680f5"
+            }
+          ]
+        },
+        {
+          "path": "/steps/[1]/tool",
+          "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+          "kind": "step",
+          "proof": [
+            {
+              "position": "R",
+              "sibling_hash": "cd681ab799cf7e06af690277527c181b16b64a404199a37cc9f2bd2f5410cb1d"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "4156965c08fed1c8ce9d2fb17078f50d75865a76c0d8d2a0280b193607ecab9a"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "6d30efcaea6af09bb9f16e38c2de2d1480b4e5eb52951f7800c69e2cd4b5db6f"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "5398a9da2b7d565d432225b27c067fd70a05dd9e443bcc1823e12e5f388089f3"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "176ea2e155638b4ab32a62d8ed8896f984a6a59fda8b7d3eb08eb56b50a4f269"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "fdde5b97a37dc1365921cd6b8db2f6e9720212781c9b1613ff975bb26fb680f5"
+            }
+          ]
+        },
+        {
+          "path": "/steps/[2]/tool",
+          "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+          "kind": "step",
+          "proof": [
+            {
+              "position": "R",
+              "sibling_hash": "5b7d98c8b26602560b98a307ee9447f01288419d07a5e0bdcdd4159dab19feac"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "082003d6133b882acba37611ef2b118f7f163571ac89a3c89584861857621627"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "95d6fa04e56462e9c87798787a5cadc0ef504bb99153527321c354c912707dbe"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "6fdc2e06672e7430e278d5a52c2bac2502f3a86f61a46f86fc846e4d09c46aa2"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "c701dedbc7e18cd944dc5d156dc5d3c5b2fbc3d7a5a53188ecdc64a1bb5731d7"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "75943349b92f718f4a83f985bf753fc9006bb5bd8c9d53568ddf0ea1478b8f24"
+            }
+          ]
+        },
+        {
+          "path": "/steps/[3]/tool",
+          "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+          "kind": "step",
+          "proof": [
+            {
+              "position": "L",
+              "sibling_hash": "044639e6fa65d92c70154feb21b8c20fc240ee23433dccbb6dd65231669c9364"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "36b01dee4619e26633f083d2181b9e4ddd27a2c2b2e011fe1e7a9c04c1b4ec22"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "ec8c29c8e525379be94e7ebe5f5d79800c2b3f823622deb531906b6815d0ba59"
+            },
+            {
+              "position": "S",
+              "sibling_hash": "1b2b41f0e5ea2c67d66b25d0998ef9285c1498dff7f021f21ad220a1e01ba6b9"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "640d24e3cb014e4b2717944c53f967b366688d936dcf46fb2e4f02233defd6d8"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "75943349b92f718f4a83f985bf753fc9006bb5bd8c9d53568ddf0ea1478b8f24"
+            }
+          ]
+        }
+      ],
+      "totalSteps": 4,
+      "rawToken": {
+        "plan": {
+          "goal": "Process invoice and notify the approved finance recipient",
+          "steps": [
+            {
+              "action": "read_invoice",
+              "mcp": "pactline-invoice",
+              "params": {
+                "invoiceId": "INV-045",
+                "invoice": {
+                  "invoiceId": "INV-045",
+                  "vendor": "BluePeak Industrial Supplies",
+                  "amount": 2840.75,
+                  "currency": "INR",
+                  "date": "2026-08-22",
+                  "lineItems": []
+                }
+              }
+            },
+            {
+              "action": "extract_fields",
+              "mcp": "pactline-invoice",
+              "params": {
+                "invoiceId": "INV-045",
+                "invoice": {
+                  "invoiceId": "INV-045",
+                  "vendor": "BluePeak Industrial Supplies",
+                  "amount": 2840.75,
+                  "currency": "INR",
+                  "date": "2026-08-22",
+                  "lineItems": []
+                }
+              }
+            },
+            {
+              "action": "write_record",
+              "mcp": "pactline-invoice",
+              "params": {
+                "invoiceId": "INV-045",
+                "invoice": {
+                  "invoiceId": "INV-045",
+                  "vendor": "BluePeak Industrial Supplies",
+                  "amount": 2840.75,
+                  "currency": "INR",
+                  "date": "2026-08-22",
+                  "lineItems": []
+                }
+              }
+            },
+            {
+              "action": "send_email",
+              "mcp": "pactline-invoice",
+              "params": {
+                "recipient": "finance@company.test",
+                "dataScope": "invoice metadata and totals",
+                "invoiceId": "INV-045"
+              }
+            }
+          ]
+        },
+        "plan_id": "97074d25-9b37-4eab-9ec0-7129033e8352",
+        "token": {
+          "plan_hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+          "issued_at": 1787390299,
+          "expires_at": 1787390359,
+          "policy": {
+            "global": {
+              "metadata": {
+                "allow": [
+                  "*"
+                ],
+                "deny": [],
+                "metadata": {
+                  "api_key_domain": "armoriq.io",
+                  "api_key_tier": "pro",
+                  "plan_id": "97074d25-9b37-4eab-9ec0-7129033e8352",
+                  "sdk_type": "customer",
+                  "sdk_version": "customer-1.0.0"
+                }
+              },
+              "digest": "95bd1814af9af0008c1c092724423a115a3e52ca6aabf81a8fa81f2dc1ac5708"
+            }
+          },
+          "identity": "968267697db07a8c5c532b41bdbef46c032787f20ea980333f6e2d7a402e50e1",
+          "public_key": "04cb5c84ca7b044c4fa9f13ed229ea2683734b9590bf7deea398f18613d9b4700cf11f0626d9e6253d7f1f2cc376b7e9b5c1cf6deac844434da8f38df6a0dbd52c",
+          "signature": "3044022070131f4e20ce8243666337b2f5925b2c5eeb55d4b986b548c26d1395ea7db9480220333bd8fa56269b4936c7144d826d2d5625784cf6798659a64cfd5b0820f6c788",
+          "version": "IAP-0.1"
+        },
+        "plan_hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+        "merkle_root": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+        "intent_reference": "701b7dbab13e4c0787197332552289ed",
+        "composite_identity": "",
+        "step_proofs": [
+          {
+            "path": "/steps/[0]/tool",
+            "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+            "kind": "step",
+            "proof": [
+              {
+                "position": "R",
+                "sibling_hash": "32965c7696d9a3cb211f17dfa8eec488b021e5359d16ada080389cd7d44450c7"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "c8c36c5fe09b97371ca119d019acb37d8c368c0f4b22876bae56fcd2da9d45ed"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "9cf505255befd3cb45191080b8d15e3a15e058558799a55a6e62dd9619faf39d"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "8b8e01309662af9c0947cf9335c21dc48611b077c2dbc099fb54c44c9250e330"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "176ea2e155638b4ab32a62d8ed8896f984a6a59fda8b7d3eb08eb56b50a4f269"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "fdde5b97a37dc1365921cd6b8db2f6e9720212781c9b1613ff975bb26fb680f5"
+              }
+            ]
+          },
+          {
+            "path": "/steps/[1]/tool",
+            "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+            "kind": "step",
+            "proof": [
+              {
+                "position": "R",
+                "sibling_hash": "cd681ab799cf7e06af690277527c181b16b64a404199a37cc9f2bd2f5410cb1d"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "4156965c08fed1c8ce9d2fb17078f50d75865a76c0d8d2a0280b193607ecab9a"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "6d30efcaea6af09bb9f16e38c2de2d1480b4e5eb52951f7800c69e2cd4b5db6f"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "5398a9da2b7d565d432225b27c067fd70a05dd9e443bcc1823e12e5f388089f3"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "176ea2e155638b4ab32a62d8ed8896f984a6a59fda8b7d3eb08eb56b50a4f269"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "fdde5b97a37dc1365921cd6b8db2f6e9720212781c9b1613ff975bb26fb680f5"
+              }
+            ]
+          },
+          {
+            "path": "/steps/[2]/tool",
+            "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+            "kind": "step",
+            "proof": [
+              {
+                "position": "R",
+                "sibling_hash": "5b7d98c8b26602560b98a307ee9447f01288419d07a5e0bdcdd4159dab19feac"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "082003d6133b882acba37611ef2b118f7f163571ac89a3c89584861857621627"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "95d6fa04e56462e9c87798787a5cadc0ef504bb99153527321c354c912707dbe"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "6fdc2e06672e7430e278d5a52c2bac2502f3a86f61a46f86fc846e4d09c46aa2"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "c701dedbc7e18cd944dc5d156dc5d3c5b2fbc3d7a5a53188ecdc64a1bb5731d7"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "75943349b92f718f4a83f985bf753fc9006bb5bd8c9d53568ddf0ea1478b8f24"
+              }
+            ]
+          },
+          {
+            "path": "/steps/[3]/tool",
+            "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+            "kind": "step",
+            "proof": [
+              {
+                "position": "L",
+                "sibling_hash": "044639e6fa65d92c70154feb21b8c20fc240ee23433dccbb6dd65231669c9364"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "36b01dee4619e26633f083d2181b9e4ddd27a2c2b2e011fe1e7a9c04c1b4ec22"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "ec8c29c8e525379be94e7ebe5f5d79800c2b3f823622deb531906b6815d0ba59"
+              },
+              {
+                "position": "S",
+                "sibling_hash": "1b2b41f0e5ea2c67d66b25d0998ef9285c1498dff7f021f21ad220a1e01ba6b9"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "640d24e3cb014e4b2717944c53f967b366688d936dcf46fb2e4f02233defd6d8"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "75943349b92f718f4a83f985bf753fc9006bb5bd8c9d53568ddf0ea1478b8f24"
+              }
+            ]
+          }
+        ]
+      },
+      "jwtToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaWFwX3Rva2VuIiwicGxhbl9pZCI6Ijk3MDc0ZDI1LTliMzctNGVhYi05ZWMwLTcxMjkwMzNlODM1MiIsInVzZXJfaWQiOiJfX3Nka19tdWx0aXVzZXJfXyIsImFnZW50X2lkIjoiX19zZGtfbXVsdGl1c2VyX18iLCJjb250ZXh0X2lkIjoiZGVmYXVsdCIsImludGVudF9yZWZlcmVuY2UiOiI3MDFiN2RiYWIxM2U0YzA3ODcxOTczMzI1NTIyODllZCIsInBsYW5faGFzaCI6IjRlNjA2NDg0M2U5MTc4Y2E2Mzk4OTEzODgzMGE3NTUyYjNlMGNmZDI0MDY1ZjMxOTM1MjQwMTg2NjhkNWI2OWMiLCJtZXJrbGVfcm9vdCI6IjRlNjA2NDg0M2U5MTc4Y2E2Mzk4OTEzODgzMGE3NTUyYjNlMGNmZDI0MDY1ZjMxOTM1MjQwMTg2NjhkNWI2OWMiLCJjc3JnX3Rva2VuIjp7InBsYW5faGFzaCI6IjRlNjA2NDg0M2U5MTc4Y2E2Mzk4OTEzODgzMGE3NTUyYjNlMGNmZDI0MDY1ZjMxOTM1MjQwMTg2NjhkNWI2OWMiLCJpc3N1ZWRfYXQiOjE3ODczOTAyOTksImV4cGlyZXNfYXQiOjE3ODczOTAzNTksInBvbGljeSI6eyJnbG9iYWwiOnsibWV0YWRhdGEiOnsiYWxsb3ciOlsiKiJdLCJkZW55IjpbXSwibWV0YWRhdGEiOnsiYXBpX2tleV9kb21haW4iOiJhcm1vcmlxLmlvIiwiYXBpX2tleV90aWVyIjoicHJvIiwicGxhbl9pZCI6Ijk3MDc0ZDI1LTliMzctNGVhYi05ZWMwLTcxMjkwMzNlODM1MiIsInNka190eXBlIjoiY3VzdG9tZXIiLCJzZGtfdmVyc2lvbiI6ImN1c3RvbWVyLTEuMC4wIn19LCJkaWdlc3QiOiI5NWJkMTgxNGFmOWFmMDAwOGMxYzA5MjcyNDQyM2ExMTVhM2U1MmNhNmFhYmY4MWE4ZmE4MWYyZGMxYWM1NzA4In19LCJpZGVudGl0eSI6Ijk2ODI2NzY5N2RiMDdhOGM1YzUzMmI0MWJkYmVmNDZjMDMyNzg3ZjIwZWE5ODAzMzNmNmUyZDdhNDAyZTUwZTEiLCJwdWJsaWNfa2V5IjoiMDRjYjVjODRjYTdiMDQ0YzRmYTlmMTNlZDIyOWVhMjY4MzczNGI5NTkwYmY3ZGVlYTM5OGYxODYxM2Q5YjQ3MDBjZjExZjA2MjZkOWU2MjUzZDdmMWYyY2MzNzZiN2U5YjVjMWNmNmRlYWM4NDQ0MzRkYThmMzhkZjZhMGRiZDUyYyIsInNpZ25hdHVyZSI6IjMwNDQwMjIwNzAxMzFmNGUyMGNlODI0MzY2NjMzN2IyZjU5MjViMmM1ZWViNTVkNGI5ODZiNTQ4YzI2ZDEzOTVlYTdkYjk0ODAyMjAzMzNiZDhmYTU2MjY5YjQ5MzZjNzE0NGQ4MjZkMmQ1NjI1Nzg0Y2Y2Nzk4NjU5YTY0Y2ZkNWIwODIwZjZjNzg4IiwidmVyc2lvbiI6IklBUC0wLjEifSwic3RlcF9wcm9vZnMiOlt7InBhdGgiOiIvc3RlcHMvWzBdL3Rvb2wiLCJoYXNoIjoiNGU2MDY0ODQzZTkxNzhjYTYzOTg5MTM4ODMwYTc1NTJiM2UwY2ZkMjQwNjVmMzE5MzUyNDAxODY2OGQ1YjY5YyIsImtpbmQiOiJzdGVwIiwicHJvb2YiOlt7InBvc2l0aW9uIjoiUiIsInNpYmxpbmdfaGFzaCI6IjMyOTY1Yzc2OTZkOWEzY2IyMTFmMTdkZmE4ZWVjNDg4YjAyMWU1MzU5ZDE2YWRhMDgwMzg5Y2Q3ZDQ0NDUwYzcifSx7InBvc2l0aW9uIjoiUiIsInNpYmxpbmdfaGFzaCI6ImM4YzM2YzVmZTA5Yjk3MzcxY2ExMTlkMDE5YWNiMzdkOGMzNjhjMGY0YjIyODc2YmFlNTZmY2QyZGE5ZDQ1ZWQifSx7InBvc2l0aW9uIjoiUiIsInNpYmxpbmdfaGFzaCI6IjljZjUwNTI1NWJlZmQzY2I0NTE5MTA4MGI4ZDE1ZTNhMTVlMDU4NTU4Nzk5YTU1YTZlNjJkZDk2MTlmYWYzOWQifSx7InBvc2l0aW9uIjoiUiIsInNpYmxpbmdfaGFzaCI6IjhiOGUwMTMwOTY2MmFmOWMwOTQ3Y2Y5MzM1YzIxZGM0ODYxMWIwNzdjMmRiYzA5OWZiNTRjNDRjOTI1MGUzMzAifSx7InBvc2l0aW9uIjoiTCIsInNpYmxpbmdfaGFzaCI6IjE3NmVhMmUxNTU2MzhiNGFiMzJhNjJkOGVkODg5NmY5ODRhNmE1OWZkYThiN2QzZWIwOGViNTZiNTBhNGYyNjkifSx7InBvc2l0aW9uIjoiUiIsInNpYmxpbmdfaGFzaCI6ImZkZGU1Yjk3YTM3ZGMxMzY1OTIxY2Q2YjhkYjJmNmU5NzIwMjEyNzgxYzliMTYxM2ZmOTc1YmIyNmZiNjgwZjUifV19LHsicGF0aCI6Ii9zdGVwcy9bMV0vdG9vbCIsImhhc2giOiI0ZTYwNjQ4NDNlOTE3OGNhNjM5ODkxMzg4MzBhNzU1MmIzZTBjZmQyNDA2NWYzMTkzNTI0MDE4NjY4ZDViNjljIiwia2luZCI6InN0ZXAiLCJwcm9vZiI6W3sicG9zaXRpb24iOiJSIiwic2libGluZ19oYXNoIjoiY2Q2ODFhYjc5OWNmN2UwNmFmNjkwMjc3NTI3YzE4MWIxNmI2NGE0MDQxOTlhMzdjYzlmMmJkMmY1NDEwY2IxZCJ9LHsicG9zaXRpb24iOiJMIiwic2libGluZ19oYXNoIjoiNDE1Njk2NWMwOGZlZDFjOGNlOWQyZmIxNzA3OGY1MGQ3NTg2NWE3NmMwZDhkMmEwMjgwYjE5MzYwN2VjYWI5YSJ9LHsicG9zaXRpb24iOiJMIiwic2libGluZ19oYXNoIjoiNmQzMGVmY2FlYTZhZjA5YmI5ZjE2ZTM4YzJkZTJkMTQ4MGI0ZTVlYjUyOTUxZjc4MDBjNjllMmNkNGI1ZGI2ZiJ9LHsicG9zaXRpb24iOiJMIiwic2libGluZ19oYXNoIjoiNTM5OGE5ZGEyYjdkNTY1ZDQzMjIyNWIyN2MwNjdmZDcwYTA1ZGQ5ZTQ0M2JjYzE4MjNlMTJlNWYzODgwODlmMyJ9LHsicG9zaXRpb24iOiJMIiwic2libGluZ19oYXNoIjoiMTc2ZWEyZTE1NTYzOGI0YWIzMmE2MmQ4ZWQ4ODk2Zjk4NGE2YTU5ZmRhOGI3ZDNlYjA4ZWI1NmI1MGE0ZjI2OSJ9LHsicG9zaXRpb24iOiJSIiwic2libGluZ19oYXNoIjoiZmRkZTViOTdhMzdkYzEzNjU5MjFjZDZiOGRiMmY2ZTk3MjAyMTI3ODFjOWIxNjEzZmY5NzViYjI2ZmI2ODBmNSJ9XX0seyJwYXRoIjoiL3N0ZXBzL1syXS90b29sIiwiaGFzaCI6IjRlNjA2NDg0M2U5MTc4Y2E2Mzk4OTEzODgzMGE3NTUyYjNlMGNmZDI0MDY1ZjMxOTM1MjQwMTg2NjhkNWI2OWMiLCJraW5kIjoic3RlcCIsInByb29mIjpbeyJwb3NpdGlvbiI6IlIiLCJzaWJsaW5nX2hhc2giOiI1YjdkOThjOGIyNjYwMjU2MGI5OGEzMDdlZTk0NDdmMDEyODg0MTlkMDdhNWUwYmRjZGQ0MTU5ZGFiMTlmZWFjIn0seyJwb3NpdGlvbiI6IlIiLCJzaWJsaW5nX2hhc2giOiIwODIwMDNkNjEzM2I4ODJhY2JhMzc2MTFlZjJiMTE4ZjdmMTYzNTcxYWM4OWEzYzg5NTg0ODYxODU3NjIxNjI3In0seyJwb3NpdGlvbiI6IkwiLCJzaWJsaW5nX2hhc2giOiI5NWQ2ZmEwNGU1NjQ2MmU5Yzg3Nzk4Nzg3YTVjYWRjMGVmNTA0YmI5OTE1MzUyNzMyMWMzNTRjOTEyNzA3ZGJlIn0seyJwb3NpdGlvbiI6IkwiLCJzaWJsaW5nX2hhc2giOiI2ZmRjMmUwNjY3MmU3NDMwZTI3OGQ1YTUyYzJiYWMyNTAyZjNhODZmNjFhNDZmODZmYzg0NmU0ZDA5YzQ2YWEyIn0seyJwb3NpdGlvbiI6IlIiLCJzaWJsaW5nX2hhc2giOiJjNzAxZGVkYmM3ZTE4Y2Q5NDRkYzVkMTU2ZGM1ZDNjNWIyZmJjM2Q3YTVhNTMxODhlY2RjNjRhMWJiNTczMWQ3In0seyJwb3NpdGlvbiI6IkwiLCJzaWJsaW5nX2hhc2giOiI3NTk0MzM0OWI5MmY3MThmNGE4M2Y5ODViZjc1M2ZjOTAwNmJiNWJkOGM5ZDUzNTY4ZGRmMGVhMTQ3OGI4ZjI0In1dfSx7InBhdGgiOiIvc3RlcHMvWzNdL3Rvb2wiLCJoYXNoIjoiNGU2MDY0ODQzZTkxNzhjYTYzOTg5MTM4ODMwYTc1NTJiM2UwY2ZkMjQwNjVmMzE5MzUyNDAxODY2OGQ1YjY5YyIsImtpbmQiOiJzdGVwIiwicHJvb2YiOlt7InBvc2l0aW9uIjoiTCIsInNpYmxpbmdfaGFzaCI6IjA0NDYzOWU2ZmE2NWQ5MmM3MDE1NGZlYjIxYjhjMjBmYzI0MGVlMjM0MzNkY2NiYjZkZDY1MjMxNjY5YzkzNjQifSx7InBvc2l0aW9uIjoiUiIsInNpYmxpbmdfaGFzaCI6IjM2YjAxZGVlNDYxOWUyNjYzM2YwODNkMjE4MWI5ZTRkZGQyN2EyYzJiMmUwMTFmZTFlN2E5YzA0YzFiNGVjMjIifSx7InBvc2l0aW9uIjoiTCIsInNpYmxpbmdfaGFzaCI6ImVjOGMyOWM4ZTUyNTM3OWJlOTRlN2ViZTVmNWQ3OTgwMGMyYjNmODIzNjIyZGViNTMxOTA2YjY4MTVkMGJhNTkifSx7InBvc2l0aW9uIjoiUyIsInNpYmxpbmdfaGFzaCI6IjFiMmI0MWYwZTVlYTJjNjdkNjZiMjVkMDk5OGVmOTI4NWMxNDk4ZGZmN2YwMjFmMjFhZDIyMGExZTAxYmE2YjkifSx7InBvc2l0aW9uIjoiTCIsInNpYmxpbmdfaGFzaCI6IjY0MGQyNGUzY2IwMTRlNGIyNzE3OTQ0YzUzZjk2N2IzNjY2ODhkOTM2ZGNmNDZmYjJlNGYwMjIzM2RlZmQ2ZDgifSx7InBvc2l0aW9uIjoiTCIsInNpYmxpbmdfaGFzaCI6Ijc1OTQzMzQ5YjkyZjcxOGY0YTgzZjk4NWJmNzUzZmM5MDA2YmI1YmQ4YzlkNTM1NjhkZGYwZWExNDc4YjhmMjQifV19XSwicG9saWN5X3ZhbGlkYXRpb24iOnsiZG9tYWluIjoiYXJtb3JpcS5pbyIsImFsbG93ZWRfdG9vbHMiOlsiZXh0cmFjdF9maWVsZHMiLCJyZWFkX2ludm9pY2UiLCJzZW5kX2VtYWlsIiwid3JpdGVfcmVjb3JkIl0sImRlbmllZF90b29scyI6W10sImRlbmllZF9yZWFzb25zIjpbXSwiZGVmYXVsdF9lbmZvcmNlbWVudF9hY3Rpb24iOiJibG9jayIsIm1hdGNoZWRfcG9saWNpZXMiOlt7InBvbGljeUlkIjoiOTg0YzIzZTktMTBlNC00NWUxLWFmNzgtNmM5YWQ2OTNhYjBmIiwibmFtZSI6IlBhY3RsaW5lIEludm9pY2UgSW50ZW50IEJvdW5kYXJ5IiwidGFyZ2V0VHlwZSI6Im1jcF9zZXJ2ZXIiLCJ0YXJnZXRJZCI6IjMzYjNlNjgxLWUwNjctNDlmZi1hOTVmLWExZDQxYjBmMzYxOCIsInByaW9yaXR5Ijo1MCwiZGVmYXVsdEVuZm9yY2VtZW50QWN0aW9uIjoiYmxvY2siLCJhbGxvd2VkVG9vbHMiOlsiZXh0cmFjdF9maWVsZHMiLCJyZWFkX2ludm9pY2UiLCJzZW5kX2VtYWlsIiwid3JpdGVfcmVjb3JkIl0sInRvb2xFbmZvcmNlbWVudCI6eyJzZW5kX2VtYWlsIjoiaG9sZCIsInJlYWRfaW52b2ljZSI6ImFsbG93Iiwid3JpdGVfcmVjb3JkIjoiYWxsb3ciLCJleHRyYWN0X2ZpZWxkcyI6ImFsbG93In19XX0sImlhdCI6MTc4NzM5MDI5OSwiZXhwIjoxNzg3MzkwMzU5fQ.ogP1gizaNMfCE7rFOod_U4sGYZ4YpH5mS1pGYu25QXY",
+      "policySnapshot": [
+        {
+          "policyId": "984c23e9-10e4-45e1-af78-6c9ad693ab0f",
+          "policyName": "Pactline Invoice Intent Boundary",
+          "priority": 50,
+          "targetType": "mcp_server",
+          "targetId": "33b3e681-e067-49ff-a95f-a1d41b0f3618",
+          "policyHash": "b7077e22ec12853414f316885166be8ae6efb33341722271f417e788c4eaae89",
+          "policyVersion": "1.0.0",
+          "defaultEnforcementAction": "block",
+          "memberRule": {
+            "allowedTools": [
+              "extract_fields",
+              "read_invoice",
+              "send_email",
+              "write_record"
+            ],
+            "toolEnforcement": {
+              "send_email": "hold",
+              "read_invoice": "allow",
+              "write_record": "allow",
+              "extract_fields": "allow"
+            }
+          }
+        }
+      ]
+    },
+    "userEmail": "harshitgarg.10042008@gmail.com",
+    "mcpName": "pactline-invoice"
+  },
+  {
+    "runId": "run_156C6B",
+    "actor": "local-demo-operator",
+    "status": "held",
+    "invoice": {
+      "id": "INV-045",
+      "fileName": "INV-045.json",
+      "vendor": "BluePeak Industrial Supplies",
+      "amount": 2840.75
+    },
+    "plan": {
+      "id": "plan_d19f1939",
+      "goal": "Process invoice and notify the approved finance recipient",
+      "steps": [
+        {
+          "action": "read_invoice",
+          "mcp": "pactline-invoice",
+          "params": {
+            "invoiceId": "INV-045",
+            "invoice": {
+              "invoiceId": "INV-045",
+              "vendor": "BluePeak Industrial Supplies",
+              "amount": 2840.75,
+              "currency": "INR",
+              "date": "2026-08-22",
+              "lineItems": []
+            }
+          }
+        },
+        {
+          "action": "extract_fields",
+          "mcp": "pactline-invoice",
+          "params": {
+            "invoiceId": "INV-045",
+            "invoice": {
+              "invoiceId": "INV-045",
+              "vendor": "BluePeak Industrial Supplies",
+              "amount": 2840.75,
+              "currency": "INR",
+              "date": "2026-08-22",
+              "lineItems": []
+            }
+          }
+        },
+        {
+          "action": "write_record",
+          "mcp": "pactline-invoice",
+          "params": {
+            "invoiceId": "INV-045",
+            "invoice": {
+              "invoiceId": "INV-045",
+              "vendor": "BluePeak Industrial Supplies",
+              "amount": 2840.75,
+              "currency": "INR",
+              "date": "2026-08-22",
+              "lineItems": []
+            }
+          }
+        },
+        {
+          "action": "send_email",
+          "mcp": "pactline-invoice",
+          "params": {
+            "recipient": "finance@company.test",
+            "dataScope": "invoice metadata and totals",
+            "invoiceId": "INV-045"
+          }
+        }
+      ],
+      "status": "armoriq-sdk-captured",
+      "mcpName": "pactline-invoice"
+    },
+    "actions": [
+      {
+        "name": "read_invoice",
+        "target": "invoice/INV-045",
+        "decision": "held",
+        "reason": "MCP tool error (-32000): Invoice not found: INV-045 - ",
+        "timestamp": "2026-08-22T09:10:38.567Z",
+        "latency": "Awaiting decision",
+        "requiresHumanApproval": true
+      },
+      {
+        "name": "extract_fields",
+        "target": "invoice/INV-045/document",
+        "decision": "held",
+        "reason": "MCP tool error (-32000): Invoice not found: INV-045 - ",
+        "timestamp": "2026-08-22T09:10:39.487Z",
+        "latency": "Awaiting decision",
+        "requiresHumanApproval": true
+      },
+      {
+        "name": "write_record",
+        "target": "ledger.invoices/INV-045",
+        "decision": "held",
+        "reason": "MCP tool error (-32000): EROFS: read-only file system, open '/var/task/agent/runtime-data/ledger.json' - ",
+        "timestamp": "2026-08-22T09:10:40.439Z",
+        "latency": "Awaiting decision",
+        "requiresHumanApproval": true
+      },
+      {
+        "name": "send_email",
+        "target": "external-review@protonmail.test",
+        "decision": "held",
+        "reason": "Tool 'send_email' held for approval by member policy rule",
+        "timestamp": "2026-08-22T09:10:41.330Z",
+        "latency": "Awaiting decision",
+        "requiresHumanApproval": true
+      }
+    ],
+    "audit": [
+      {
+        "event": "intent_captured",
+        "name": "capture_plan",
+        "target": "INV-045",
+        "decision": "allowed",
+        "reason": "Intent token issued by ArmorIQ",
+        "timestamp": "2026-08-22T09:10:37.136Z",
+        "latency": "—"
+      },
+      {
+        "name": "read_invoice",
+        "target": "invoice/INV-045",
+        "decision": "held",
+        "reason": "MCP tool error (-32000): Invoice not found: INV-045 - ",
+        "timestamp": "2026-08-22T09:10:38.567Z",
+        "latency": "Awaiting decision",
+        "requiresHumanApproval": true,
+        "event": "authorization_held"
+      },
+      {
+        "name": "extract_fields",
+        "target": "invoice/INV-045/document",
+        "decision": "held",
+        "reason": "MCP tool error (-32000): Invoice not found: INV-045 - ",
+        "timestamp": "2026-08-22T09:10:39.487Z",
+        "latency": "Awaiting decision",
+        "requiresHumanApproval": true,
+        "event": "authorization_held"
+      },
+      {
+        "name": "write_record",
+        "target": "ledger.invoices/INV-045",
+        "decision": "held",
+        "reason": "MCP tool error (-32000): EROFS: read-only file system, open '/var/task/agent/runtime-data/ledger.json' - ",
+        "timestamp": "2026-08-22T09:10:40.439Z",
+        "latency": "Awaiting decision",
+        "requiresHumanApproval": true,
+        "event": "authorization_held"
+      },
+      {
+        "name": "send_email",
+        "target": "external-review@protonmail.test",
+        "decision": "held",
+        "reason": "Tool 'send_email' held for approval by member policy rule",
+        "timestamp": "2026-08-22T09:10:41.330Z",
+        "latency": "Awaiting decision",
+        "requiresHumanApproval": true,
+        "event": "authorization_held"
+      }
+    ],
+    "outbox": [],
+    "createdAt": "2026-08-22T09:10:32.114Z",
+    "mode": "armoriq-sdk-live",
+    "intentToken": {
+      "tokenId": "f9025e7c2d5844669e808831416a329e",
+      "planHash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+      "planId": "aa8744d3-7bfb-40d9-8047-281711216b43",
+      "signature": "3046022100d4149ce2e1eec9312d3fc001685fb52b66b2da8d9807170dca17f3b2d2a3e56d022100975e0d1c0f97ec3756f1f16f5da40617c72ff027742dbc90a7dd1a3da092faba",
+      "issuedAt": 1787389833,
+      "expiresAt": 1787389893,
+      "policy": {},
+      "compositeIdentity": "",
+      "policyValidation": {
+        "domain": "pactline-agent.vercel.app",
+        "requested_tools": [
+          "read_invoice",
+          "extract_fields",
+          "write_record",
+          "send_email"
+        ],
+        "allowed_tools": [
+          "extract_fields",
+          "read_invoice",
+          "send_email",
+          "write_record"
+        ],
+        "denied_tools": [],
+        "denied_reasons": [],
+        "matched_policies": [
+          {
+            "policyId": "984c23e9-10e4-45e1-af78-6c9ad693ab0f",
+            "policyName": "Pactline Invoice Intent Boundary",
+            "priority": 50,
+            "defaultEnforcementAction": "block",
+            "rules": {}
+          }
+        ],
+        "default_enforcement_action": "block",
+        "decision_source": "opa",
+        "policy_ref": "armoriq:b7077e22ec12:1a028bc7dd7"
+      },
+      "stepProofs": [
+        {
+          "path": "/steps/[0]/tool",
+          "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+          "kind": "step",
+          "proof": [
+            {
+              "position": "R",
+              "sibling_hash": "32965c7696d9a3cb211f17dfa8eec488b021e5359d16ada080389cd7d44450c7"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "c8c36c5fe09b97371ca119d019acb37d8c368c0f4b22876bae56fcd2da9d45ed"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "9cf505255befd3cb45191080b8d15e3a15e058558799a55a6e62dd9619faf39d"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "8b8e01309662af9c0947cf9335c21dc48611b077c2dbc099fb54c44c9250e330"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "176ea2e155638b4ab32a62d8ed8896f984a6a59fda8b7d3eb08eb56b50a4f269"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "fdde5b97a37dc1365921cd6b8db2f6e9720212781c9b1613ff975bb26fb680f5"
+            }
+          ]
+        },
+        {
+          "path": "/steps/[1]/tool",
+          "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+          "kind": "step",
+          "proof": [
+            {
+              "position": "R",
+              "sibling_hash": "cd681ab799cf7e06af690277527c181b16b64a404199a37cc9f2bd2f5410cb1d"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "4156965c08fed1c8ce9d2fb17078f50d75865a76c0d8d2a0280b193607ecab9a"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "6d30efcaea6af09bb9f16e38c2de2d1480b4e5eb52951f7800c69e2cd4b5db6f"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "5398a9da2b7d565d432225b27c067fd70a05dd9e443bcc1823e12e5f388089f3"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "176ea2e155638b4ab32a62d8ed8896f984a6a59fda8b7d3eb08eb56b50a4f269"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "fdde5b97a37dc1365921cd6b8db2f6e9720212781c9b1613ff975bb26fb680f5"
+            }
+          ]
+        },
+        {
+          "path": "/steps/[2]/tool",
+          "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+          "kind": "step",
+          "proof": [
+            {
+              "position": "R",
+              "sibling_hash": "5b7d98c8b26602560b98a307ee9447f01288419d07a5e0bdcdd4159dab19feac"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "082003d6133b882acba37611ef2b118f7f163571ac89a3c89584861857621627"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "95d6fa04e56462e9c87798787a5cadc0ef504bb99153527321c354c912707dbe"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "6fdc2e06672e7430e278d5a52c2bac2502f3a86f61a46f86fc846e4d09c46aa2"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "c701dedbc7e18cd944dc5d156dc5d3c5b2fbc3d7a5a53188ecdc64a1bb5731d7"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "75943349b92f718f4a83f985bf753fc9006bb5bd8c9d53568ddf0ea1478b8f24"
+            }
+          ]
+        },
+        {
+          "path": "/steps/[3]/tool",
+          "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+          "kind": "step",
+          "proof": [
+            {
+              "position": "L",
+              "sibling_hash": "044639e6fa65d92c70154feb21b8c20fc240ee23433dccbb6dd65231669c9364"
+            },
+            {
+              "position": "R",
+              "sibling_hash": "36b01dee4619e26633f083d2181b9e4ddd27a2c2b2e011fe1e7a9c04c1b4ec22"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "ec8c29c8e525379be94e7ebe5f5d79800c2b3f823622deb531906b6815d0ba59"
+            },
+            {
+              "position": "S",
+              "sibling_hash": "1b2b41f0e5ea2c67d66b25d0998ef9285c1498dff7f021f21ad220a1e01ba6b9"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "640d24e3cb014e4b2717944c53f967b366688d936dcf46fb2e4f02233defd6d8"
+            },
+            {
+              "position": "L",
+              "sibling_hash": "75943349b92f718f4a83f985bf753fc9006bb5bd8c9d53568ddf0ea1478b8f24"
+            }
+          ]
+        }
+      ],
+      "totalSteps": 4,
+      "rawToken": {
+        "plan": {
+          "goal": "Process invoice and notify the approved finance recipient",
+          "steps": [
+            {
+              "action": "read_invoice",
+              "mcp": "pactline-invoice",
+              "params": {
+                "invoiceId": "INV-045",
+                "invoice": {
+                  "invoiceId": "INV-045",
+                  "vendor": "BluePeak Industrial Supplies",
+                  "amount": 2840.75,
+                  "currency": "INR",
+                  "date": "2026-08-22",
+                  "lineItems": []
+                }
+              }
+            },
+            {
+              "action": "extract_fields",
+              "mcp": "pactline-invoice",
+              "params": {
+                "invoiceId": "INV-045",
+                "invoice": {
+                  "invoiceId": "INV-045",
+                  "vendor": "BluePeak Industrial Supplies",
+                  "amount": 2840.75,
+                  "currency": "INR",
+                  "date": "2026-08-22",
+                  "lineItems": []
+                }
+              }
+            },
+            {
+              "action": "write_record",
+              "mcp": "pactline-invoice",
+              "params": {
+                "invoiceId": "INV-045",
+                "invoice": {
+                  "invoiceId": "INV-045",
+                  "vendor": "BluePeak Industrial Supplies",
+                  "amount": 2840.75,
+                  "currency": "INR",
+                  "date": "2026-08-22",
+                  "lineItems": []
+                }
+              }
+            },
+            {
+              "action": "send_email",
+              "mcp": "pactline-invoice",
+              "params": {
+                "recipient": "finance@company.test",
+                "dataScope": "invoice metadata and totals",
+                "invoiceId": "INV-045"
+              }
+            }
+          ]
+        },
+        "plan_id": "aa8744d3-7bfb-40d9-8047-281711216b43",
+        "token": {
+          "plan_hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+          "issued_at": 1787389833,
+          "expires_at": 1787389893,
+          "policy": {
+            "global": {
+              "metadata": {
+                "allow": [
+                  "*"
+                ],
+                "deny": [],
+                "metadata": {
+                  "api_key_domain": "armoriq.io",
+                  "api_key_tier": "pro",
+                  "plan_id": "aa8744d3-7bfb-40d9-8047-281711216b43",
+                  "sdk_type": "customer",
+                  "sdk_version": "customer-1.0.0"
+                }
+              },
+              "digest": "aec6848e48c641463ec4984ea6ff97868999195e038f3b37c299eb50dad2019a"
+            }
+          },
+          "identity": "968267697db07a8c5c532b41bdbef46c032787f20ea980333f6e2d7a402e50e1",
+          "public_key": "04cb5c84ca7b044c4fa9f13ed229ea2683734b9590bf7deea398f18613d9b4700cf11f0626d9e6253d7f1f2cc376b7e9b5c1cf6deac844434da8f38df6a0dbd52c",
+          "signature": "3046022100d4149ce2e1eec9312d3fc001685fb52b66b2da8d9807170dca17f3b2d2a3e56d022100975e0d1c0f97ec3756f1f16f5da40617c72ff027742dbc90a7dd1a3da092faba",
+          "version": "IAP-0.1"
+        },
+        "plan_hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+        "merkle_root": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+        "intent_reference": "f9025e7c2d5844669e808831416a329e",
+        "composite_identity": "",
+        "step_proofs": [
+          {
+            "path": "/steps/[0]/tool",
+            "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+            "kind": "step",
+            "proof": [
+              {
+                "position": "R",
+                "sibling_hash": "32965c7696d9a3cb211f17dfa8eec488b021e5359d16ada080389cd7d44450c7"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "c8c36c5fe09b97371ca119d019acb37d8c368c0f4b22876bae56fcd2da9d45ed"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "9cf505255befd3cb45191080b8d15e3a15e058558799a55a6e62dd9619faf39d"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "8b8e01309662af9c0947cf9335c21dc48611b077c2dbc099fb54c44c9250e330"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "176ea2e155638b4ab32a62d8ed8896f984a6a59fda8b7d3eb08eb56b50a4f269"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "fdde5b97a37dc1365921cd6b8db2f6e9720212781c9b1613ff975bb26fb680f5"
+              }
+            ]
+          },
+          {
+            "path": "/steps/[1]/tool",
+            "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+            "kind": "step",
+            "proof": [
+              {
+                "position": "R",
+                "sibling_hash": "cd681ab799cf7e06af690277527c181b16b64a404199a37cc9f2bd2f5410cb1d"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "4156965c08fed1c8ce9d2fb17078f50d75865a76c0d8d2a0280b193607ecab9a"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "6d30efcaea6af09bb9f16e38c2de2d1480b4e5eb52951f7800c69e2cd4b5db6f"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "5398a9da2b7d565d432225b27c067fd70a05dd9e443bcc1823e12e5f388089f3"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "176ea2e155638b4ab32a62d8ed8896f984a6a59fda8b7d3eb08eb56b50a4f269"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "fdde5b97a37dc1365921cd6b8db2f6e9720212781c9b1613ff975bb26fb680f5"
+              }
+            ]
+          },
+          {
+            "path": "/steps/[2]/tool",
+            "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+            "kind": "step",
+            "proof": [
+              {
+                "position": "R",
+                "sibling_hash": "5b7d98c8b26602560b98a307ee9447f01288419d07a5e0bdcdd4159dab19feac"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "082003d6133b882acba37611ef2b118f7f163571ac89a3c89584861857621627"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "95d6fa04e56462e9c87798787a5cadc0ef504bb99153527321c354c912707dbe"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "6fdc2e06672e7430e278d5a52c2bac2502f3a86f61a46f86fc846e4d09c46aa2"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "c701dedbc7e18cd944dc5d156dc5d3c5b2fbc3d7a5a53188ecdc64a1bb5731d7"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "75943349b92f718f4a83f985bf753fc9006bb5bd8c9d53568ddf0ea1478b8f24"
+              }
+            ]
+          },
+          {
+            "path": "/steps/[3]/tool",
+            "hash": "4e6064843e9178ca63989138830a7552b3e0cfd24065f3193524018668d5b69c",
+            "kind": "step",
+            "proof": [
+              {
+                "position": "L",
+                "sibling_hash": "044639e6fa65d92c70154feb21b8c20fc240ee23433dccbb6dd65231669c9364"
+              },
+              {
+                "position": "R",
+                "sibling_hash": "36b01dee4619e26633f083d2181b9e4ddd27a2c2b2e011fe1e7a9c04c1b4ec22"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "ec8c29c8e525379be94e7ebe5f5d79800c2b3f823622deb531906b6815d0ba59"
+              },
+              {
+                "position": "S",
+                "sibling_hash": "1b2b41f0e5ea2c67d66b25d0998ef9285c1498dff7f021f21ad220a1e01ba6b9"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "640d24e3cb014e4b2717944c53f967b366688d936dcf46fb2e4f02233defd6d8"
+              },
+              {
+                "position": "L",
+                "sibling_hash": "75943349b92f718f4a83f985bf753fc9006bb5bd8c9d53568ddf0ea1478b8f24"
+              }
+            ]
+          }
+        ]
+      },
+      "jwtToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaWFwX3Rva2VuIiwicGxhbl9pZCI6ImFhODc0NGQzLTdiZmItNDBkOS04MDQ3LTI4MTcxMTIxNmI0MyIsInVzZXJfaWQiOiJfX3Nka19tdWx0aXVzZXJfXyIsImFnZW50X2lkIjoiX19zZGtfbXVsdGl1c2VyX18iLCJjb250ZXh0X2lkIjoiZGVmYXVsdCIsImludGVudF9yZWZlcmVuY2UiOiJmOTAyNWU3YzJkNTg0NDY2OWU4MDg4MzE0MTZhMzI5ZSIsInBsYW5faGFzaCI6IjRlNjA2NDg0M2U5MTc4Y2E2Mzk4OTEzODgzMGE3NTUyYjNlMGNmZDI0MDY1ZjMxOTM1MjQwMTg2NjhkNWI2OWMiLCJtZXJrbGVfcm9vdCI6IjRlNjA2NDg0M2U5MTc4Y2E2Mzk4OTEzODgzMGE3NTUyYjNlMGNmZDI0MDY1ZjMxOTM1MjQwMTg2NjhkNWI2OWMiLCJjc3JnX3Rva2VuIjp7InBsYW5faGFzaCI6IjRlNjA2NDg0M2U5MTc4Y2E2Mzk4OTEzODgzMGE3NTUyYjNlMGNmZDI0MDY1ZjMxOTM1MjQwMTg2NjhkNWI2OWMiLCJpc3N1ZWRfYXQiOjE3ODczODk4MzMsImV4cGlyZXNfYXQiOjE3ODczODk4OTMsInBvbGljeSI6eyJnbG9iYWwiOnsibWV0YWRhdGEiOnsiYWxsb3ciOlsiKiJdLCJkZW55IjpbXSwibWV0YWRhdGEiOnsiYXBpX2tleV9kb21haW4iOiJhcm1vcmlxLmlvIiwiYXBpX2tleV90aWVyIjoicHJvIiwicGxhbl9pZCI6ImFhODc0NGQzLTdiZmItNDBkOS04MDQ3LTI4MTcxMTIxNmI0MyIsInNka190eXBlIjoiY3VzdG9tZXIiLCJzZGtfdmVyc2lvbiI6ImN1c3RvbWVyLTEuMC4wIn19LCJkaWdlc3QiOiJhZWM2ODQ4ZTQ4YzY0MTQ2M2VjNDk4NGVhNmZmOTc4Njg5OTkxOTVlMDM4ZjNiMzdjMjk5ZWI1MGRhZDIwMTlhIn19LCJpZGVudGl0eSI6Ijk2ODI2NzY5N2RiMDdhOGM1YzUzMmI0MWJkYmVmNDZjMDMyNzg3ZjIwZWE5ODAzMzNmNmUyZDdhNDAyZTUwZTEiLCJwdWJsaWNfa2V5IjoiMDRjYjVjODRjYTdiMDQ0YzRmYTlmMTNlZDIyOWVhMjY4MzczNGI5NTkwYmY3ZGVlYTM5OGYxODYxM2Q5YjQ3MDBjZjExZjA2MjZkOWU2MjUzZDdmMWYyY2MzNzZiN2U5YjVjMWNmNmRlYWM4NDQ0MzRkYThmMzhkZjZhMGRiZDUyYyIsInNpZ25hdHVyZSI6IjMwNDYwMjIxMDBkNDE0OWNlMmUxZWVjOTMxMmQzZmMwMDE2ODVmYjUyYjY2YjJkYThkOTgwNzE3MGRjYTE3ZjNiMmQyYTNlNTZkMDIyMTAwOTc1ZTBkMWMwZjk3ZWMzNzU2ZjFmMTZmNWRhNDA2MTdjNzJmZjAyNzc0MmRiYzkwYTdkZDFhM2RhMDkyZmFiYSIsInZlcnNpb24iOiJJQVAtMC4xIn0sInN0ZXBfcHJvb2ZzIjpbeyJwYXRoIjoiL3N0ZXBzL1swXS90b29sIiwiaGFzaCI6IjRlNjA2NDg0M2U5MTc4Y2E2Mzk4OTEzODgzMGE3NTUyYjNlMGNmZDI0MDY1ZjMxOTM1MjQwMTg2NjhkNWI2OWMiLCJraW5kIjoic3RlcCIsInByb29mIjpbeyJwb3NpdGlvbiI6IlIiLCJzaWJsaW5nX2hhc2giOiIzMjk2NWM3Njk2ZDlhM2NiMjExZjE3ZGZhOGVlYzQ4OGIwMjFlNTM1OWQxNmFkYTA4MDM4OWNkN2Q0NDQ1MGM3In0seyJwb3NpdGlvbiI6IlIiLCJzaWJsaW5nX2hhc2giOiJjOGMzNmM1ZmUwOWI5NzM3MWNhMTE5ZDAxOWFjYjM3ZDhjMzY4YzBmNGIyMjg3NmJhZTU2ZmNkMmRhOWQ0NWVkIn0seyJwb3NpdGlvbiI6IlIiLCJzaWJsaW5nX2hhc2giOiI5Y2Y1MDUyNTViZWZkM2NiNDUxOTEwODBiOGQxNWUzYTE1ZTA1ODU1ODc5OWE1NWE2ZTYyZGQ5NjE5ZmFmMzlkIn0seyJwb3NpdGlvbiI6IlIiLCJzaWJsaW5nX2hhc2giOiI4YjhlMDEzMDk2NjJhZjljMDk0N2NmOTMzNWMyMWRjNDg2MTFiMDc3YzJkYmMwOTlmYjU0YzQ0YzkyNTBlMzMwIn0seyJwb3NpdGlvbiI6IkwiLCJzaWJsaW5nX2hhc2giOiIxNzZlYTJlMTU1NjM4YjRhYjMyYTYyZDhlZDg4OTZmOTg0YTZhNTlmZGE4YjdkM2ViMDhlYjU2YjUwYTRmMjY5In0seyJwb3NpdGlvbiI6IlIiLCJzaWJsaW5nX2hhc2giOiJmZGRlNWI5N2EzN2RjMTM2NTkyMWNkNmI4ZGIyZjZlOTcyMDIxMjc4MWM5YjE2MTNmZjk3NWJiMjZmYjY4MGY1In1dfSx7InBhdGgiOiIvc3RlcHMvWzFdL3Rvb2wiLCJoYXNoIjoiNGU2MDY0ODQzZTkxNzhjYTYzOTg5MTM4ODMwYTc1NTJiM2UwY2ZkMjQwNjVmMzE5MzUyNDAxODY2OGQ1YjY5YyIsImtpbmQiOiJzdGVwIiwicHJvb2YiOlt7InBvc2l0aW9uIjoiUiIsInNpYmxpbmdfaGFzaCI6ImNkNjgxYWI3OTljZjdlMDZhZjY5MDI3NzUyN2MxODFiMTZiNjRhNDA0MTk5YTM3Y2M5ZjJiZDJmNTQxMGNiMWQifSx7InBvc2l0aW9uIjoiTCIsInNpYmxpbmdfaGFzaCI6IjQxNTY5NjVjMDhmZWQxYzhjZTlkMmZiMTcwNzhmNTBkNzU4NjVhNzZjMGQ4ZDJhMDI4MGIxOTM2MDdlY2FiOWEifSx7InBvc2l0aW9uIjoiTCIsInNpYmxpbmdfaGFzaCI6IjZkMzBlZmNhZWE2YWYwOWJiOWYxNmUzOGMyZGUyZDE0ODBiNGU1ZWI1Mjk1MWY3ODAwYzY5ZTJjZDRiNWRiNmYifSx7InBvc2l0aW9uIjoiTCIsInNpYmxpbmdfaGFzaCI6IjUzOThhOWRhMmI3ZDU2NWQ0MzIyMjViMjdjMDY3ZmQ3MGEwNWRkOWU0NDNiY2MxODIzZTEyZTVmMzg4MDg5ZjMifSx7InBvc2l0aW9uIjoiTCIsInNpYmxpbmdfaGFzaCI6IjE3NmVhMmUxNTU2MzhiNGFiMzJhNjJkOGVkODg5NmY5ODRhNmE1OWZkYThiN2QzZWIwOGViNTZiNTBhNGYyNjkifSx7InBvc2l0aW9uIjoiUiIsInNpYmxpbmdfaGFzaCI6ImZkZGU1Yjk3YTM3ZGMxMzY1OTIxY2Q2YjhkYjJmNmU5NzIwMjEyNzgxYzliMTYxM2ZmOTc1YmIyNmZiNjgwZjUifV19LHsicGF0aCI6Ii9zdGVwcy9bMl0vdG9vbCIsImhhc2giOiI0ZTYwNjQ4NDNlOTE3OGNhNjM5ODkxMzg4MzBhNzU1MmIzZTBjZmQyNDA2NWYzMTkzNTI0MDE4NjY4ZDViNjljIiwia2luZCI6InN0ZXAiLCJwcm9vZiI6W3sicG9zaXRpb24iOiJSIiwic2libGluZ19oYXNoIjoiNWI3ZDk4YzhiMjY2MDI1NjBiOThhMzA3ZWU5NDQ3ZjAxMjg4NDE5ZDA3YTVlMGJkY2RkNDE1OWRhYjE5ZmVhYyJ9LHsicG9zaXRpb24iOiJSIiwic2libGluZ19oYXNoIjoiMDgyMDAzZDYxMzNiODgyYWNiYTM3NjExZWYyYjExOGY3ZjE2MzU3MWFjODlhM2M4OTU4NDg2MTg1NzYyMTYyNyJ9LHsicG9zaXRpb24iOiJMIiwic2libGluZ19oYXNoIjoiOTVkNmZhMDRlNTY0NjJlOWM4Nzc5ODc4N2E1Y2FkYzBlZjUwNGJiOTkxNTM1MjczMjFjMzU0YzkxMjcwN2RiZSJ9LHsicG9zaXRpb24iOiJMIiwic2libGluZ19oYXNoIjoiNmZkYzJlMDY2NzJlNzQzMGUyNzhkNWE1MmMyYmFjMjUwMmYzYTg2ZjYxYTQ2Zjg2ZmM4NDZlNGQwOWM0NmFhMiJ9LHsicG9zaXRpb24iOiJSIiwic2libGluZ19oYXNoIjoiYzcwMWRlZGJjN2UxOGNkOTQ0ZGM1ZDE1NmRjNWQzYzViMmZiYzNkN2E1YTUzMTg4ZWNkYzY0YTFiYjU3MzFkNyJ9LHsicG9zaXRpb24iOiJMIiwic2libGluZ19oYXNoIjoiNzU5NDMzNDliOTJmNzE4ZjRhODNmOTg1YmY3NTNmYzkwMDZiYjViZDhjOWQ1MzU2OGRkZjBlYTE0NzhiOGYyNCJ9XX0seyJwYXRoIjoiL3N0ZXBzL1szXS90b29sIiwiaGFzaCI6IjRlNjA2NDg0M2U5MTc4Y2E2Mzk4OTEzODgzMGE3NTUyYjNlMGNmZDI0MDY1ZjMxOTM1MjQwMTg2NjhkNWI2OWMiLCJraW5kIjoic3RlcCIsInByb29mIjpbeyJwb3NpdGlvbiI6IkwiLCJzaWJsaW5nX2hhc2giOiIwNDQ2MzllNmZhNjVkOTJjNzAxNTRmZWIyMWI4YzIwZmMyNDBlZTIzNDMzZGNjYmI2ZGQ2NTIzMTY2OWM5MzY0In0seyJwb3NpdGlvbiI6IlIiLCJzaWJsaW5nX2hhc2giOiIzNmIwMWRlZTQ2MTllMjY2MzNmMDgzZDIxODFiOWU0ZGRkMjdhMmMyYjJlMDExZmUxZTdhOWMwNGMxYjRlYzIyIn0seyJwb3NpdGlvbiI6IkwiLCJzaWJsaW5nX2hhc2giOiJlYzhjMjljOGU1MjUzNzliZTk0ZTdlYmU1ZjVkNzk4MDBjMmIzZjgyMzYyMmRlYjUzMTkwNmI2ODE1ZDBiYTU5In0seyJwb3NpdGlvbiI6IlMiLCJzaWJsaW5nX2hhc2giOiIxYjJiNDFmMGU1ZWEyYzY3ZDY2YjI1ZDA5OThlZjkyODVjMTQ5OGRmZjdmMDIxZjIxYWQyMjBhMWUwMWJhNmI5In0seyJwb3NpdGlvbiI6IkwiLCJzaWJsaW5nX2hhc2giOiI2NDBkMjRlM2NiMDE0ZTRiMjcxNzk0NGM1M2Y5NjdiMzY2Njg4ZDkzNmRjZjQ2ZmIyZTRmMDIyMzNkZWZkNmQ4In0seyJwb3NpdGlvbiI6IkwiLCJzaWJsaW5nX2hhc2giOiI3NTk0MzM0OWI5MmY3MThmNGE4M2Y5ODViZjc1M2ZjOTAwNmJiNWJkOGM5ZDUzNTY4ZGRmMGVhMTQ3OGI4ZjI0In1dfV0sInBvbGljeV92YWxpZGF0aW9uIjp7ImRvbWFpbiI6ImFybW9yaXEuaW8iLCJhbGxvd2VkX3Rvb2xzIjpbImV4dHJhY3RfZmllbGRzIiwicmVhZF9pbnZvaWNlIiwic2VuZF9lbWFpbCIsIndyaXRlX3JlY29yZCJdLCJkZW5pZWRfdG9vbHMiOltdLCJkZW5pZWRfcmVhc29ucyI6W10sImRlZmF1bHRfZW5mb3JjZW1lbnRfYWN0aW9uIjoiYmxvY2siLCJtYXRjaGVkX3BvbGljaWVzIjpbeyJwb2xpY3lJZCI6Ijk4NGMyM2U5LTEwZTQtNDVlMS1hZjc4LTZjOWFkNjkzYWIwZiIsIm5hbWUiOiJQYWN0bGluZSBJbnZvaWNlIEludGVudCBCb3VuZGFyeSIsInRhcmdldFR5cGUiOiJtY3Bfc2VydmVyIiwidGFyZ2V0SWQiOiIzM2IzZTY4MS1lMDY3LTQ5ZmYtYTk1Zi1hMWQ0MWIwZjM2MTgiLCJwcmlvcml0eSI6NTAsImRlZmF1bHRFbmZvcmNlbWVudEFjdGlvbiI6ImJsb2NrIiwiYWxsb3dlZFRvb2xzIjpbImV4dHJhY3RfZmllbGRzIiwicmVhZF9pbnZvaWNlIiwic2VuZF9lbWFpbCIsIndyaXRlX3JlY29yZCJdLCJ0b29sRW5mb3JjZW1lbnQiOnsic2VuZF9lbWFpbCI6ImhvbGQiLCJyZWFkX2ludm9pY2UiOiJhbGxvdyIsIndyaXRlX3JlY29yZCI6ImFsbG93IiwiZXh0cmFjdF9maWVsZHMiOiJhbGxvdyJ9fV19LCJpYXQiOjE3ODczODk4MzMsImV4cCI6MTc4NzM4OTg5M30.2QeYEmuHGo_rsGRqCaXWBfqBOcReejY_steMKyRye4Y",
+      "policySnapshot": [
+        {
+          "policyId": "984c23e9-10e4-45e1-af78-6c9ad693ab0f",
+          "policyName": "Pactline Invoice Intent Boundary",
+          "priority": 50,
+          "targetType": "mcp_server",
+          "targetId": "33b3e681-e067-49ff-a95f-a1d41b0f3618",
+          "policyHash": "b7077e22ec12853414f316885166be8ae6efb33341722271f417e788c4eaae89",
+          "policyVersion": "1.0.0",
+          "defaultEnforcementAction": "block",
+          "memberRule": {
+            "allowedTools": [
+              "extract_fields",
+              "read_invoice",
+              "send_email",
+              "write_record"
+            ],
+            "toolEnforcement": {
+              "send_email": "hold",
+              "read_invoice": "allow",
+              "write_record": "allow",
+              "extract_fields": "allow"
+            }
+          }
+        }
+      ]
+    },
+    "userEmail": "harshitgarg.10042008@gmail.com",
+    "mcpName": "pactline-invoice"
+  }
+]

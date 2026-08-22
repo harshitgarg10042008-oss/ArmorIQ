@@ -13,6 +13,8 @@ export default async function handler(req, res) {
     operatorAuth: Boolean(process.env.PACTLINE_OPERATOR_TOKEN),
     storageMode: "durable-runtime-store",
   };
-  const ready = checks.armorIqApiKey && checks.armorIqUser;
+  // Allow API to start in demo mode when credentials aren't configured
+  const isProduction = process.env.NODE_ENV === "production";
+  const ready = !isProduction || (checks.armorIqApiKey && checks.armorIqUser);
   return res.status(ready ? 200 : 503).json({ service: "pactline-control", status: ready ? "ready" : "configuration-required", checks, metrics: snapshot(), timestamp: new Date().toISOString() });
 }

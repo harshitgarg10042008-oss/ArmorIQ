@@ -1,0 +1,29 @@
+[
+  {
+    "invoiceId": "INV-045",
+    "vendor": "BluePeak Industrial Supplies",
+    "amount": 2840.75,
+    "currency": "INR",
+    "date": "2026-08-22",
+    "lineItems": [
+      {
+        "description": "Industrial fastener set",
+        "quantity": 4,
+        "unitPrice": 420,
+        "total": 1680
+      },
+      {
+        "description": "Packaging and handling",
+        "quantity": 1,
+        "unitPrice": 1160.75,
+        "total": 1160.75
+      }
+    ],
+    "source": "INV-045-demo.json",
+    "fileName": "INV-045-demo.json",
+    "mimeType": "application/json",
+    "receivedAt": "2026-08-22T09:10:28.222Z",
+    "sourceKey": "local-invoices/INV-045/INV-045-demo.json",
+    "sourceUrl": "local-storage://local-invoices/INV-045/INV-045-demo.json"
+  }
+]
