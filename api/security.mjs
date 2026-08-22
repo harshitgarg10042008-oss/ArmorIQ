@@ -13,7 +13,7 @@ export function applySecurity(req, res) {
   res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   const configuredOrigin = process.env.PACTLINE_FRONTEND_ORIGIN;
   const requestOrigin = req.headers?.origin;
-  if (isAllowedOrigin(requestOrigin)) {
+  if (isAllowedOrigin(requestOrigin) && (requestOrigin || configuredOrigin)) {
     res.setHeader("Access-Control-Allow-Origin", requestOrigin || configuredOrigin);
     res.setHeader("Vary", "Origin");
   }
