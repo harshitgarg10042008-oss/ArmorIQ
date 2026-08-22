@@ -76,6 +76,8 @@ export async function registerInvoice(invoice) {
   };
   if (!/^INV-[A-Z0-9-]+$/i.test(normalized.invoiceId)) throw new Error("invoiceId must look like INV-044");
   if (!normalized.vendor || !Number.isFinite(normalized.amount) || normalized.amount <= 0) throw new Error("vendor and a positive amount are required");
+  const existing = await getInvoice(normalized.invoiceId);
+  if (existing) throw new Error(`Invoice ${normalized.invoiceId} already exists; duplicate upload rejected`);
   if (documentBase64) {
     const allowedTypes = new Set(["application/json", "application/pdf", "image/png", "image/jpeg"]);
     if (!allowedTypes.has(normalized.mimeType)) throw new Error("Supported invoice documents are JSON, PDF, PNG, and JPEG");
