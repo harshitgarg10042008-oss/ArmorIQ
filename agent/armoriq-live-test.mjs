@@ -1,23 +1,36 @@
 import { readFile } from "node:fs/promises";
-import { createPactlineSession, runAuthorizedStep, closePactlineSession } from "./armoriq-live-adapter.mjs";
+import { createPactlineClient, captureInvoiceIntent, invokeAuthorized } from "./armoriq-live-adapter.mjs";
 
 const invoice = JSON.parse(await readFile(new URL("./sample-invoice.json", import.meta.url), "utf8"));
-let client;
-let session;
+
 try {
-  ({ client, session } = await createPactlineSession());
-  const result = await runAuthorizedStep(
-    session,
-    { name: "read_invoice", args: { invoiceId: invoice.invoiceId, vendor: invoice.vendor, amount: invoice.amount } },
-    "Process invoice and notify the approved finance recipient",
-    async () => ({ invoiceId: invoice.invoiceId, vendor: invoice.vendor, amount: invoice.amount }),
+  const { client, userEmail, mcpName } = await createPactlineClient();
+  const { token } = await captureInvoiceIntent(
+    client,
+    invoice.invoiceId,
+    "Process this invoice and notify the approved finance recipient",
+    process.env.PACTLINE_TEST_RECIPIENT || "external-review@protonmail.test",
   );
-  console.log(JSON.stringify({ status: "sdk-smoke-test-complete", decision: result.decision, sideEffectExecuted: result.sideEffectExecuted, reason: result.reason ?? null }));
+  const result = await invokeAuthorized(
+    client,
+    mcpName,
+    "read_invoice",
+    token,
+    { invoiceId: invoice.invoiceId },
+    userEmail,
+  );
+  console.log(JSON.stringify({
+    status: "sdk-smoke-test-complete",
+    decision: result?.decision ?? result?.status ?? "unknown",
+    sideEffectExecuted: Boolean(result?.sideEffectExecuted),
+    reason: result?.reason ?? null,
+  }));
 } catch (error) {
-  console.error(JSON.stringify({ status: "sdk-smoke-test-failed", error: error instanceof Error ? error.message : "Unknown SDK error" }));
+  console.error(JSON.stringify({
+    status: "sdk-smoke-test-failed",
+    error: error instanceof Error ? error.message : "Unknown SDK error",
+  }));
   process.exitCode = 1;
-} finally {
-  if (client && session) {
-    try { await closePactlineSession(client, session); } catch { /* preserve the original result */ }
-  }
 }
+
+// This runner intentionally does not print the API key, email, token, or full SDK response.
