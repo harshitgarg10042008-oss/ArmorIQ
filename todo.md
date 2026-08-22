@@ -461,7 +461,7 @@
 ## End-to-end ownership and authentication verification
 - [x] Audit current authentication configuration, protected procedures, session handling, and local auth mode.
 - [ ] Reproduce all current local frontend/backend/SDK errors without relying on user screenshots alone.
-- [ ] Fix authentication and authorization issues that are actionable in code.
+- [x] Fix authentication and authorization issues that are actionable in code.
 - [ ] Verify core invoice upload, run, hold, reject, approve, audit, and export flows.
 - [ ] Verify deployment configuration and identify only unavoidable user-account actions.
 - [ ] Update the completion assessment and synchronize the final verified state.
