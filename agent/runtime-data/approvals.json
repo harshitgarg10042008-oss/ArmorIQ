@@ -1,0 +1,13 @@
+[
+  {
+    "runId": "run_83E857",
+    "action": "send_email",
+    "decision": "reject",
+    "actor": "local-demo-operator",
+    "role": "approver",
+    "comment": "Rejected by operator",
+    "idempotencyKey": "1787378888805-reject",
+    "requestId": "req_b7669039",
+    "recordedAt": "2026-08-22T06:08:08.830Z"
+  }
+]
