@@ -9,5 +9,49 @@
     "idempotencyKey": "1787378888805-reject",
     "requestId": "req_b7669039",
     "recordedAt": "2026-08-22T06:08:08.830Z"
+  },
+  {
+    "runId": "run_3EE1CF",
+    "action": "send_email",
+    "decision": "reject",
+    "actor": "local-demo-operator",
+    "role": "approver",
+    "comment": "Rejected by operator",
+    "idempotencyKey": "1787381666708-reject",
+    "requestId": "req_b6dd249a",
+    "recordedAt": "2026-08-22T06:54:26.721Z"
+  },
+  {
+    "runId": "run_B0F009",
+    "action": "send_email",
+    "decision": "reject",
+    "actor": "local-demo-operator",
+    "role": "approver",
+    "comment": "Rejected by operator",
+    "idempotencyKey": "1787382270650-reject",
+    "requestId": "req_f7fbae55",
+    "recordedAt": "2026-08-22T07:04:30.670Z"
+  },
+  {
+    "runId": "run_7A18BB",
+    "action": "send_email",
+    "decision": "reject",
+    "actor": "local-demo-operator",
+    "role": "approver",
+    "comment": "Rejected by operator",
+    "idempotencyKey": "1787383005582-reject",
+    "requestId": "req_b556c0c5",
+    "recordedAt": "2026-08-22T07:16:45.594Z"
+  },
+  {
+    "runId": "run_4BB05C",
+    "action": "send_email",
+    "decision": "reject",
+    "actor": "local-demo-operator",
+    "role": "approver",
+    "comment": "Rejected by operator",
+    "idempotencyKey": "1787383122646-reject",
+    "requestId": "req_65cf117b",
+    "recordedAt": "2026-08-22T07:18:42.670Z"
   }
 ]
