@@ -24,7 +24,7 @@ Never commit `.env`, tokens, or SDK output containing credentials.
 
 Run `pnpm install`, then `pnpm dev`. The Vite frontend runs on the managed preview port and the local API bridge runs on port `8787`. The local bridge also exposes OAuth and tRPC routes so the upgraded authentication layer can be used when the environment is configured.
 
-Use `GET /api/health` to inspect sanitized configuration state. A `503` response with `configuration-required` means the process is healthy but live credentials are absent. It does not expose the credential values.
+Use `GET /api/health` to inspect sanitized configuration state. A `503` response with `configuration-required` means the process is healthy but live credentials are absent. It does not expose the credential values. A `401` response with `authentication-required` means the supplied ArmorIQ or operator credential was rejected. A `502` response with `execution-failed` means the SDK/MCP downstream call failed or timed out; it is a technical failure, not a human approval hold.
 
 ## Security boundary
 
@@ -42,9 +42,10 @@ For production, route the run and MCP persistence through the managed database a
 
 1. Call `/api/health` and confirm the expected configuration status.
 2. Call `/api/mcp` and confirm the four registered tools are advertised.
-3. Run a live invoice with the ArmorIQ SDK and capture a sanitized intent-token/decision proof.
-4. Confirm safe tools execute and the out-of-scope email is held before its side effect.
-5. Reject the hold and confirm the outbox remains unchanged.
-6. Start a fresh run, approve the action, and confirm exactly one controlled outbox record.
-7. Confirm the audit trail contains the actor, decision, reason, timestamps, and request correlation ID.
-8. Check that no API key, token, email credential, or raw stack trace appears in browser responses or committed files.
+3. Confirm `ARMORIQ_API_KEY`, `USER_EMAIL`, the registered `ARMORIQ_MCP_NAME`, and the current deployed MCP endpoint are configured on the same server process.
+4. Run a live invoice with the ArmorIQ SDK and capture a sanitized intent-token/decision proof.
+5. Confirm safe tools execute and the out-of-scope email is held before its side effect.
+6. Reject the hold and confirm the outbox remains unchanged.
+7. Start a fresh run, approve the action, and confirm exactly one controlled outbox record.
+8. Confirm the audit trail contains the actor, decision, reason, timestamps, and request correlation ID.
+9. Check that no API key, token, email credential, or raw stack trace appears in browser responses or committed files.
