@@ -9,23 +9,23 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 // @ts-ignore The handlers are shared ESM endpoints used by local and Vercel runtimes.
-import runHandler from "../../api/run.mjs";
+import runHandler from "../pactline-api/run.mjs";
 // @ts-ignore The handlers are shared ESM endpoints used by local and Vercel runtimes.
-import invoiceHandler from "../../api/invoices.mjs";
+import invoiceHandler from "../pactline-api/invoices.mjs";
 // @ts-ignore The handlers are shared ESM endpoints used by local and Vercel runtimes.
-import healthHandler from "../../api/health.mjs";
+import healthHandler from "../pactline-api/health.mjs";
 // @ts-ignore The handlers are shared ESM endpoints used by local and Vercel runtimes.
-import mcpHandler from "../../api/mcp.mjs";
+import mcpHandler from "../pactline-api/mcp.mjs";
 // @ts-ignore The handlers are shared ESM endpoints used by local and Vercel runtimes.
-import settingsHandler from "../../api/settings.mjs";
+import settingsHandler from "../pactline-api/settings.mjs";
 // @ts-ignore The handlers are shared ESM endpoints used by local and Vercel runtimes.
-import dashboardHandler from "../../api/dashboard.mjs";
+import dashboardHandler from "../pactline-api/dashboard.mjs";
 // @ts-ignore Shared ESM handlers are mounted in the managed server.
-import profileHandler from "../../api/profile.mjs";
+import profileHandler from "../pactline-api/profile.mjs";
 // @ts-ignore Shared ESM handlers are mounted in the managed server.
-import notificationsHandler from "../../api/notifications.mjs";
+import notificationsHandler from "../pactline-api/notifications.mjs";
 // @ts-ignore Shared ESM handler is mounted in the managed server.
-import exportHandler from "../../api/export.mjs";
+import exportHandler from "../pactline-api/export.mjs";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {

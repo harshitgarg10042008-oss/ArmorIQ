@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { makeCsv, makePdf } from "../api/export.mjs";
+import { makeCsv, makePdf } from "./pactline-api/export.mjs";
 
 describe("Pactline report exports", () => {
   it("escapes CSV values and includes stable headers", () => {

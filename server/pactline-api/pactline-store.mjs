@@ -1,0 +1,89 @@
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const ROOT = dirname(fileURLToPath(import.meta.url));
+export const DATA_DIR = join(ROOT, "../agent/runtime-data");
+const RUNS_FILE = join(DATA_DIR, "runs.json");
+const INVOICES_FILE = join(DATA_DIR, "invoices.json");
+const APPROVALS_FILE = join(DATA_DIR, "approvals.json");
+const SETTINGS_FILE = join(DATA_DIR, "settings.json");
+const PROFILE_FILE = join(DATA_DIR, "profile.json");
+const NOTIFICATIONS_FILE = join(DATA_DIR, "notifications.json");
+
+async function readJson(file, fallback) {
+  try {
+    return JSON.parse(await readFile(file, "utf8"));
+  } catch {
+    return fallback;
+  }
+}
+
+export async function writeJson(file, value) {
+  await mkdir(dirname(file), { recursive: true });
+  const temp = `${file}.tmp`;
+  await writeFile(temp, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+  await rename(temp, file);
+}
+
+export async function listRuns() {
+  return readJson(RUNS_FILE, []);
+}
+
+export async function getCurrentRun() {
+  const runs = await listRuns();
+  return runs[0] || null;
+}
+
+export async function resetCurrentRun() {
+  const runs = await listRuns();
+  const [current, ...history] = runs;
+  if (current) await writeJson(RUNS_FILE, history);
+  return current || null;
+}
+
+export async function saveRun(run) {
+  const runs = await listRuns();
+  const next = [run, ...runs.filter((item) => item.runId !== run.runId)].slice(0, 50);
+  await writeJson(RUNS_FILE, next);
+  return run;
+}
+
+export async function getInvoice(invoiceId) {
+  const invoices = await readJson(INVOICES_FILE, []);
+  return invoices.find((invoice) => invoice.invoiceId === invoiceId) || null;
+}
+
+export async function listInvoices() {
+  return readJson(INVOICES_FILE, []);
+}
+
+export async function saveInvoice(invoice) {
+  const invoices = await listInvoices();
+  const next = [invoice, ...invoices.filter((item) => item.invoiceId !== invoice.invoiceId)];
+  await writeJson(INVOICES_FILE, next);
+  return invoice;
+}
+
+export async function listApprovals() {
+  return readJson(APPROVALS_FILE, []);
+}
+
+const DEFAULT_SETTINGS = { workspaceName: "Finance Ops", workspaceDescription: "Protected invoice operations", approvalMode: "human-in-the-loop", defaultRecipient: "finance@company.test", retentionDays: 90 };
+export async function getSettings() { return { ...DEFAULT_SETTINGS, ...(await readJson(SETTINGS_FILE, {})) }; }
+export async function saveSettings(patch) { const next = { ...(await getSettings()), ...patch, updatedAt: new Date().toISOString() }; await writeJson(SETTINGS_FILE, next); return next; }
+const DEFAULT_PROFILE = { displayName: "Pactline Operator", initials: "PO", avatarColor: "mint" };
+export async function getProfile() { return { ...DEFAULT_PROFILE, ...(await readJson(PROFILE_FILE, {})) }; }
+export async function saveProfile(patch) { const next = { ...(await getProfile()), ...patch, updatedAt: new Date().toISOString() }; await writeJson(PROFILE_FILE, next); return next; }
+const DEFAULT_NOTIFICATIONS = { approvalHolds: true, runFailures: true, weeklyDigest: false };
+export async function getNotificationPreferences() { return { ...DEFAULT_NOTIFICATIONS, ...(await readJson(NOTIFICATIONS_FILE, {})) }; }
+export async function saveNotificationPreferences(patch) { const next = { ...(await getNotificationPreferences()), ...patch, updatedAt: new Date().toISOString() }; await writeJson(NOTIFICATIONS_FILE, next); return next; }
+
+export async function appendApproval(approval) {
+  const approvals = await listApprovals();
+  const existing = approvals.find((item) => item.idempotencyKey === approval.idempotencyKey);
+  if (existing) return { approval: existing, duplicate: true };
+  const record = Object.freeze({ ...approval, recordedAt: new Date().toISOString() });
+  await writeJson(APPROVALS_FILE, [...approvals, record]);
+  return { approval: record, duplicate: false };
+}

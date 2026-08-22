@@ -4,15 +4,15 @@ import { registerOAuthRoutes } from "../server/_core/oauth.ts";
 import { appRouter } from "../server/routers.ts";
 import { createContext } from "../server/_core/context.ts";
 import { createRequire } from "node:module";
-import runHandler from "../api/run.mjs";
-import invoiceHandler from "../api/invoices.mjs";
-import healthHandler from "../api/health.mjs";
-import mcpHandler from "../api/mcp.mjs";
-import settingsHandler from "../api/settings.mjs";
-import dashboardHandler from "../api/dashboard.mjs";
-import profileHandler from "../api/profile.mjs";
-import notificationsHandler from "../api/notifications.mjs";
-import exportHandler from "../api/export.mjs";
+import runHandler from "./pactline-api/run.mjs";
+import invoiceHandler from "./pactline-api/invoices.mjs";
+import healthHandler from "./pactline-api/health.mjs";
+import mcpHandler from "./pactline-api/mcp.mjs";
+import settingsHandler from "./pactline-api/settings.mjs";
+import dashboardHandler from "./pactline-api/dashboard.mjs";
+import profileHandler from "./pactline-api/profile.mjs";
+import notificationsHandler from "./pactline-api/notifications.mjs";
+import exportHandler from "./pactline-api/export.mjs";
 
 const require = createRequire(import.meta.url);
 try {

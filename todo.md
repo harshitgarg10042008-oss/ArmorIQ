@@ -421,3 +421,10 @@
 - [x] Repair GitHub authentication using the preconfigured CLI path.
 - [x] Push the latest local commits to `harshitgarg10042008-oss/ArmorIQ` `main`.
 - [x] Verify the remote commit and branch contents.
+
+## Vercel Hobby-limit and INV-045 execution repair
+- [x] Consolidate the public Vercel API deployment so it exposes no more than the Hobby-plan function limit.
+- [x] Preserve the frontend build and local development entrypoint while reducing public functions.
+- [ ] Verify the deployed MCP endpoint receives uploaded invoice context and executes read, extract, and write actions.
+- [ ] Verify only the unauthorized send_email action is held for INV-045.
+- [ ] Push the deployment repair and provide the required Vercel redeploy step.
