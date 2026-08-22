@@ -250,3 +250,5 @@ button:focus-visible, a:focus-visible { outline: 2px solid #5be7c4; outline-offs
 
 .brand-mark-wrap svg{width:29px;height:29px;display:block}
 .hero-signal-texture{width:100%;height:100%;opacity:.9;background:radial-gradient(circle at 68% 40%,rgba(87,225,193,.22) 0 1px,transparent 2px),repeating-radial-gradient(ellipse at 75% 38%,transparent 0 18px,rgba(87,225,193,.12) 19px 20px,transparent 21px 42px),linear-gradient(135deg,#1a2421,#0c1110 72%);background-size:26px 26px,auto,auto}
+
+@media (max-width:750px){.app-shell.mobile-menu-open .sidebar{left:0;box-shadow:18px 0 36px rgba(0,0,0,.3)}.app-shell.mobile-menu-open:after{content:"";position:fixed;inset:0;background:rgba(7,12,11,.42);z-index:9}}
