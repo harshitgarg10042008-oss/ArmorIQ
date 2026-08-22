@@ -49,7 +49,7 @@ export const workspaceMembers = mysqlTable("workspaceMembers", {
 export const invoices = mysqlTable("invoices", {
   id: int("id").autoincrement().primaryKey(),
   workspaceId: int("workspaceId").notNull(),
-  externalId: varchar("externalId", { length: 128 }).notNull(),
+  externalId: varchar("externalId", { length: 128 }).notNull().unique(),
   vendor: varchar("vendor", { length: 255 }).notNull(),
   amountCents: int("amountCents").notNull(),
   currency: varchar("currency", { length: 3 }).notNull(),

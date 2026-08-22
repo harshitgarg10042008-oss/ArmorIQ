@@ -15,6 +15,13 @@
       "when": 1787382902177,
       "tag": "0001_slim_tana_nile",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1787385565118,
+      "tag": "0002_rich_sheva_callister",
+      "breakpoints": true
     }
   ]
 }

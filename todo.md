@@ -387,3 +387,23 @@
 - [x] Add regression coverage for uploaded invoice execution.
 - [ ] Validate the uploaded invoice start → allowed steps → hold flow.
 - [ ] Save checkpoint and synchronize the repair to GitHub.
+
+## 100% technical completion program
+- [ ] Audit every remaining technical gap against the production roadmap.
+- [ ] Complete relational ownership for invoices, actions, approvals, audit evidence, settings, and workspaces.
+- [ ] Add tenant-safe organization and workspace boundaries.
+- [ ] Complete image invoice intake with an explicit confidence/review state.
+- [ ] Add team roles, approver assignment, comments, escalation, and approval history.
+- [ ] Add provider-ready side-effect adapters and safe delivery retries.
+- [ ] Add failure recovery, observability, backup/restore documentation, and security tests.
+- [ ] Add exhaustive API and browser integration tests.
+- [ ] Checkpoint and synchronize each completed phase to GitHub.
+- [ ] Clearly list prerequisites that require the user’s credentials, provider accounts, or deployment decisions.
+
+## Phase 2D — Relational invoice catalog
+- [x] Add a MySQL invoice repository shared by Pactline API and MCP.
+- [x] Resolve uploaded invoices from MySQL before local JSON fallback.
+- [x] Persist uploaded invoice metadata and source keys to MySQL when configured.
+- [x] Enforce unique invoice identifiers at the database layer.
+- [x] Validate syntax, tests, type checking, and production build.
+- [ ] Migrate actions, approvals, audit events, settings, and workspace ownership to relational records.
