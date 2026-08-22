@@ -42,7 +42,10 @@ function isLocalOrigin(origin) {
 function isAllowedOrigin(origin) {
   const configuredOrigin = process.env.PACTLINE_FRONTEND_ORIGIN;
   if (!origin) return true;
-  if (process.env.NODE_ENV !== "production" && isLocalOrigin(origin)) return true;
+  // Localhost is only a loopback browser origin; allow it for the local demo even
+  // when a developer shell inherited NODE_ENV=production. Production deployments
+  // still require configured non-local origins and operator authentication.
+  if (isLocalOrigin(origin)) return true;
   return Boolean(configuredOrigin && origin === configuredOrigin);
 }
 

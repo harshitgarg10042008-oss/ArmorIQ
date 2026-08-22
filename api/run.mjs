@@ -12,19 +12,21 @@ const UNSAFE_RECIPIENT = process.env.PACTLINE_TEST_RECIPIENT || "external-review
 function now() { return new Date().toISOString(); }
 function cors(req, res) { applySecurity(req, res); }
 function json(res, status, body) { return res.status(status).setHeader("Content-Type", "application/json").end(JSON.stringify(body)); }
-async function operatorContext(req, needsApproval = false) {
+export async function operatorContext(req, needsApproval = false) {
   const configuredToken = process.env.PACTLINE_OPERATOR_TOKEN;
   const production = process.env.NODE_ENV === "production";
-  if (production && !configuredToken && process.env.PACTLINE_REQUIRE_AUTH !== "true") throw Object.assign(new Error("Operator authentication is not configured"), { statusCode: 503 });
+  const sessionRequired = process.env.PACTLINE_REQUIRE_AUTH === "true";
+  const localDemo = !production && !sessionRequired;
+  if (production && !configuredToken && !sessionRequired) throw Object.assign(new Error("Operator authentication is not configured"), { statusCode: 503 });
   const providedToken = String(req.headers?.authorization || "").replace(/^Bearer\s+/i, "");
   if (configuredToken) {
     const expected = Buffer.from(configuredToken);
     const actual = Buffer.from(providedToken);
     if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) throw Object.assign(new Error("Operator authentication required"), { statusCode: 401 });
   }
-  let role = configuredToken ? String(process.env.PACTLINE_OPERATOR_ROLE || "approver").toLowerCase() : "";
-  let actor = configuredToken ? String(process.env.PACTLINE_OPERATOR_ID || "configured-operator") : "";
-  if (process.env.PACTLINE_REQUIRE_AUTH === "true") {
+  let role = configuredToken ? String(process.env.PACTLINE_OPERATOR_ROLE || "approver").toLowerCase() : localDemo ? "approver" : "";
+  let actor = configuredToken ? String(process.env.PACTLINE_OPERATOR_ID || "configured-operator") : localDemo ? "local-demo-operator" : "";
+  if (sessionRequired) {
     try {
       const user = await sdk.authenticateRequest(req);
       role = user.role;
@@ -181,4 +183,4 @@ export default async function handler(req, res) {
   }
 }
 
-export { createRun, decide, operatorContext };
+export { createRun, decide };
