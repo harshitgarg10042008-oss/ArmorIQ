@@ -5,6 +5,7 @@ import { appendApproval } from "./pactline-store.mjs";
 import { getRuntimeCurrentRun as getCurrentRun, listRuntimeRuns as listRuns, resetRuntimeCurrentRun as resetCurrentRun, saveRuntimeRun as saveRun } from "./pactline-runtime-store.mjs";
 import { allowedOrigin, applySecurity, rateLimit, validateRunRequest } from "./security.mjs";
 import { sdk } from "../server/_core/sdk";
+import { saveDatabaseApproval } from "./pactline-db-repository.mjs";
 import { increment, observe } from "./metrics.mjs";
 
 const APPROVED_RECIPIENT = process.env.PACTLINE_APPROVED_RECIPIENT || "finance@company.test";
@@ -116,6 +117,7 @@ async function decide(decision, req, comment = "", idempotencyKey) {
     increment("approvals.rejected");
     const persisted = await appendApproval({ runId: run.runId, action: held.name, decision, actor: auth.actor, role: auth.role, comment: comment || "Rejected by operator", idempotencyKey: approvalKey, requestId: req.pactlineRequestId });
     if (persisted.duplicate) return run;
+    await saveDatabaseApproval({ runId: run.runId, action: held.name, decision, actor: auth.actor, comment: comment || "Rejected by operator", recordedAt: now() }).catch(() => false);
     held.decision = "rejected";
     held.reason = "Human rejected; unauthorized action cancelled before execution";
     held.timestamp = now();
@@ -135,6 +137,7 @@ async function decide(decision, req, comment = "", idempotencyKey) {
     held.result = emailResult;
     const persisted = await appendApproval({ runId: run.runId, action: held.name, decision, actor: auth.actor, role: auth.role, comment: comment || "Approved by operator", idempotencyKey: approvalKey, requestId: req.pactlineRequestId });
     if (persisted.duplicate) return run;
+    await saveDatabaseApproval({ runId: run.runId, action: held.name, decision, actor: auth.actor, comment: comment || "Approved by operator", recordedAt: now() }).catch(() => false);
     held.latency = "Executed after approval";
     held.requiresHumanApproval = false;
     run.status = "approved";

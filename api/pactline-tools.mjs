@@ -5,6 +5,7 @@ import { DATA_DIR, getInvoice, listInvoices, saveInvoice } from "./pactline-stor
 import { getDatabaseInvoice, listDatabaseInvoices, saveDatabaseInvoice } from "./pactline-db-repository.mjs";
 import { storagePut } from "../server/storage.ts";
 import pdfParse from "pdf-parse/lib/pdf-parse.js";
+import { createWorker } from "tesseract.js";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const FIXTURE = join(ROOT, "../agent/invoice_044.json");
@@ -53,19 +54,36 @@ async function storeInvoiceDocument(invoiceId, fileName, bytes, mimeType) {
   }
 }
 
+function parseInvoiceText(text, confidence, sourceLabel) {
+  const normalizedText = String(text || "").replace(/\s+/g, " ").trim();
+  const invoiceId = normalizedText.match(/\b(INV[- ]?[A-Z0-9-]+)\b/i)?.[1]?.replace(/ /g, "-");
+  const vendor = normalizedText.match(/(?:vendor|supplier|billed\s+by)\s*[:\-]\s*([^|,;]+?)(?=\s+(?:invoice|date|amount|total)\b|$)/i)?.[1]?.trim();
+  const amountMatch = normalizedText.match(/(?:grand\s+total|total|amount\s+due)\s*[:\-]?\s*(?:₹|INR|USD|\$)?\s*([\d,]+(?:\.\d{1,2})?)/i);
+  const date = normalizedText.match(/\b(\d{4}[-/]\d{2}[-/]\d{2}|\d{2}[-/]\d{2}[-/]\d{4})\b/)?.[1];
+  const amount = amountMatch ? Number(amountMatch[1].replace(/,/g, "")) : undefined;
+  if (!invoiceId || !vendor || !Number.isFinite(amount) || amount <= 0) throw new Error(`${sourceLabel} was stored but could not be confidently parsed; provide a structured invoice JSON or review the document manually.`);
+  return { invoiceId, vendor, amount, currency: /(?:INR|₹)/i.test(normalizedText) ? "INR" : "USD", date, lineItems: [], confidence };
+}
+
+async function extractImageText(bytes) {
+  const worker = await createWorker("eng");
+  try {
+    const result = await worker.recognize(bytes);
+    return result.data.text;
+  } finally {
+    await worker.terminate();
+  }
+}
+
 async function extractDocumentFields(bytes, mimeType) {
   if (mimeType === "application/pdf") {
     const parsed = await pdfParse(bytes);
-    const text = String(parsed.text || "").replace(/\s+/g, " ").trim();
-    const invoiceId = text.match(/\b(INV[- ]?[A-Z0-9-]+)\b/i)?.[1]?.replace(/ /g, "-");
-    const vendor = text.match(/(?:vendor|supplier|billed\s+by)\s*[:\-]\s*([^|,;]+?)(?=\s+(?:invoice|date|amount|total)\b|$)/i)?.[1]?.trim();
-    const amountMatch = text.match(/(?:grand\s+total|total|amount\s+due)\s*[:\-]?\s*(?:₹|INR|USD|\$)?\s*([\d,]+(?:\.\d{1,2})?)/i);
-    const date = text.match(/\b(\d{4}[-/]\d{2}[-/]\d{2}|\d{2}[-/]\d{2}[-/]\d{4})\b/)?.[1];
-    const amount = amountMatch ? Number(amountMatch[1].replace(/,/g, "")) : undefined;
-    if (!invoiceId || !vendor || !Number.isFinite(amount) || amount <= 0) throw new Error("PDF was stored but could not be confidently parsed; provide a structured invoice JSON or review the document manually.");
-    return { invoiceId, vendor, amount, currency: /(?:INR|₹)/i.test(text) ? "INR" : "USD", date, lineItems: [], confidence: 0.78 };
+    return parseInvoiceText(parsed.text, 0.78, "PDF");
   }
-  if (mimeType === "image/png" || mimeType === "image/jpeg") throw new Error("Image upload is supported for storage, but OCR extraction is not enabled yet; use structured JSON or PDF for this run.");
+  if (mimeType === "image/png" || mimeType === "image/jpeg") {
+    const text = await extractImageText(bytes);
+    return parseInvoiceText(text, 0.72, "Image OCR");
+  }
   return JSON.parse(bytes.toString("utf8"));
 }
 

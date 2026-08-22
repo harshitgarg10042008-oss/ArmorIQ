@@ -74,6 +74,27 @@ function eventHash(event, previousHash = "") {
   return createHash("sha256").update(`${previousHash}|${JSON.stringify(event)}`).digest("hex");
 }
 
+export async function saveDatabaseApproval(approval) {
+  const pool = await getPool();
+  if (!pool || !approval?.runId || !approval?.action) return false;
+  const [actionRows] = await pool.query(
+    "SELECT a.id FROM pactlineActions a INNER JOIN pactlineRuns r ON r.id = a.runId WHERE r.workspaceId = ? AND r.runKey = ? AND a.toolName = ? ORDER BY a.id DESC LIMIT 1",
+    [workspaceId, approval.runId, approval.action],
+  );
+  const actionId = actionRows[0]?.id;
+  if (!actionId) return false;
+  const [userRows] = await pool.query("SELECT id FROM users WHERE openId = ? OR email = ? LIMIT 1", [approval.actor || "", approval.actor || ""]);
+  const approverUserId = userRows[0]?.id;
+  if (!approverUserId) return false;
+  const [existingRows] = await pool.query("SELECT id FROM pactlineApprovals WHERE actionId = ? AND approverUserId = ? AND decision = ? LIMIT 1", [actionId, approverUserId, approval.decision === "approve" ? "approved" : "rejected"]);
+  if (existingRows.length) return true;
+  await pool.query(
+    "INSERT INTO pactlineApprovals (actionId, approverUserId, decision, comment, createdAt) VALUES (?, ?, ?, ?, ?)",
+    [actionId, approverUserId, approval.decision === "approve" ? "approved" : "rejected", approval.comment || null, new Date(approval.recordedAt || Date.now())],
+  );
+  return true;
+}
+
 export async function saveDatabaseRun(run) {
   const pool = await getPool();
   if (!pool) return false;

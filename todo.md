@@ -430,5 +430,19 @@
 - [ ] Confirm the ArmorIQ-registered MCP endpoint URL and its deployed revision.
 - [ ] Confirm the updated signed invoice-context MCP code is present in the deployable endpoint.
 - [ ] Prepare the MCP deployment update without exposing credentials or changing the registered endpoint unnecessarily.
-- [ ] Verify `INV-045` reaches allowed actions followed by the intended `send_email` hold.
+- [x] Verify `INV-045` reaches allowed actions followed by the intended `send_email` hold.
 - [ ] Document any user-only deployment or ArmorIQ-console action required.
+
+## Full technical completion program
+- [ ] Audit all current backend, frontend, schema, deployment, and test gaps against the production roadmap.
+- [ ] Complete relational ownership for organizations, workspaces, runs, actions, approvals, and audit events.
+- [ ] Enforce tenant and workspace isolation on every invoice, run, approval, and audit query.
+- [x] Add safe image invoice OCR with confidence and manual-review handling.
+- [ ] Complete team membership, roles, approval assignment, and authorization rules.
+- [ ] Finish real ArmorIQ/MCP end-to-end execution and deployed endpoint compatibility.
+- [ ] Add operational reliability controls: retries, idempotency, recovery, health checks, and structured errors.
+- [ ] Remove misleading hardcoded UI claims and make all visible controls real or explicitly disabled.
+- [ ] Complete frontend loading, error, empty, responsive, accessibility, and settings states.
+- [ ] Add regression and integration coverage for the full invoice lifecycle.
+- [ ] Run final build, typecheck, tests, security review, and visual verification.
+- [ ] Save a final checkpoint and provide exact user-only deployment and credential steps.
