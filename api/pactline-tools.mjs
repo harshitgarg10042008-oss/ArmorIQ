@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { DATA_DIR, getInvoice, listInvoices, saveInvoice } from "./pactline-store.mjs";
 import { storagePut } from "../server/storage.ts";
+import pdfParse from "pdf-parse/lib/pdf-parse.js";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const FIXTURE = join(ROOT, "../agent/invoice_044.json");
@@ -32,29 +33,53 @@ export async function listAvailableInvoices() {
   return fixture ? [fixture] : [];
 }
 
+async function extractDocumentFields(bytes, mimeType) {
+  if (mimeType === "application/pdf") {
+    const parsed = await pdfParse(bytes);
+    const text = String(parsed.text || "").replace(/\s+/g, " ").trim();
+    const invoiceId = text.match(/\b(INV[- ]?[A-Z0-9-]+)\b/i)?.[1]?.replace(/ /g, "-");
+    const vendor = text.match(/(?:vendor|supplier|billed\s+by)\s*[:\-]\s*([^|,;]+?)(?=\s+(?:invoice|date|amount|total)\b|$)/i)?.[1]?.trim();
+    const amountMatch = text.match(/(?:grand\s+total|total|amount\s+due)\s*[:\-]?\s*(?:₹|INR|USD|\$)?\s*([\d,]+(?:\.\d{1,2})?)/i);
+    const date = text.match(/\b(\d{4}[-/]\d{2}[-/]\d{2}|\d{2}[-/]\d{2}[-/]\d{4})\b/)?.[1];
+    const amount = amountMatch ? Number(amountMatch[1].replace(/,/g, "")) : undefined;
+    if (!invoiceId || !vendor || !Number.isFinite(amount) || amount <= 0) throw new Error("PDF was stored but could not be confidently parsed; provide a structured invoice JSON or review the document manually.");
+    return { invoiceId, vendor, amount, currency: /(?:INR|₹)/i.test(text) ? "INR" : "USD", date, lineItems: [], confidence: 0.78 };
+  }
+  if (mimeType === "image/png" || mimeType === "image/jpeg") throw new Error("Image upload is supported for storage, but OCR extraction is not enabled yet; use structured JSON or PDF for this run.");
+  return JSON.parse(bytes.toString("utf8"));
+}
+
 export async function registerInvoice(invoice) {
+  const documentBase64 = typeof invoice.documentBase64 === "string" ? invoice.documentBase64 : "";
+  const mimeType = String(invoice.mimeType || "application/json").trim().toLowerCase();
+  let documentFields = {};
+  let documentBytes;
+  if (documentBase64) {
+    const raw = documentBase64.replace(/^data:[^;]+;base64,/, "");
+    documentBytes = Buffer.from(raw, "base64");
+    if (!documentBytes.length || documentBytes.length > 10 * 1024 * 1024) throw new Error("Invoice document must be between 1 byte and 10 MB");
+    if (!invoice.invoiceId || !invoice.vendor || invoice.amount === undefined) documentFields = await extractDocumentFields(documentBytes, mimeType);
+  }
+  const input = { ...documentFields, ...invoice };
   const normalized = {
-    invoiceId: String(invoice.invoiceId || "").trim(),
-    vendor: String(invoice.vendor || "").trim(),
-    amount: Number(invoice.amount),
-    currency: String(invoice.currency || "INR").trim().toUpperCase(),
-    date: String(invoice.date || new Date().toISOString().slice(0, 10)),
-    lineItems: Array.isArray(invoice.lineItems) ? invoice.lineItems : [],
-    source: invoice.source || invoice.fileName || "operator-input",
-    fileName: String(invoice.fileName || invoice.source || "invoice.json").trim(),
-    mimeType: String(invoice.mimeType || "application/json").trim().toLowerCase(),
+    invoiceId: String(input.invoiceId || "").trim(),
+    vendor: String(input.vendor || "").trim(),
+    amount: Number(input.amount),
+    currency: String(input.currency || "INR").trim().toUpperCase(),
+    date: String(input.date || new Date().toISOString().slice(0, 10)),
+    lineItems: Array.isArray(input.lineItems) ? input.lineItems : [],
+    confidence: Number.isFinite(Number(input.confidence)) ? Number(input.confidence) : undefined,
+    source: input.source || input.fileName || "operator-input",
+    fileName: String(input.fileName || input.source || "invoice.json").trim(),
+    mimeType,
     receivedAt: new Date().toISOString(),
   };
   if (!/^INV-[A-Z0-9-]+$/i.test(normalized.invoiceId)) throw new Error("invoiceId must look like INV-044");
   if (!normalized.vendor || !Number.isFinite(normalized.amount) || normalized.amount <= 0) throw new Error("vendor and a positive amount are required");
-  const documentBase64 = typeof invoice.documentBase64 === "string" ? invoice.documentBase64 : "";
   if (documentBase64) {
     const allowedTypes = new Set(["application/json", "application/pdf", "image/png", "image/jpeg"]);
     if (!allowedTypes.has(normalized.mimeType)) throw new Error("Supported invoice documents are JSON, PDF, PNG, and JPEG");
-    const raw = documentBase64.replace(/^data:[^;]+;base64,/, "");
-    const bytes = Buffer.from(raw, "base64");
-    if (!bytes.length || bytes.length > 10 * 1024 * 1024) throw new Error("Invoice document must be between 1 byte and 10 MB");
-    const stored = await storagePut(`invoices/${normalized.invoiceId}/${normalized.fileName}`, bytes, normalized.mimeType);
+    const stored = await storagePut(`invoices/${normalized.invoiceId}/${normalized.fileName}`, documentBytes, normalized.mimeType);
     normalized.sourceKey = stored.key;
     normalized.sourceUrl = stored.url;
   }

@@ -359,3 +359,11 @@
 - [x] Keep the sidebar visually filled and stable while the main content scrolls.
 - [ ] Validate light and dark screenshots plus the invoice upload regression.
 - [x] Save checkpoint and synchronize the UI correction to GitHub.
+
+## Phase 2B — Text-based PDF extraction
+- [x] Accept text-based PDF files through the invoice import control.
+- [x] Extract invoice ID, vendor, amount, currency, and date from recognizable PDF text.
+- [x] Store the original PDF document and parsed metadata through the backend path.
+- [x] Fail safely when a PDF is ambiguous or lacks required invoice fields.
+- [x] Prevent the PDF library debug fixture from breaking the test suite.
+- [ ] Add image OCR extraction and duplicate/ambiguity review workflow.

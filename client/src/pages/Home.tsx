@@ -144,15 +144,17 @@ export default function Home() {
     const file = event.target.files?.[0];
     if (!file) return;
     try {
-      if (!file.name.toLowerCase().endsWith(".json")) throw new Error("For now, upload a structured invoice JSON file with vendor, amount, and lineItems fields.");
-      const invoice = JSON.parse(await file.text()) as PactlineInvoice;
+      const extension = file.name.toLowerCase().split(".").pop();
+      const mimeType = file.type || (extension === "pdf" ? "application/pdf" : extension === "json" ? "application/json" : "");
+      if (!["json", "pdf"].includes(extension || "")) throw new Error("Upload a structured JSON invoice or a text-based PDF invoice.");
       const documentBase64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(String(reader.result || ""));
         reader.onerror = () => reject(new Error("Invoice document could not be read."));
         reader.readAsDataURL(file);
       });
-      const saved = await registerInvoice({ ...invoice, source: file.name, fileName: file.name, mimeType: file.type || "application/json", documentBase64 });
+      const invoice = extension === "json" ? JSON.parse(await file.text()) as PactlineInvoice : {} as PactlineInvoice;
+      const saved = await registerInvoice({ ...invoice, source: file.name, fileName: file.name, mimeType, documentBase64 });
       setAvailableInvoices((current) => [saved, ...current.filter((item) => item.invoiceId !== saved.invoiceId)]);
       setInvoiceId(saved.invoiceId);
       notify(`Invoice ${saved.invoiceId} uploaded and registered`);
