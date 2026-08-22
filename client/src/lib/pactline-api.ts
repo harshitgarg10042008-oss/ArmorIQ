@@ -30,7 +30,7 @@ export type PactlineRun = {
   createdAt: string;
   mode: string;
 };
-type RunResponse = { currentRun: PactlineRun | null; runs: PactlineRun[]; evidence?: { ledger: unknown[]; outbox: unknown[] } };
+export type RunResponse = { currentRun: PactlineRun | null; runs: PactlineRun[]; evidence?: { ledger: unknown[]; outbox: unknown[] } };
 type InvoiceResponse = { invoices: PactlineInvoice[] };
 export type PactlineSettings = { workspaceName: string; workspaceDescription: string; approvalMode: string; defaultRecipient: string; retentionDays: number; updatedAt?: string };
 export async function fetchSettings(): Promise<PactlineSettings> { const result = await request<{ settings: PactlineSettings }>("/api/settings"); return result.settings; }
