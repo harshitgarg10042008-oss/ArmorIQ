@@ -75,15 +75,6 @@ export const pactlineRunSnapshots = mysqlTable("pactlineRunSnapshots", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
-export const pactlineRunSnapshots = mysqlTable("pactlineRunSnapshots", {
-  id: int("id").autoincrement().primaryKey(),
-  workspaceKey: varchar("workspaceKey", { length: 128 }).notNull(),
-  runKey: varchar("runKey", { length: 64 }).notNull().unique(),
-  snapshot: json("snapshot").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
 export const pactlineRuns = mysqlTable("pactlineRuns", {
   id: int("id").autoincrement().primaryKey(),
   workspaceId: int("workspaceId").notNull(),

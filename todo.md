@@ -183,7 +183,7 @@
 - [x] Trace the registered invoice response and active invoice ID state after upload.
 - [x] Ensure the uploaded invoice becomes the selected run input and no fallback ID overwrites it.
 - [x] Verify upload and run payload consistency with regression coverage.
-- [ ] Synchronize the combined upload and 502 repair.
+- [x] Synchronize the combined upload and 502 repair.
 
 ## Full local 502 repair and synchronization
 - [x] Inventory the active Vite/backend processes, route imports, environment contract, and recent logs.
@@ -196,7 +196,7 @@
 - [x] Repair the local backend bridge still resolving the deleted legacy run route.
 - [x] Verify POST `/api/run` reaches the canonical Pactline runtime and returns structured success or classified failure.
 - [x] Verify the frontend clears failed stale state and renders the repaired response.
-- [ ] Save and synchronize the verified local bridge repair.
+- [x] Save and synchronize the verified local bridge repair.
 
 ## Localhost run and visual repair
 - [ ] Diagnose why localhost `/api/run` start returns an error.

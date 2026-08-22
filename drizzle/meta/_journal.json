@@ -15,6 +15,13 @@
       "when": 1787395582421,
       "tag": "0001_cheerful_vivisector",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1787397049592,
+      "tag": "0002_left_sally_floyd",
+      "breakpoints": true
     }
   ]
 }

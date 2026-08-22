@@ -1,0 +1,1 @@
+ALTER TABLE `invoices` ADD CONSTRAINT `invoices_externalId_unique` UNIQUE(`externalId`);
