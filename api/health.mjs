@@ -1,4 +1,5 @@
 import { applySecurity, allowedOrigin, rateLimit } from "./security.mjs";
+import { snapshot } from "./metrics.mjs";
 
 export default async function handler(req, res) {
   applySecurity(req, res);
@@ -13,5 +14,5 @@ export default async function handler(req, res) {
     storageMode: "durable-runtime-store",
   };
   const ready = checks.armorIqApiKey && checks.armorIqUser;
-  return res.status(ready ? 200 : 503).json({ service: "pactline-control", status: ready ? "ready" : "configuration-required", checks, timestamp: new Date().toISOString() });
+  return res.status(ready ? 200 : 503).json({ service: "pactline-control", status: ready ? "ready" : "configuration-required", checks, metrics: snapshot(), timestamp: new Date().toISOString() });
 }

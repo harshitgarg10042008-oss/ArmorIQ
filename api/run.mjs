@@ -1,9 +1,10 @@
 import { randomUUID, timingSafeEqual } from "node:crypto";
 import { createPactlineClient, captureInvoiceIntent, invokeAuthorized } from "../agent/armoriq-live-adapter.mjs";
 import { readInvoice, extractFields, writeRecord, sendEmail, readRuntimeEvidence } from "./pactline-tools.mjs";
-import { getCurrentRun, listRuns, saveRun } from "./pactline-store.mjs";
+import { appendApproval, getCurrentRun, listRuns, saveRun } from "./pactline-store.mjs";
 import { allowedOrigin, applySecurity, rateLimit, validateRunRequest } from "./security.mjs";
 import { sdk } from "../server/_core/sdk";
+import { increment, observe } from "./metrics.mjs";
 
 const APPROVED_RECIPIENT = process.env.PACTLINE_APPROVED_RECIPIENT || "finance@company.test";
 const UNSAFE_RECIPIENT = process.env.PACTLINE_TEST_RECIPIENT || "external-review@protonmail.test";
@@ -21,8 +22,8 @@ async function operatorContext(req, needsApproval = false) {
     const actual = Buffer.from(providedToken);
     if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) throw Object.assign(new Error("Operator authentication required"), { statusCode: 401 });
   }
-  let role = String(req.headers?.["x-pactline-role"] || (configuredToken ? "" : "approver")).toLowerCase();
-  let actor = String(req.headers?.["x-pactline-actor"] || "local-operator");
+  let role = configuredToken ? String(process.env.PACTLINE_OPERATOR_ROLE || "approver").toLowerCase() : "";
+  let actor = configuredToken ? String(process.env.PACTLINE_OPERATOR_ID || "configured-operator") : "";
   if (process.env.PACTLINE_REQUIRE_AUTH === "true") {
     try {
       const user = await sdk.authenticateRequest(req);
@@ -51,6 +52,7 @@ function normalizeToolResult(result) {
 async function execute(client, mcpName, action, args, userEmail, audit, target) {
   const started = Date.now();
   try {
+    increment("sdk.invocations");
     const rawResult = await invokeAuthorized(client, mcpName, action, audit.intentToken, args, userEmail);
     const result = normalizeToolResult(rawResult);
     const toolDeclined = action === "send_email" && result?.executed === false;
@@ -60,6 +62,7 @@ async function execute(client, mcpName, action, args, userEmail, audit, target) 
     audit.events.push({ ...event, event: toolDeclined ? "authorization_held" : "tool_allowed" });
     return event;
   } catch (error) {
+    increment("sdk.errors");
     const reason = error instanceof Error ? error.message : "ArmorIQ did not authorize the action";
     const event = { name: action, target, decision: "held", reason, timestamp: now(), latency: "Awaiting decision", requiresHumanApproval: true };
     audit.events.push({ ...event, event: "authorization_held" });
@@ -71,6 +74,8 @@ async function createRun({
   invoiceId = process.env.PACTLINE_INVOICE_ID || "INV-044",
   actor = "system"
 } = {}) {
+  const runStartedAt = Date.now();
+  increment("runs.started");
   const runId = `run_${randomUUID().slice(0, 6).toUpperCase()}`;
   const startedAt = now();
   const { client, userEmail, mcpName } = await createPactlineClient();
@@ -87,6 +92,8 @@ async function createRun({
   if (heldOrAllowed.decision === "held") heldOrAllowed.requiresHumanApproval = true;
   actions.push(heldOrAllowed);
   const status = heldOrAllowed.decision === "held" ? "held" : "approved";
+  increment(status === "held" ? "runs.held" : "runs.completed");
+  observe("runs.durationMs", Date.now() - runStartedAt);
   const run = { runId, actor, status, invoice: { id: invoice.invoiceId, fileName: `${invoice.invoiceId}.json`, vendor: invoice.vendor, amount: invoice.amount }, plan: { id: `plan_${randomUUID().slice(0, 8)}`, ...plan, status: "armoriq-sdk-captured", mcpName }, actions, audit: audit.events, outbox: [], createdAt: startedAt, mode: "armoriq-sdk-live", intentToken: token, userEmail, mcpName };
   await saveRun(run);
   return run;
@@ -102,6 +109,9 @@ async function decide(decision, req, comment = "", idempotencyKey) {
   const existingApproval = run.audit.find((event) => event.event === "human_approved_and_tool_allowed" || event.event === "human_rejected") && run.audit.find((event) => event.idempotencyKey === approvalKey);
   if (existingApproval) return run;
   if (decision === "reject") {
+    increment("approvals.rejected");
+    const persisted = await appendApproval({ runId: run.runId, action: held.name, decision, actor: auth.actor, role: auth.role, comment: comment || "Rejected by operator", idempotencyKey: approvalKey, requestId: req.pactlineRequestId });
+    if (persisted.duplicate) return run;
     held.decision = "rejected";
     held.reason = "Human rejected; unauthorized action cancelled before execution";
     held.timestamp = now();
@@ -119,12 +129,15 @@ async function decide(decision, req, comment = "", idempotencyKey) {
     held.reason = "Human approved and ArmorIQ authorized the approved recipient";
     held.timestamp = now();
     held.result = emailResult;
+    const persisted = await appendApproval({ runId: run.runId, action: held.name, decision, actor: auth.actor, role: auth.role, comment: comment || "Approved by operator", idempotencyKey: approvalKey, requestId: req.pactlineRequestId });
+    if (persisted.duplicate) return run;
     held.latency = "Executed after approval";
     held.requiresHumanApproval = false;
     run.status = "approved";
     if (emailResult?.executed) run.outbox = [emailResult];
     run.audit.push({ ...held, event: "human_approved_and_tool_allowed", actor: auth.actor, role: auth.role, comment: comment || "Approved by operator", idempotencyKey: approvalKey, requestId: req.pactlineRequestId });
   } catch (error) {
+    increment("approvals.failed");
     held.decision = "rejected";
     held.reason = error instanceof Error ? error.message : "Approval did not authorize the action";
     held.timestamp = now();
@@ -137,6 +150,7 @@ async function decide(decision, req, comment = "", idempotencyKey) {
 
 export default async function handler(req, res) {
   req.pactlineRequestId = applySecurity(req, res);
+  console.info(JSON.stringify({ service: "pactline-control", event: "request", requestId: req.pactlineRequestId, method: req.method, path: "/api/run" }));
   if (req.method === "OPTIONS") return res.status(204).end();
   if (!allowedOrigin(req)) return json(res, 403, { error: "Origin is not allowed" });
   if (!rateLimit(req, res)) return;

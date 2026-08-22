@@ -210,20 +210,25 @@
 ## Phases 4–8 hardening
 - [x] Add server-side authentication and role-aware approval authorization.
 - [x] Add approval idempotency, decision comments, and immutable decision metadata.
-- [x] Add organization, workspace, user, and run ownership data foundations.
+- [ ] Add organization, workspace, user, and run ownership data foundations.
 - [x] Replace broad CORS with configured origin validation and add security headers.
 - [x] Add request validation, rate limiting, correlation IDs, and safe error responses.
 - [ ] Make dashboard secondary views backend-derived and add run reset/history controls.
-- [x] Add automated unit/integration tests and CI-ready validation scripts.
+- [ ] Add automated unit/integration tests and CI-ready validation scripts.
 - [x] Add structured observability and health/readiness endpoints.
 - [x] Add deployment and operations documentation/configuration.
 - [ ] Validate phases 4–8 and push changes to GitHub.
 
 ## Hardening corrections required before delivery
-- [ ] Enforce approval authentication unconditionally in production paths and remove spoofable header-only role fallback.
-- [ ] Persist operator-supplied approval comments and immutable approval records with explicit idempotency handling.
+- [x] Enforce approval authentication unconditionally in production paths and remove spoofable header-only role fallback.
+- [x] Persist operator-supplied approval comments and immutable approval records with explicit idempotency handling.
 - [ ] Wire organizations, workspaces, members, runs, actions, and audit events into the active backend flow with ownership checks.
-- [ ] Remove wildcard CORS fallback for non-local deployments and apply consistent route middleware.
-- [ ] Add schema-based validation for `/api/run` and MCP tool arguments.
+- [x] Remove wildcard CORS fallback for non-local deployments and apply consistent route middleware.
+- [x] Add schema-based validation for `/api/run` and MCP tool arguments.
 - [ ] Add integration tests for run, invoice, MCP, auth, and persistence/restart behavior plus CI configuration.
-- [ ] Add structured logs/metrics and propagate request IDs into persisted audit events.
+- [x] Add structured logs/metrics and propagate request IDs into persisted audit events.
+
+## Final hardening corrections
+- [x] Derive operator roles only from trusted server-side authentication or token mapping; ignore client role headers in production.
+- [x] Make approval records tamper-evident and use the tamper-evident record in the live decision path.
+- [x] Add real counters and latency metrics for starts, holds, approvals, rejections, MCP errors, and expose them safely.

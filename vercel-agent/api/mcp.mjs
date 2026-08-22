@@ -1,5 +1,6 @@
 import { readInvoice, extractFields, writeRecord, sendEmail } from "../../api/pactline-tools.mjs";
 import { allowedOrigin, applySecurity, rateLimit, validateToolArguments } from "../../api/security.mjs";
+import { increment } from "../../api/metrics.mjs";
 
 const SERVER_NAME = process.env.ARMORIQ_MCP_NAME || "pactline-invoice";
 
@@ -39,9 +40,11 @@ async function handleRpc(request) {
       const validationError = validateToolArguments(params.name, params.arguments || {});
       if (validationError) return rpcError(id, -32602, validationError);
       const result = await callTool(params.name, params.arguments || {});
+      increment("mcp.calls");
       if (!result) return rpcError(id, -32602, `Unknown tool: ${params.name}`);
       return { jsonrpc: "2.0", id, result: toolResult(result) };
     } catch (error) {
+      increment("mcp.errors");
       return rpcError(id, -32000, error instanceof Error ? error.message : "Tool execution failed");
     }
   }

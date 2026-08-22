@@ -6,6 +6,7 @@ const ROOT = dirname(fileURLToPath(import.meta.url));
 export const DATA_DIR = join(ROOT, "../agent/runtime-data");
 const RUNS_FILE = join(DATA_DIR, "runs.json");
 const INVOICES_FILE = join(DATA_DIR, "invoices.json");
+const APPROVALS_FILE = join(DATA_DIR, "approvals.json");
 
 async function readJson(file, fallback) {
   try {
@@ -52,4 +53,17 @@ export async function saveInvoice(invoice) {
   const next = [invoice, ...invoices.filter((item) => item.invoiceId !== invoice.invoiceId)];
   await writeJson(INVOICES_FILE, next);
   return invoice;
+}
+
+export async function listApprovals() {
+  return readJson(APPROVALS_FILE, []);
+}
+
+export async function appendApproval(approval) {
+  const approvals = await listApprovals();
+  const existing = approvals.find((item) => item.idempotencyKey === approval.idempotencyKey);
+  if (existing) return { approval: existing, duplicate: true };
+  const record = Object.freeze({ ...approval, recordedAt: new Date().toISOString() });
+  await writeJson(APPROVALS_FILE, [...approvals, record]);
+  return { approval: record, duplicate: false };
 }
