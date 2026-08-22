@@ -68,7 +68,7 @@ function friendlyApiError(payload: any, statusCode: number) {
   return payload?.error || `Pactline API request failed (${statusCode})`;
 }
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, { ...options, headers: { "Content-Type": "application/json", ...(options?.headers || {}) } });
+  const response = await fetch(`${API_URL}${path}`, { cache: "no-store", ...options, headers: { "Content-Type": "application/json", ...(options?.headers || {}) } });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) throw new PactlineApiError(friendlyApiError(payload, response.status), response.status, payload?.status, payload?.requestId);
   return payload as T;

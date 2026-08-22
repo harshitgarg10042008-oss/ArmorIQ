@@ -179,6 +179,13 @@
 - [ ] Start the Windows frontend locally from the synchronized repository.
 - [ ] Verify localhost frontend calls the backend and starts a real run.
 
+## invoice catalog 400 repair
+- [x] Capture the exact `/api/invoices` 400 response and backend cause; current backend and Vite proxy now return 200 with INV-045.
+- [x] Repair invoice listing compatibility without hiding real storage failures by eliminating stale browser responses with `cache: no-store`.
+- [ ] Add regression coverage for invoice listing and startup state.
+- [x] Verify the dashboard loads the invoice catalog and retains the hold mapping; both local API and Vite proxy return 200 and the run state is idle.
+- [ ] Push and checkpoint the verified catalog repair.
+
 ## send_email authorization hold repair
 - [x] Trace the SDK/MCP decision returned for send_email and the frontend action-status mapping.
 - [x] Ensure an authorization hold is persisted as pending/held, never as technical failure.
