@@ -14,6 +14,13 @@ const UNSAFE_RECIPIENT = process.env.PACTLINE_TEST_RECIPIENT || "external-review
 function now() { return new Date().toISOString(); }
 function cors(req, res) { applySecurity(req, res); }
 function json(res, status, body) { return res.status(status).setHeader("Content-Type", "application/json").end(JSON.stringify(body)); }
+function classifyExecutionError(error) {
+  if (Number(error?.statusCode)) return Number(error.statusCode);
+  const message = String(error?.message || "");
+  if (/ARMORIQ_API_KEY and USER_EMAIL are required|configuration is not configured/i.test(message)) return 503;
+  if (/api key|unauthorized|authentication required|invalid credential|forbidden/i.test(message)) return 401;
+  return 502;
+}
 export async function operatorContext(req, needsApproval = false) {
   const configuredToken = process.env.PACTLINE_OPERATOR_TOKEN;
   const production = process.env.NODE_ENV === "production";
@@ -88,18 +95,20 @@ async function createRun({
   const audit = { intentToken: token, events: [{ event: "intent_captured", name: "capture_plan", target: invoiceId, decision: "allowed", reason: "Intent token issued by ArmorIQ", timestamp: now(), latency: "—" }] };
   const actions = [];
   const invoiceContext = { invoiceId: invoice.invoiceId, vendor: invoice.vendor, amount: invoice.amount, currency: invoice.currency, date: invoice.date, lineItems: invoice.lineItems || [] };
-  actions.push(await execute(client, mcpName, "read_invoice", { invoiceId, invoice: invoiceContext }, userEmail, audit, `invoice/${invoiceId}`));
-  actions.push(await execute(client, mcpName, "extract_fields", { invoiceId, invoice: invoiceContext }, userEmail, audit, `invoice/${invoiceId}/document`));
-  const extracted = actions[1]?.result || invoice;
-  actions.push(await execute(client, mcpName, "write_record", { invoiceId, invoice: invoiceContext, vendor: extracted.vendor || invoice.vendor, amount: extracted.amount || invoice.amount, currency: extracted.currency || invoice.currency, lineItems: extracted.lineItems || invoice.lineItems || [] }, userEmail, audit, `ledger.invoices/${invoiceId}`));
-
-  if (actions.some((action) => action.decision === "failed")) {
+  const persistFailedRun = async () => {
     const failedRun = { runId, actor, status: "failed", invoice: { id: invoice.invoiceId, fileName: invoice.fileName || invoice.source || `${invoice.invoiceId}.json`, vendor: invoice.vendor, amount: invoice.amount }, plan: { id: `plan_${randomUUID().slice(0, 8)}`, ...plan, status: "armoriq-sdk-captured", mcpName }, actions, audit: audit.events, outbox: [], createdAt: startedAt, mode: "armoriq-sdk-live", intentToken: token, userEmail, mcpName };
     increment("runs.failed");
     observe("runs.durationMs", Date.now() - runStartedAt);
     await saveRun(failedRun);
     return failedRun;
-  }
+  };
+  actions.push(await execute(client, mcpName, "read_invoice", { invoiceId, invoice: invoiceContext }, userEmail, audit, `invoice/${invoiceId}`));
+  if (actions.at(-1)?.decision === "failed") return persistFailedRun();
+  actions.push(await execute(client, mcpName, "extract_fields", { invoiceId, invoice: invoiceContext }, userEmail, audit, `invoice/${invoiceId}/document`));
+  if (actions.at(-1)?.decision === "failed") return persistFailedRun();
+  const extracted = actions[1]?.result || invoice;
+  actions.push(await execute(client, mcpName, "write_record", { invoiceId, invoice: invoiceContext, vendor: extracted.vendor || invoice.vendor, amount: extracted.amount || invoice.amount, currency: extracted.currency || invoice.currency, lineItems: extracted.lineItems || invoice.lineItems || [] }, userEmail, audit, `ledger.invoices/${invoiceId}`));
+  if (actions.at(-1)?.decision === "failed") return persistFailedRun();
 
   const heldOrAllowed = await execute(client, mcpName, "send_email", { recipient: UNSAFE_RECIPIENT, dataScope: "vendor + totals + line items", invoiceId, approved: false }, userEmail, audit, UNSAFE_RECIPIENT);
   if (heldOrAllowed.decision === "held") heldOrAllowed.requiresHumanApproval = true;
@@ -191,8 +200,9 @@ export default async function handler(req, res) {
     if (body?.operation === "decide" && ["approve", "reject"].includes(body.decision)) return json(res, 200, publicRun(await decide(body.decision, req, body.comment, body.idempotencyKey)));
     return json(res, 400, { error: "Expected operation=start or operation=decide with approve/reject or operation=reset" });
   } catch (error) {
-    const statusCode = Number(error?.statusCode) || 502;
-    return json(res, statusCode, { error: error instanceof Error ? error.message : "Pactline live execution failed", mode: "armoriq-sdk-live" });
+    const statusCode = classifyExecutionError(error);
+    const message = error instanceof Error ? error.message : "Pactline live execution failed";
+    return json(res, statusCode, { error: message, status: statusCode === 503 ? "configuration-required" : statusCode === 401 ? "authentication-required" : "execution-failed", mode: "armoriq-sdk-live", requestId: req.pactlineRequestId });
   }
 }
 
