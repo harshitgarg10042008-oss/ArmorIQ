@@ -83,13 +83,14 @@ async function createRun({
   const startedAt = now();
   const { client, userEmail, mcpName } = await createPactlineClient();
   const invoice = await readInvoice(invoiceId);
-  const { token, plan } = await captureInvoiceIntent(client, invoiceId, "Process this invoice and notify the approved finance recipient", APPROVED_RECIPIENT);
+  const { token, plan } = await captureInvoiceIntent(client, invoiceId, "Process this invoice and notify the approved finance recipient", APPROVED_RECIPIENT, invoice);
   const audit = { intentToken: token, events: [{ event: "intent_captured", name: "capture_plan", target: invoiceId, decision: "allowed", reason: "Intent token issued by ArmorIQ", timestamp: now(), latency: "—" }] };
   const actions = [];
-  actions.push(await execute(client, mcpName, "read_invoice", { invoiceId }, userEmail, audit, `invoice/${invoiceId}`));
-  actions.push(await execute(client, mcpName, "extract_fields", { invoiceId }, userEmail, audit, `invoice/${invoiceId}/document`));
+  const invoiceContext = { invoiceId: invoice.invoiceId, vendor: invoice.vendor, amount: invoice.amount, currency: invoice.currency, date: invoice.date, lineItems: invoice.lineItems || [] };
+  actions.push(await execute(client, mcpName, "read_invoice", { invoiceId, invoice: invoiceContext }, userEmail, audit, `invoice/${invoiceId}`));
+  actions.push(await execute(client, mcpName, "extract_fields", { invoiceId, invoice: invoiceContext }, userEmail, audit, `invoice/${invoiceId}/document`));
   const extracted = actions[1]?.result || invoice;
-  actions.push(await execute(client, mcpName, "write_record", { invoiceId, vendor: extracted.vendor || invoice.vendor, amount: extracted.amount || invoice.amount, currency: extracted.currency || invoice.currency, lineItems: extracted.lineItems || invoice.lineItems || [] }, userEmail, audit, `ledger.invoices/${invoiceId}`));
+  actions.push(await execute(client, mcpName, "write_record", { invoiceId, invoice: invoiceContext, vendor: extracted.vendor || invoice.vendor, amount: extracted.amount || invoice.amount, currency: extracted.currency || invoice.currency, lineItems: extracted.lineItems || invoice.lineItems || [] }, userEmail, audit, `ledger.invoices/${invoiceId}`));
 
   const heldOrAllowed = await execute(client, mcpName, "send_email", { recipient: UNSAFE_RECIPIENT, dataScope: "vendor + totals + line items", invoiceId, approved: false }, userEmail, audit, UNSAFE_RECIPIENT);
   if (heldOrAllowed.decision === "held") heldOrAllowed.requiresHumanApproval = true;

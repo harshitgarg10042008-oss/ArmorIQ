@@ -5,9 +5,9 @@ import { increment } from "../../api/metrics.mjs";
 const SERVER_NAME = process.env.ARMORIQ_MCP_NAME || "pactline-invoice";
 
 const TOOLS = [
-  { name: "read_invoice", description: "Read invoice metadata and totals from an invoice reference.", inputSchema: { type: "object", properties: { invoiceId: { type: "string" } }, required: ["invoiceId"] } },
-  { name: "extract_fields", description: "Extract normalized fields and line items from an invoice document.", inputSchema: { type: "object", properties: { invoiceId: { type: "string" } }, required: ["invoiceId"] } },
-  { name: "write_record", description: "Write an invoice record to the finance ledger.", inputSchema: { type: "object", properties: { invoiceId: { type: "string" }, vendor: { type: "string" }, amount: { type: "number" }, currency: { type: "string" }, lineItems: { type: "array" } }, required: ["invoiceId", "vendor", "amount"] } },
+  { name: "read_invoice", description: "Read invoice metadata and totals from an invoice reference.", inputSchema: { type: "object", properties: { invoiceId: { type: "string" }, invoice: { type: "object" } }, required: ["invoiceId"] } },
+  { name: "extract_fields", description: "Extract normalized fields and line items from an invoice document.", inputSchema: { type: "object", properties: { invoiceId: { type: "string" }, invoice: { type: "object" } }, required: ["invoiceId"] } },
+  { name: "write_record", description: "Write an invoice record to the finance ledger.", inputSchema: { type: "object", properties: { invoiceId: { type: "string" }, invoice: { type: "object" }, vendor: { type: "string" }, amount: { type: "number" }, currency: { type: "string" }, lineItems: { type: "array" } }, required: ["invoiceId", "vendor", "amount"] } },
   { name: "send_email", description: "Send invoice data only after an approved authorization decision.", inputSchema: { type: "object", properties: { recipient: { type: "string" }, dataScope: { type: "string" }, invoiceId: { type: "string" }, approved: { type: "boolean" } }, required: ["recipient", "dataScope", "invoiceId"] } },
 ];
 
@@ -23,8 +23,8 @@ function rpcError(id, code, message) { return { jsonrpc: "2.0", id: id ?? null, 
 function toolResult(data) { return { content: [{ type: "text", text: JSON.stringify(data) }] }; }
 
 async function callTool(name, args = {}) {
-  if (name === "read_invoice") return readInvoice(args.invoiceId);
-  if (name === "extract_fields") return extractFields(args.invoiceId);
+  if (name === "read_invoice") return readInvoice(args.invoiceId, args.invoice);
+  if (name === "extract_fields") return extractFields(args.invoiceId, args.invoice);
   if (name === "write_record") return writeRecord(args);
   if (name === "send_email") return sendEmail(args);
   return null;
