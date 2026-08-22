@@ -453,3 +453,9 @@
 - [ ] Complete actionable authentication, authorization, and runtime fixes.
 - [ ] Verify core invoice, ArmorIQ, approval, audit, and export flows.
 - [ ] Synchronize the final verified implementation and update the honest completion score.
+
+## Confirmed live SDK failure diagnostics
+- [x] Add a sanitized runtime preflight/health report for ArmorIQ configuration presence and mode.
+- [x] Map missing credentials and ArmorIQ authentication failures to actionable HTTP statuses instead of generic 502.
+- [ ] Add frontend copy for configuration/authentication failures without exposing secrets.
+- [ ] Document that the intended three-allowed/one-hold flow requires a valid SDK key and deployed MCP endpoint.

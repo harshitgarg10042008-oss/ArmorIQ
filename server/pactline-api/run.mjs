@@ -14,6 +14,13 @@ const UNSAFE_RECIPIENT = process.env.PACTLINE_TEST_RECIPIENT || "external-review
 function now() { return new Date().toISOString(); }
 function cors(req, res) { applySecurity(req, res); }
 function json(res, status, body) { return res.status(status).setHeader("Content-Type", "application/json").end(JSON.stringify(body)); }
+function classifyExecutionError(error) {
+  if (Number(error?.statusCode)) return Number(error.statusCode);
+  const message = String(error?.message || "");
+  if (/ARMORIQ_API_KEY and USER_EMAIL are required|configuration is not configured/i.test(message)) return 503;
+  if (/api key|unauthorized|authentication required|invalid credential|forbidden/i.test(message)) return 401;
+  return 502;
+}
 export async function operatorContext(req, needsApproval = false) {
   const configuredToken = process.env.PACTLINE_OPERATOR_TOKEN;
   const production = process.env.NODE_ENV === "production";
@@ -193,8 +200,9 @@ export default async function handler(req, res) {
     if (body?.operation === "decide" && ["approve", "reject"].includes(body.decision)) return json(res, 200, publicRun(await decide(body.decision, req, body.comment, body.idempotencyKey)));
     return json(res, 400, { error: "Expected operation=start or operation=decide with approve/reject or operation=reset" });
   } catch (error) {
-    const statusCode = Number(error?.statusCode) || 502;
-    return json(res, statusCode, { error: error instanceof Error ? error.message : "Pactline live execution failed", mode: "armoriq-sdk-live" });
+    const statusCode = classifyExecutionError(error);
+    const message = error instanceof Error ? error.message : "Pactline live execution failed";
+    return json(res, statusCode, { error: message, status: statusCode === 503 ? "configuration-required" : statusCode === 401 ? "authentication-required" : "execution-failed", mode: "armoriq-sdk-live", requestId: req.pactlineRequestId });
   }
 }
 
