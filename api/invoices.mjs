@@ -1,14 +1,13 @@
 import { listAvailableInvoices, registerInvoice } from "./pactline-tools.mjs";
+import { allowedOrigin, applySecurity, rateLimit } from "./security.mjs";
 
-function cors(res) {
-  res.setHeader("Access-Control-Allow-Origin", process.env.PACTLINE_FRONTEND_ORIGIN || "*");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-}
+function cors(req, res) { applySecurity(req, res); }
 
 export default async function handler(req, res) {
-  cors(res);
+  cors(req, res);
   if (req.method === "OPTIONS") return res.status(204).end();
+  if (!allowedOrigin(req)) return res.status(403).json({ error: "Origin is not allowed" });
+  if (!rateLimit(req, res)) return;
   try {
     if (req.method === "GET") return res.status(200).json({ invoices: await listAvailableInvoices() });
     if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });

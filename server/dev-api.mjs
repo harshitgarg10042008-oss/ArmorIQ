@@ -1,7 +1,12 @@
 import express from "express";
+import { createExpressMiddleware } from "@trpc/server/adapters/express";
+import { registerOAuthRoutes } from "../server/_core/oauth.ts";
+import { appRouter } from "../server/routers.ts";
+import { createContext } from "../server/_core/context.ts";
 import { createRequire } from "node:module";
 import runHandler from "../api/run.mjs";
 import invoiceHandler from "../api/invoices.mjs";
+import healthHandler from "../api/health.mjs";
 import mcpHandler from "../api/mcp.mjs";
 
 const require = createRequire(import.meta.url);
@@ -13,6 +18,8 @@ try {
 
 const app = express();
 app.use(express.json());
+registerOAuthRoutes(app);
+app.use("/api/trpc", createExpressMiddleware({ router: appRouter, createContext }));
 
 function bridge(handler) {
   return async (req, res) => {
@@ -28,8 +35,8 @@ function bridge(handler) {
 
 app.all("/api/run", bridge(runHandler));
 app.all("/api/invoices", bridge(invoiceHandler));
+app.all("/api/health", bridge(healthHandler));
 app.all("/api/mcp", bridge(mcpHandler));
-app.get("/api/health", (_req, res) => res.json({ service: "pactline-local-api", status: "ok" }));
 
 const port = Number(process.env.PACTLINE_API_PORT || 8787);
 app.listen(port, "127.0.0.1", () => {

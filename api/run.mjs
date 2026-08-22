@@ -1,14 +1,41 @@
-import { randomUUID } from "node:crypto";
+import { randomUUID, timingSafeEqual } from "node:crypto";
 import { createPactlineClient, captureInvoiceIntent, invokeAuthorized } from "../agent/armoriq-live-adapter.mjs";
 import { readInvoice, extractFields, writeRecord, sendEmail, readRuntimeEvidence } from "./pactline-tools.mjs";
 import { getCurrentRun, listRuns, saveRun } from "./pactline-store.mjs";
+import { allowedOrigin, applySecurity, rateLimit, validateRunRequest } from "./security.mjs";
+import { sdk } from "../server/_core/sdk";
 
 const APPROVED_RECIPIENT = process.env.PACTLINE_APPROVED_RECIPIENT || "finance@company.test";
 const UNSAFE_RECIPIENT = process.env.PACTLINE_TEST_RECIPIENT || "external-review@protonmail.test";
 
 function now() { return new Date().toISOString(); }
-function cors(res) { res.setHeader("Access-Control-Allow-Origin", process.env.PACTLINE_FRONTEND_ORIGIN || "*"); res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key"); res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); }
+function cors(req, res) { applySecurity(req, res); }
 function json(res, status, body) { return res.status(status).setHeader("Content-Type", "application/json").end(JSON.stringify(body)); }
+async function operatorContext(req, needsApproval = false) {
+  const configuredToken = process.env.PACTLINE_OPERATOR_TOKEN;
+  const production = process.env.NODE_ENV === "production";
+  if (production && !configuredToken && process.env.PACTLINE_REQUIRE_AUTH !== "true") throw Object.assign(new Error("Operator authentication is not configured"), { statusCode: 503 });
+  const providedToken = String(req.headers?.authorization || "").replace(/^Bearer\s+/i, "");
+  if (configuredToken) {
+    const expected = Buffer.from(configuredToken);
+    const actual = Buffer.from(providedToken);
+    if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) throw Object.assign(new Error("Operator authentication required"), { statusCode: 401 });
+  }
+  let role = String(req.headers?.["x-pactline-role"] || (configuredToken ? "" : "approver")).toLowerCase();
+  let actor = String(req.headers?.["x-pactline-actor"] || "local-operator");
+  if (process.env.PACTLINE_REQUIRE_AUTH === "true") {
+    try {
+      const user = await sdk.authenticateRequest(req);
+      role = user.role;
+      actor = user.openId;
+    } catch {
+      throw Object.assign(new Error("Authenticated Pactline session required"), { statusCode: 401 });
+    }
+  }
+  if (needsApproval && !["admin", "approver"].includes(role)) throw Object.assign(new Error("Approver role required"), { statusCode: 403 });
+  return { actor, role };
+}
+
 function publicRun(run) {
   if (!run) return null;
   const { intentToken: _intentToken, userEmail: _userEmail, ...safe } = run;
@@ -40,7 +67,10 @@ async function execute(client, mcpName, action, args, userEmail, audit, target) 
   }
 }
 
-async function createRun({ invoiceId = process.env.PACTLINE_INVOICE_ID || "INV-044" } = {}) {
+async function createRun({
+  invoiceId = process.env.PACTLINE_INVOICE_ID || "INV-044",
+  actor = "system"
+} = {}) {
   const runId = `run_${randomUUID().slice(0, 6).toUpperCase()}`;
   const startedAt = now();
   const { client, userEmail, mcpName } = await createPactlineClient();
@@ -57,22 +87,26 @@ async function createRun({ invoiceId = process.env.PACTLINE_INVOICE_ID || "INV-0
   if (heldOrAllowed.decision === "held") heldOrAllowed.requiresHumanApproval = true;
   actions.push(heldOrAllowed);
   const status = heldOrAllowed.decision === "held" ? "held" : "approved";
-  const run = { runId, status, invoice: { id: invoice.invoiceId, fileName: `${invoice.invoiceId}.json`, vendor: invoice.vendor, amount: invoice.amount }, plan: { id: `plan_${randomUUID().slice(0, 8)}`, ...plan, status: "armoriq-sdk-captured", mcpName }, actions, audit: audit.events, outbox: [], createdAt: startedAt, mode: "armoriq-sdk-live", intentToken: token, userEmail, mcpName };
+  const run = { runId, actor, status, invoice: { id: invoice.invoiceId, fileName: `${invoice.invoiceId}.json`, vendor: invoice.vendor, amount: invoice.amount }, plan: { id: `plan_${randomUUID().slice(0, 8)}`, ...plan, status: "armoriq-sdk-captured", mcpName }, actions, audit: audit.events, outbox: [], createdAt: startedAt, mode: "armoriq-sdk-live", intentToken: token, userEmail, mcpName };
   await saveRun(run);
   return run;
 }
 
-async function decide(decision) {
+async function decide(decision, req, comment = "", idempotencyKey) {
+  const auth = await operatorContext(req, true);
   const run = await getCurrentRun();
   if (!run) return null;
   const held = run.actions.find((action) => action.name === "send_email" && action.decision === "held");
   if (!held || !run.intentToken) return run;
+  const approvalKey = idempotencyKey || `${run.runId}:${decision}`;
+  const existingApproval = run.audit.find((event) => event.event === "human_approved_and_tool_allowed" || event.event === "human_rejected") && run.audit.find((event) => event.idempotencyKey === approvalKey);
+  if (existingApproval) return run;
   if (decision === "reject") {
     held.decision = "rejected";
     held.reason = "Human rejected; unauthorized action cancelled before execution";
     held.timestamp = now();
     run.status = "rejected";
-    run.audit.push({ ...held, event: "human_rejected" });
+    run.audit.push({ ...held, event: "human_rejected", actor: auth.actor, role: auth.role, comment: comment || "Rejected by operator", idempotencyKey: approvalKey, requestId: req.pactlineRequestId });
     await saveRun(run);
     return run;
   }
@@ -89,21 +123,23 @@ async function decide(decision) {
     held.requiresHumanApproval = false;
     run.status = "approved";
     if (emailResult?.executed) run.outbox = [emailResult];
-    run.audit.push({ ...held, event: "human_approved_and_tool_allowed" });
+    run.audit.push({ ...held, event: "human_approved_and_tool_allowed", actor: auth.actor, role: auth.role, comment: comment || "Approved by operator", idempotencyKey: approvalKey, requestId: req.pactlineRequestId });
   } catch (error) {
     held.decision = "rejected";
     held.reason = error instanceof Error ? error.message : "Approval did not authorize the action";
     held.timestamp = now();
     run.status = "rejected";
-    run.audit.push({ ...held, event: "approval_failed" });
+    run.audit.push({ ...held, event: "approval_failed", actor: auth.actor, role: auth.role, idempotencyKey: approvalKey, requestId: req.pactlineRequestId });
   }
   await saveRun(run);
   return run;
 }
 
 export default async function handler(req, res) {
-  cors(res);
+  req.pactlineRequestId = applySecurity(req, res);
   if (req.method === "OPTIONS") return res.status(204).end();
+  if (!allowedOrigin(req)) return json(res, 403, { error: "Origin is not allowed" });
+  if (!rateLimit(req, res)) return;
   try {
     if (req.method === "GET") {
       const [currentRun, runs, evidence] = await Promise.all([getCurrentRun(), listRuns(), readRuntimeEvidence()]);
@@ -112,11 +148,17 @@ export default async function handler(req, res) {
     if (req.method !== "POST") return json(res, 405, { error: "Method not allowed" });
     let body = req.body;
     if (typeof body === "string") { try { body = JSON.parse(body); } catch { return json(res, 400, { error: "Request body must be valid JSON" }); } }
-    if (body?.operation === "start") return json(res, 201, publicRun(await createRun({ invoiceId: body.invoiceId })));
-    if (body?.operation === "decide" && ["approve", "reject"].includes(body.decision)) return json(res, 200, publicRun(await decide(body.decision)));
+    const validationError = validateRunRequest(body);
+    if (validationError) return json(res, 400, { error: validationError, requestId: req.pactlineRequestId });
+    if (body?.operation === "start") {
+      const auth = await operatorContext(req, false);
+      return json(res, 201, publicRun(await createRun({ invoiceId: body.invoiceId, actor: auth.actor })));
+    }
+    if (body?.operation === "decide" && ["approve", "reject"].includes(body.decision)) return json(res, 200, publicRun(await decide(body.decision, req, body.comment, body.idempotencyKey)));
     return json(res, 400, { error: "Expected operation=start or operation=decide with approve/reject" });
   } catch (error) {
-    return json(res, 502, { error: error instanceof Error ? error.message : "Pactline live execution failed", mode: "armoriq-sdk-live" });
+    const statusCode = Number(error?.statusCode) || 502;
+    return json(res, statusCode, { error: error instanceof Error ? error.message : "Pactline live execution failed", mode: "armoriq-sdk-live" });
   }
 }
 

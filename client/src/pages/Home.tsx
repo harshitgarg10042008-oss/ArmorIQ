@@ -1,4 +1,5 @@
 /* Signal & Stewardship: evidence before decoration, asymmetric command layout, ink + warm paper + Signal Green, exact operator-first copy. */
+import { useAuth } from "@/_core/hooks/useAuth";
 import { useEffect, useMemo, useState } from "react";
 import { fetchInvoices, fetchRunState, registerInvoice, startPactlineRun, submitPactlineDecision, type PactlineInvoice, type PactlineRun } from "@/lib/pactline-api";
 import {
@@ -69,6 +70,12 @@ function PageView({ page, darkMode, notify, liveRun, onApprove, onReject }: { pa
 }
 
 export default function Home() {
+  const { user } = useAuth();
+  // The useAuth hook provides authenticated workspace identity when available.
+  // To implement login/logout, call logout(), or start login from an event
+  // handler: onClick={() => startLogin()} (imported from "@/const"). Never call
+  // startLogin() during render (no href={startLogin()}) — it mints a one-time
+  // nonce cookie and must run only at the moment of navigation.
   const [activeNav, setActiveNav] = useState(() => new URLSearchParams(window.location.search).get("page") || "Overview");
   const [runState, setRunState] = useState<"idle" | "running" | "held" | "approved" | "rejected">("idle");
   const [liveRun, setLiveRun] = useState<PactlineRun | null>(null);
@@ -205,7 +212,7 @@ export default function Home() {
         <div className="sidebar-bottom">
           <div className="system-note"><div className="status-dot live" /><div><div className="micro-label">ArmorIQ link</div><div className="system-state">{liveRun ? "Connected · API" : "Waiting · API"}</div></div></div>
           <button className="nav-item" onClick={() => notify("Settings are part of the next build phase")}><KeyRound size={16} /><span>Workspace settings</span></button>
-          <div className="user-card"><div className="user-avatar"><UserRound size={16} /></div><div><div className="workspace-name">Aarav Mehta</div><div className="workspace-meta">Owner · admin</div></div><MoreHorizontal size={16} /></div>
+          <div className="user-card"><div className="user-avatar"><UserRound size={16} /></div><div><div className="workspace-name">{user?.name || "Operator"}</div><div className="workspace-meta">{user?.role === "admin" ? "Owner · admin" : "Workspace member"}</div></div><MoreHorizontal size={16} /></div>
         </div>
       </aside>
 

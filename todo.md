@@ -206,3 +206,24 @@
 - [x] Connect the dashboard invoice input to the real start-run request.
 - [ ] Validate allow, hold, reject, approve, persistence, and input-validation paths.
 - [ ] Push stages 1–3 implementation to GitHub.
+
+## Phases 4–8 hardening
+- [x] Add server-side authentication and role-aware approval authorization.
+- [x] Add approval idempotency, decision comments, and immutable decision metadata.
+- [x] Add organization, workspace, user, and run ownership data foundations.
+- [x] Replace broad CORS with configured origin validation and add security headers.
+- [x] Add request validation, rate limiting, correlation IDs, and safe error responses.
+- [ ] Make dashboard secondary views backend-derived and add run reset/history controls.
+- [x] Add automated unit/integration tests and CI-ready validation scripts.
+- [x] Add structured observability and health/readiness endpoints.
+- [x] Add deployment and operations documentation/configuration.
+- [ ] Validate phases 4–8 and push changes to GitHub.
+
+## Hardening corrections required before delivery
+- [ ] Enforce approval authentication unconditionally in production paths and remove spoofable header-only role fallback.
+- [ ] Persist operator-supplied approval comments and immutable approval records with explicit idempotency handling.
+- [ ] Wire organizations, workspaces, members, runs, actions, and audit events into the active backend flow with ownership checks.
+- [ ] Remove wildcard CORS fallback for non-local deployments and apply consistent route middleware.
+- [ ] Add schema-based validation for `/api/run` and MCP tool arguments.
+- [ ] Add integration tests for run, invoice, MCP, auth, and persistence/restart behavior plus CI configuration.
+- [ ] Add structured logs/metrics and propagate request IDs into persisted audit events.

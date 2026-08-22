@@ -8,7 +8,7 @@ const children = [
 ];
 let apiChild;
 const apiTimer = setTimeout(() => {
-  apiChild = spawn(process.execPath, ["server/dev-api.mjs"], { cwd: root, stdio: "inherit", env: process.env });
+  apiChild = spawn(process.platform === "win32" ? "pnpm.cmd" : "pnpm", ["tsx", "server/dev-api.mjs"], { cwd: root, stdio: "inherit", env: process.env });
   children.push(apiChild);
   apiChild.on("exit", (code, signal) => {
     if (signal !== "SIGTERM") shutdown(code ?? 1);

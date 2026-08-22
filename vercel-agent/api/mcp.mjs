@@ -1,4 +1,5 @@
 import { readInvoice, extractFields, writeRecord, sendEmail } from "../../api/pactline-tools.mjs";
+import { allowedOrigin, applySecurity, rateLimit, validateToolArguments } from "../../api/security.mjs";
 
 const SERVER_NAME = process.env.ARMORIQ_MCP_NAME || "pactline-invoice";
 
@@ -35,6 +36,8 @@ async function handleRpc(request) {
   if (method === "tools/list") return { jsonrpc: "2.0", id, result: { tools: TOOLS } };
   if (method === "tools/call") {
     try {
+      const validationError = validateToolArguments(params.name, params.arguments || {});
+      if (validationError) return rpcError(id, -32602, validationError);
       const result = await callTool(params.name, params.arguments || {});
       if (!result) return rpcError(id, -32602, `Unknown tool: ${params.name}`);
       return { jsonrpc: "2.0", id, result: toolResult(result) };
@@ -46,14 +49,15 @@ async function handleRpc(request) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  applySecurity(req, res);
   if (req.method === "OPTIONS") return res.status(204).end();
+  if (!allowedOrigin(req)) return res.status(403).json({ error: "Origin is not allowed" });
+  if (!rateLimit(req, res, 120)) return;
   if (req.method === "GET") return res.status(200).json({ service: SERVER_NAME, protocol: "json-rpc-2.0-over-sse", endpoint: "/api/mcp", tools: TOOLS.map((tool) => tool.name) });
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   let body = req.body;
   if (typeof body === "string") { try { body = JSON.parse(body); } catch { return res.status(400).json({ error: "Request body must be valid JSON" }); } }
+  if (!body || typeof body !== "object" || body.jsonrpc !== "2.0") return res.status(400).json({ error: "JSON-RPC 2.0 request required" });
   const response = await handleRpc(body);
   if (!response) return res.status(202).end();
   return sse(res, response);
