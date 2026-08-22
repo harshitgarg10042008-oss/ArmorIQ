@@ -184,7 +184,7 @@
 - [x] Repair write_record so a valid invoice reaches the fourth action without bypassing authorization by using the writable serverless runtime directory.
 - [x] Add regression coverage for write_record persistence and failure classification.
 - [ ] Run a fresh protected workflow and verify three allowed actions plus the intended email hold.
-- [ ] Push and checkpoint the verified write_record repair. (Pushed as 7da0823; checkpoint follows.)
+- [ ] Push and checkpoint the verified write_record repair. (Pushed as 9dd70bf; checkpoint follows.)
 
 ## Uploaded invoice selection repair
 - [x] Trace the registered invoice response and active invoice ID state after upload.
