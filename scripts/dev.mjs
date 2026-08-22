@@ -1,10 +1,12 @@
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import fs from "node:fs";
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const node = process.execPath;
 const apiScript = path.join(root, "server", "dev-api.mjs");
+const envFile = path.join(root, ".env");
 const tsxScript = path.join(root, "node_modules", "tsx", "dist", "cli.mjs");
 const viteScript = path.join(root, "node_modules", "vite", "bin", "vite.js");
 const children = [];
@@ -41,7 +43,8 @@ async function waitForApi() {
 let apiChild;
 try {
   if (!(await isApiReady())) {
-    apiChild = start(node, [tsxScript, apiScript]);
+    const apiArgs = fs.existsSync(envFile) ? ["--env-file=.env", tsxScript, apiScript] : [tsxScript, apiScript];
+    apiChild = start(node, apiArgs);
     apiChild.on("exit", (code, signal) => { if (!shuttingDown && signal !== "SIGTERM") shutdown(code ?? 1); });
     await waitForApi();
   }

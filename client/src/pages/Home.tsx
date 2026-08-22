@@ -1,7 +1,7 @@
 /* Signal & Stewardship: evidence before decoration, asymmetric command layout, ink + warm paper + Signal Green, exact operator-first copy. */
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useEffect, useMemo, useState } from "react";
-import { downloadReport, fetchInvoices, fetchRunState, registerInvoice, resetPactlineRun, startPactlineRun, submitPactlineDecision, type PactlineInvoice, type PactlineRun } from "@/lib/pactline-api";
+import { buildStartRunPayload, downloadReport, fetchInvoices, fetchRunState, registerInvoice, resetPactlineRun, resolveActiveInvoiceId, startPactlineRun, submitPactlineDecision, PactlineApiError, type PactlineInvoice, type PactlineRun } from "@/lib/pactline-api";
 import {
   ArrowUpRight,
   BadgeCheck,
@@ -47,6 +47,13 @@ const events = [
 
 const toolCalls: never[] = [];
 
+function formatRunError(error: unknown, fallback: string) {
+  if (error instanceof PactlineApiError && error.status === "configuration-required") return "ArmorIQ is not configured on this backend. Set ARMORIQ_API_KEY and USER_EMAIL in the server environment, restart the API, and retry.";
+  if (error instanceof PactlineApiError && error.status === "authentication-required") return "ArmorIQ rejected the server credentials. Verify the API key and USER_EMAIL, restart the API, and retry.";
+  if (error instanceof PactlineApiError && error.requestId) return `${error.message} (request ${error.requestId})`;
+  return error instanceof Error ? error.message : fallback;
+}
+
 function PageView({ page, darkMode, notify, liveRun, history, onApprove, onReject }: { page: string; darkMode: boolean; notify: (message: string) => void; liveRun: PactlineRun | null; history: PactlineRun[]; onApprove: () => void; onReject: () => void }) {
   const pageData: Record<string, { eyebrow: string; title: string; description: string }> = {
     "Live runs": { eyebrow: "OBSERVABILITY / 02", title: "Live runs", description: "See autonomous work move through its authorization boundary in real time." },
@@ -87,7 +94,7 @@ export default function Home() {
   const [liveRun, setLiveRun] = useState<PactlineRun | null>(null);
   const [runHistory, setRunHistory] = useState<PactlineRun[]>([]);
   const [availableInvoices, setAvailableInvoices] = useState<PactlineInvoice[]>([]);
-  const [invoiceId, setInvoiceId] = useState("INV-044");
+  const [invoiceId, setInvoiceId] = useState("");
   const [apiError, setApiError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [pendingAction, setPendingAction] = useState<"start" | "approve" | "reject" | null>(null);
@@ -102,13 +109,13 @@ export default function Home() {
     try {
       const data = await fetchRunState();
       setRunHistory(data.runs || []);
-      if (data.currentRun) { setLiveRun(data.currentRun); setRunState(data.currentRun.status === "held" ? "held" : data.currentRun.status); setShowDrawer(data.currentRun.status === "held" ); }
+      if (data.currentRun) { setLiveRun(data.currentRun); setInvoiceId(resolveActiveInvoiceId(invoiceId, { invoiceId: data.currentRun.invoice.id })); setRunState(data.currentRun.status === "held" ? "held" : data.currentRun.status); setShowDrawer(data.currentRun.status === "held" ); }
       else { setLiveRun(null); setRunState("idle"); setShowDrawer(false); }
-    } catch {
+    } catch (error) {
       setLiveRun(null);
       setRunState("failed");
       setShowDrawer(false);
-      setApiError("Could not reach the Pactline backend. The previous run was cleared; start the API and retry.");
+      setApiError(formatRunError(error, "Could not reach the Pactline backend. The previous run was cleared; start the API and retry."));
     } finally {
       setIsLoading(false);
     }
@@ -161,8 +168,12 @@ export default function Home() {
       const invoice = extension === "json" ? JSON.parse(await file.text()) as PactlineInvoice : {} as PactlineInvoice;
       const saved = await registerInvoice({ ...invoice, source: file.name, fileName: file.name, mimeType, documentBase64 });
       setAvailableInvoices((current) => [saved, ...current.filter((item) => item.invoiceId !== saved.invoiceId)]);
-      setInvoiceId(saved.invoiceId);
-      notify(`Invoice ${saved.invoiceId} uploaded and registered`);
+      setInvoiceId(resolveActiveInvoiceId(invoiceId, saved));
+      setLiveRun(null);
+      setRunState("idle");
+      setShowDrawer(false);
+      setApiError("");
+      notify(`Invoice ${saved.invoiceId} uploaded, selected, and registered`);
     } catch (error) {
       setApiError(error instanceof Error ? error.message : "Invoice document could not be imported.");
     } finally {
@@ -176,7 +187,7 @@ export default function Home() {
     setApiError("");
     notify("Intent captured · starting live run");
     try {
-      const nextRun = await startPactlineRun(invoiceId.trim() || undefined);
+      const nextRun = await startPactlineRun(buildStartRunPayload(invoiceId).invoiceId);
       setLiveRun(nextRun);
       setRunHistory((current) => [nextRun, ...current.filter((run) => run.runId !== nextRun.runId)]);
       setRunState(nextRun.status);
@@ -185,7 +196,7 @@ export default function Home() {
       setLiveRun(null);
       setRunState("failed");
       setShowDrawer(false);
-      setApiError(error instanceof Error ? error.message : "Could not start the run. Please retry.");
+      setApiError(formatRunError(error, "Could not start the run. Please retry."));
       notify("Run failed · no approval was created");
     } finally {
       setPendingAction(null);
@@ -196,7 +207,7 @@ export default function Home() {
     setPendingAction("approve");
     setApiError("");
     try { const nextRun = await submitPactlineDecision("approve"); setLiveRun(nextRun); setRunState("approved"); setShowDrawer(false); notify("Approved · run updated by API"); }
-    catch { setApiError("Approval could not be submitted. Please retry."); }
+    catch (error) { setApiError(formatRunError(error, "Approval could not be submitted. Please retry.")); }
     finally { setPendingAction(null); }
   };
 
@@ -209,7 +220,7 @@ export default function Home() {
       setRunState("idle");
       setShowDrawer(false);
       notify("Active run cleared · history preserved");
-    } catch { setApiError("The active run could not be cleared. Please retry."); }
+    } catch (error) { setApiError(formatRunError(error, "The active run could not be cleared. Please retry.")); }
     finally { setPendingAction(null); }
   };
 
@@ -217,7 +228,7 @@ export default function Home() {
     setPendingAction("reject");
     setApiError("");
     try { const nextRun = await submitPactlineDecision("reject"); setLiveRun(nextRun); setRunState("rejected"); setShowDrawer(false); notify("Rejected · unauthorized action did not execute"); }
-    catch { setApiError("Rejection could not be submitted. Please retry."); }
+    catch (error) { setApiError(formatRunError(error, "Rejection could not be submitted. Please retry.")); }
     finally { setPendingAction(null); }
   };
 
@@ -266,7 +277,7 @@ export default function Home() {
 
         {activeNav !== "Overview" ? <PageView page={activeNav} darkMode={darkMode} notify={notify} liveRun={liveRun} history={runHistory} onApprove={approve} onReject={reject} /> : <>
         <section className="hero-band">
-          <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-line" />AUTONOMOUS OPERATIONS / 01</div><h1>Autonomy is active.<br /><em>Authority is bounded.</em></h1><p>Pactline lets your agent move through routine invoice work while ArmorIQ holds the exact moment an action leaves its captured intent.</p><div className="invoice-input-row"><label className="invoice-input-label">INVOICE ID<input className="invoice-input" list="pactline-invoice-list" value={invoiceId} onChange={(event) => setInvoiceId(event.target.value)} placeholder="INV-044" /><datalist id="pactline-invoice-list">{availableInvoices.map((invoice) => <option key={invoice.invoiceId} value={invoice.invoiceId}>{invoice.vendor}</option>)}</datalist></label><label className="invoice-upload-button">UPLOAD INVOICE<input type="file" accept="application/json,.json" onChange={handleInvoiceFile} /></label></div><div className="hero-actions"><button className="primary-button" onClick={() => void simulateRun()} disabled={pendingAction === "start" || isLoading}>{pendingAction === "start" ? <><TimerReset size={15} className="spin" /> Starting…</> : <><Play size={15} fill="currentColor" /> Run protected demo <ArrowUpRight size={15} /></>}</button><button className="text-button" onClick={() => { setActiveNav("Intent plans"); notify("Intent plans view selected"); }}>View architecture <ChevronRight size={15} /></button>{liveRun && <button className="text-button" onClick={() => void resetRun()} disabled={pendingAction !== null}><TimerReset size={15} /> New run</button>}</div></div>
+          <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-line" />AUTONOMOUS OPERATIONS / 01</div><h1>Autonomy is active.<br /><em>Authority is bounded.</em></h1><p>Pactline lets your agent move through routine invoice work while ArmorIQ holds the exact moment an action leaves its captured intent.</p><div className="invoice-input-row"><label className="invoice-input-label">INVOICE ID<input className="invoice-input" list="pactline-invoice-list" value={invoiceId} onChange={(event) => setInvoiceId(event.target.value)} placeholder="Select or enter an invoice ID" /><datalist id="pactline-invoice-list">{availableInvoices.map((invoice) => <option key={invoice.invoiceId} value={invoice.invoiceId}>{invoice.vendor}</option>)}</datalist></label><label className="invoice-upload-button">UPLOAD INVOICE<input type="file" accept="application/json,.json" onChange={handleInvoiceFile} /></label></div><div className="hero-actions"><button className="primary-button" onClick={() => void simulateRun()} disabled={pendingAction === "start" || isLoading || !invoiceId.trim()}>{pendingAction === "start" ? <><TimerReset size={15} className="spin" /> Starting…</> : <><Play size={15} fill="currentColor" /> Run protected demo <ArrowUpRight size={15} /></>}</button><button className="text-button" onClick={() => { setActiveNav("Intent plans"); notify("Intent plans view selected"); }}>View architecture <ChevronRight size={15} /></button>{liveRun && <button className="text-button" onClick={() => void resetRun()} disabled={pendingAction !== null}><TimerReset size={15} /> New run</button>}</div></div>
           <div className="hero-visual"><div className="hero-signal-texture" role="img" aria-label="Abstract authorization signal texture" /><div className="hero-visual-overlay"><div className="signal-ring"><ShieldCheck size={31} /></div><div><div className="micro-label">CURRENT BOUNDARY</div><div className="hero-visual-title">Invoice handling plan</div><div className="hero-visual-meta"><span className="status-dot live" />{isLoading ? "Connecting to Pactline API…" : liveRun ? `${liveRun.plan.status} · ${liveRun.mode}` : "No active run"}</div></div></div></div>
         </section>
 

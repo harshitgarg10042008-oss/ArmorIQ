@@ -40,6 +40,16 @@ type InvoiceResponse = { invoices: PactlineInvoice[] };
 export type PactlineSettings = { workspaceName: string; workspaceDescription: string; approvalMode: string; defaultRecipient: string; retentionDays: number; updatedAt?: string };
 export type PactlineProfile = { displayName: string; initials: string; avatarColor: "mint" | "cobalt" | "violet" | "amber"; updatedAt?: string };
 export type PactlineNotificationPreferences = { approvalHolds: boolean; runFailures: boolean; weeklyDigest: boolean; updatedAt?: string };
+export function resolveActiveInvoiceId(current: string, uploaded?: Pick<PactlineInvoice, "invoiceId"> | null) {
+  const nextId = String(uploaded?.invoiceId || "").trim();
+  return nextId || current;
+}
+export function buildStartRunPayload(invoiceId: string) {
+  const selectedId = String(invoiceId || "").trim();
+  if (!selectedId) throw new Error("Select or enter an invoice ID before starting a run.");
+  return { operation: "start" as const, invoiceId: selectedId };
+}
+
 export async function fetchSettings(): Promise<PactlineSettings> { const result = await request<{ settings: PactlineSettings }>("/api/settings"); return result.settings; }
 export async function updateSettings(patch: Partial<PactlineSettings>): Promise<PactlineSettings> { const result = await request<{ settings: PactlineSettings }>("/api/settings", { method: "PUT", body: JSON.stringify(patch) }); return result.settings; }
 export async function fetchProfile(): Promise<PactlineProfile> { const result = await request<{ profile: PactlineProfile }>("/api/profile"); return result.profile; }
@@ -66,6 +76,6 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 export async function fetchRunState(): Promise<RunResponse> { return request<RunResponse>("/api/run"); }
 export async function fetchInvoices(): Promise<InvoiceResponse> { return request<InvoiceResponse>("/api/invoices"); }
 export async function registerInvoice(invoice: PactlineInvoice): Promise<PactlineInvoice> { const result = await request<{ invoice: PactlineInvoice }>("/api/invoices", { method: "POST", body: JSON.stringify(invoice) }); return result.invoice; }
-export async function startPactlineRun(invoiceId?: string): Promise<PactlineRun> { return request<PactlineRun>("/api/run", { method: "POST", body: JSON.stringify({ operation: "start", invoiceId }) }); }
+export async function startPactlineRun(invoiceId?: string): Promise<PactlineRun> { return request<PactlineRun>("/api/run", { method: "POST", body: JSON.stringify(buildStartRunPayload(invoiceId || "")) }); }
 export async function submitPactlineDecision(decision: "approve" | "reject", comment?: string): Promise<PactlineRun> { return request<PactlineRun>("/api/run", { method: "POST", body: JSON.stringify({ operation: "decide", decision, comment, idempotencyKey: `${Date.now()}-${decision}` }) }); }
 export async function resetPactlineRun(): Promise<RunResponse> { return request<RunResponse>("/api/run", { method: "POST", body: JSON.stringify({ operation: "reset" }) }); }

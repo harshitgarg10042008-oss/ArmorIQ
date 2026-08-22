@@ -179,6 +179,25 @@
 - [ ] Start the Windows frontend locally from the synchronized repository.
 - [ ] Verify localhost frontend calls the backend and starts a real run.
 
+## Uploaded invoice selection repair
+- [x] Trace the registered invoice response and active invoice ID state after upload.
+- [x] Ensure the uploaded invoice becomes the selected run input and no fallback ID overwrites it.
+- [x] Verify upload and run payload consistency with regression coverage.
+- [ ] Synchronize the combined upload and 502 repair.
+
+## Full local 502 repair and synchronization
+- [x] Inventory the active Vite/backend processes, route imports, environment contract, and recent logs.
+- [x] Reproduce the browser POST `/api/run` failure through the exact local proxy path.
+- [x] Repair stale runtime loading, configuration classification, and frontend error presentation.
+- [ ] Verify API, UI, SDK-path, tests, build, and deployment topology. (API/UI/tests/build verified; live SDK invocation and fresh public deployment remain credential-dependent.)
+- [ ] Commit and push the verified repair to GitHub.
+
+## Local 502 runtime bridge repair
+- [x] Repair the local backend bridge still resolving the deleted legacy run route.
+- [x] Verify POST `/api/run` reaches the canonical Pactline runtime and returns structured success or classified failure.
+- [x] Verify the frontend clears failed stale state and renders the repaired response.
+- [ ] Save and synchronize the verified local bridge repair.
+
 ## Localhost run and visual repair
 - [ ] Diagnose why localhost `/api/run` start returns an error.
 - [ ] Make reject visibly resolve the active run and refresh all derived views.
