@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { DATA_DIR, getInvoice, listInvoices, saveInvoice } from "./pactline-store.mjs";
 import { getDatabaseInvoice, listDatabaseInvoices, saveDatabaseInvoice } from "./pactline-db-repository.mjs";
-import { storagePut } from "../storage.ts";
+import { storagePut } from "./storage.mjs";
 import pdfParse from "pdf-parse/lib/pdf-parse.js";
 import { createWorker } from "tesseract.js";
 

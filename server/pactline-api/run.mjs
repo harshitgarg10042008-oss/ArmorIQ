@@ -4,7 +4,6 @@ import { readInvoice, extractFields, writeRecord, sendEmail, readRuntimeEvidence
 import { appendApproval } from "./pactline-store.mjs";
 import { getRuntimeCurrentRun as getCurrentRun, listRuntimeRuns as listRuns, resetRuntimeCurrentRun as resetCurrentRun, saveRuntimeRun as saveRun } from "./pactline-runtime-store.mjs";
 import { allowedOrigin, applySecurity, rateLimit, validateRunRequest } from "./security.mjs";
-import { sdk } from "../_core/sdk";
 import { saveDatabaseApproval } from "./pactline-db-repository.mjs";
 import { increment, observe } from "./metrics.mjs";
 
@@ -36,13 +35,7 @@ export async function operatorContext(req, needsApproval = false) {
   let role = configuredToken ? String(process.env.PACTLINE_OPERATOR_ROLE || "approver").toLowerCase() : localDemo ? "approver" : "";
   let actor = configuredToken ? String(process.env.PACTLINE_OPERATOR_ID || "configured-operator") : localDemo ? "local-demo-operator" : "";
   if (sessionRequired) {
-    try {
-      const user = await sdk.authenticateRequest(req);
-      role = user.role;
-      actor = user.openId;
-    } catch {
-      throw Object.assign(new Error("Authenticated Pactline session required"), { statusCode: 401 });
-    }
+    throw Object.assign(new Error("Standalone API requires PACTLINE_OPERATOR_TOKEN; session authentication is handled by the full server runtime"), { statusCode: 503 });
   }
   if (needsApproval && !["admin", "approver"].includes(role)) throw Object.assign(new Error("Approver role required"), { statusCode: 403 });
   return { actor, role };

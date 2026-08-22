@@ -459,3 +459,8 @@
 - [x] Map missing credentials and ArmorIQ authentication failures to actionable HTTP statuses instead of generic 502.
 - [x] Add frontend copy for configuration/authentication failures without exposing secrets.
 - [x] Document that the intended three-allowed/one-hold flow requires a valid SDK key and deployed MCP endpoint.
+
+## Vercel invocation crash repair
+- [x] Replace eager imports in the consolidated API router with route-scoped lazy loading.
+- [x] Validate `/api/agent`, `/api/mcp`, `/api/health`, and `/api/run` after lazy dispatch.
+- [ ] Redeploy and verify the public Vercel health endpoint after synchronization.
