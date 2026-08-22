@@ -163,3 +163,24 @@
 - [ ] Align `armoriq-live-test.mjs` imports with the exports in `armoriq-live-adapter.mjs`.
 - [ ] Validate the corrected SDK runner and synchronize it to GitHub.
 - [ ] Rerun the smoke test with the already configured local credentials.
+
+## Real end-to-end startup
+- [ ] Pull GitHub commit `4ba258a` or newer on Windows.
+- [ ] Install dependencies and confirm `@armoriq/sdk` is present.
+- [ ] Load local server credentials without exposing them.
+- [ ] Run the corrected SDK smoke test.
+- [ ] Start the backend/MCP runtime and verify real tool calls.
+- [ ] Start the frontend against the backend and test approve/reject.
+- [ ] Verify ledger, outbox, and audit evidence.
+
+## Deployment versus local frontend
+- [ ] Keep `pactline-agent.vercel.app` as the deployed API/MCP backend.
+- [ ] Treat any missing frontend Vercel link as stale until a new frontend deployment is verified.
+- [ ] Start the Windows frontend locally from the synchronized repository.
+- [ ] Verify localhost frontend calls the backend and starts a real run.
+
+## Localhost run and visual repair
+- [ ] Diagnose why localhost `/api/run` start returns an error.
+- [ ] Make reject visibly resolve the active run and refresh all derived views.
+- [ ] Align localhost logo and hero banner asset URLs with the verified design.
+- [ ] Re-test idle, start, held, rejected, and approved states.
