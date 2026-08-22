@@ -11,7 +11,7 @@ export function observe(name, milliseconds) {
   durations.set(name, values.slice(-200));
 }
 
-export function snapshot() {
+export function getMetrics() {
   const latency = {};
   for (const [name, values] of durations) {
     latency[name] = {
@@ -22,3 +22,5 @@ export function snapshot() {
   }
   return { counters: Object.fromEntries(counters), latency, collectedAt: new Date().toISOString() };
 }
+
+export const snapshot = getMetrics;

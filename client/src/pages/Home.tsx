@@ -47,7 +47,7 @@ const events = [
 
 const toolCalls: never[] = [];
 
-function PageView({ page, darkMode, notify, liveRun, onApprove, onReject }: { page: string; darkMode: boolean; notify: (message: string) => void; liveRun: PactlineRun | null; onApprove: () => void; onReject: () => void }) {
+function PageView({ page, darkMode, notify, liveRun, history, onApprove, onReject }: { page: string; darkMode: boolean; notify: (message: string) => void; liveRun: PactlineRun | null; history: PactlineRun[]; onApprove: () => void; onReject: () => void }) {
   const pageData: Record<string, { eyebrow: string; title: string; description: string }> = {
     "Live runs": { eyebrow: "OBSERVABILITY / 02", title: "Live runs", description: "See autonomous work move through its authorization boundary in real time." },
     "Approval queue": { eyebrow: "OPERATOR CONTROL / 03", title: "Approval queue", description: "Only the decisions that change authority wait for a human." },
@@ -65,7 +65,8 @@ function PageView({ page, darkMode, notify, liveRun, onApprove, onReject }: { pa
       <div className="subpage-panel wide"><div className="panel-header"><div><div className="micro-label">{isQueue ? "PENDING DECISION" : "SYSTEM STREAM"}</div><h2>{isQueue ? "Recipient outside plan" : "Authorization events"}</h2></div><span className={`page-badge ${isQueue ? "amber" : "blue"}`}>{isQueue ? queueCount : liveRun ? "Live" : "Waiting"}</span></div>
         {isQueue ? <><div className="queue-summary"><div className="risk-mark"><CircleAlert size={19} /></div><div><strong>{heldAction?.name || "No pending action"}</strong><span>{heldAction?.target || "Run the protected workflow to populate this queue"}</span></div><div className="queue-time">{heldAction ? "Held for review" : "No pending decision"}</div></div><div className="queue-copy">{heldAction ? "The agent proposed an action outside the captured intent. ArmorIQ has paused execution before the side effect." : "The approval queue is clear. Start a protected run to surface a decision."}</div><div className="decision-actions"><button className="reject-button" onClick={onReject} disabled={!heldAction}>Reject action</button><button className="approve-button" onClick={onApprove} disabled={!heldAction}><BadgeCheck size={15} /> Approve & resume</button></div></> : <div className="stream-list">{(streamEvents.length ? streamEvents : [{ time: "—", label: "No audit events loaded", detail: "Start a protected run to populate the backend audit trail", state: "allowed", icon: ShieldCheck }]).map((event, index) => { const Icon = event.icon; return <div className="stream-row" key={`${event.time}-${index}`}><div className={`stream-icon ${event.state}`}><Icon size={15} /></div><div><strong>{event.label}</strong><span>{event.detail}</span></div><time>{event.time}</time><span className={`page-badge ${event.state === "held" ? "amber" : "green"}`}>{event.state}</span></div>; })}</div>}
       </div>
-      <div className="subpage-panel"><div className="panel-header"><div><div className="micro-label">CURRENT CONTEXT</div><h2>Intent plan</h2></div><LockKeyhole size={17} className="panel-icon" /></div><div className="plan-card"><div className="plan-card-top"><BadgeCheck size={15} /><span>Signed · verified</span></div><strong>Invoice handling plan</strong><p>Read invoice → normalize fields → write ledger record → notify approved recipient</p><div className="plan-meta"><span>{liveRun?.plan.id || "Awaiting plan capture"}</span><span>14:32:07</span></div></div><button className="outline-action" onClick={() => notify(liveRun ? `Intent ${liveRun.plan.id} loaded from the backend` : "Start a run to inspect captured authorization")} disabled={!liveRun}>Inspect authorization <ArrowUpRight size={14} /></button></div>
+      {page === "Live runs" && <div className="subpage-panel wide"><div className="panel-header"><div><div className="micro-label">PERSISTED HISTORY</div><h2>Recent runs</h2></div><span className="page-badge blue">{history.length} recorded</span></div>{history.length ? <div className="stream-list">{history.slice(0, 8).map((run) => <div className="stream-row" key={run.runId}><div className={`stream-icon ${run.status === "rejected" ? "held" : "allowed"}`}><FileText size={15} /></div><div><strong>{run.runId}</strong><span>{run.invoice.vendor} · {run.invoice.id}</span></div><time>{new Date(run.createdAt).toLocaleDateString()}</time><span className="page-badge green">{run.status}</span></div>)}</div> : <div className="empty-state">No persisted runs yet. Start a protected run to create one.</div>}</div>}
+      <div className="subpage-panel"><div className="panel-header"><div><div className="micro-label">CURRENT CONTEXT</div><h2>Intent plan</h2></div><LockKeyhole size={17} className="panel-icon" /></div><div className="plan-card"><div className="plan-card-top"><BadgeCheck size={15} /><span>{liveRun?.plan.status || "Awaiting plan capture"}</span></div><strong>{liveRun?.plan.goal || "Invoice handling plan"}</strong><p>{liveRun ? liveRun.plan.steps.map((step: any) => step.action || step.name || String(step)).join(" → ") : "Start a protected run to capture a task-specific authorization plan."}</p><div className="plan-meta"><span>{liveRun?.plan.id || "Awaiting plan capture"}</span><span>{liveRun ? new Date(liveRun.createdAt).toLocaleTimeString() : "—"}</span></div></div><button className="outline-action" onClick={() => notify(liveRun ? `Intent ${liveRun.plan.id} loaded from the backend` : "Start a run to inspect captured authorization")} disabled={!liveRun}>Inspect authorization <ArrowUpRight size={14} /></button></div>
     </div>
   </section>;
 }
@@ -80,6 +81,7 @@ export default function Home() {
   const [activeNav, setActiveNav] = useState(() => new URLSearchParams(window.location.search).get("page") || "Overview");
   const [runState, setRunState] = useState<"idle" | "running" | "held" | "approved" | "rejected">("idle");
   const [liveRun, setLiveRun] = useState<PactlineRun | null>(null);
+  const [runHistory, setRunHistory] = useState<PactlineRun[]>([]);
   const [availableInvoices, setAvailableInvoices] = useState<PactlineInvoice[]>([]);
   const [invoiceId, setInvoiceId] = useState("INV-044");
   const [apiError, setApiError] = useState("");
@@ -94,7 +96,8 @@ export default function Home() {
     setApiError("");
     try {
       const data = await fetchRunState();
-      if (data.currentRun) { setLiveRun(data.currentRun); setRunState(data.currentRun.status === "held" ? "held" : data.currentRun.status); setShowDrawer(data.currentRun.status === "held"); }
+      setRunHistory(data.runs || []);
+      if (data.currentRun) { setLiveRun(data.currentRun); setRunState(data.currentRun.status === "held" ? "held" : data.currentRun.status); setShowDrawer(data.currentRun.status === "held" ); }
     } catch {
       setApiError("Could not reach the Pactline backend. Check the API and retry.");
     } finally {
@@ -156,6 +159,7 @@ export default function Home() {
     try {
       const nextRun = await startPactlineRun(invoiceId.trim() || undefined);
       setLiveRun(nextRun);
+      setRunHistory((current) => [nextRun, ...current.filter((run) => run.runId !== nextRun.runId)]);
       setRunState(nextRun.status);
       setShowDrawer(true);
     } catch {
@@ -238,7 +242,7 @@ export default function Home() {
           <div className="top-actions"><button className="search-box" onClick={() => notify("Search is available after a live run is loaded")}><Search size={15} /><span>Search runs, invoices…</span><kbd>⌘ K</kbd></button><button className="icon-button theme-toggle" aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"} onClick={toggleDarkMode}>{darkMode ? <Sun size={17} /> : <Moon size={17} />}</button><button className="icon-button" aria-label="Notifications" onClick={() => notify("No new notifications")}><Bell size={17} /><span className="notification-dot" /></button><button className="mobile-menu" aria-label="Open menu" onClick={() => notify("Use the sidebar navigation on this screen")}><Menu size={18} /></button></div>
         </header>
 
-        {activeNav !== "Overview" ? <PageView page={activeNav} darkMode={darkMode} notify={notify} liveRun={liveRun} onApprove={approve} onReject={reject} /> : <>
+        {activeNav !== "Overview" ? <PageView page={activeNav} darkMode={darkMode} notify={notify} liveRun={liveRun} history={runHistory} onApprove={approve} onReject={reject} /> : <>
         <section className="hero-band">
           <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-line" />AUTONOMOUS OPERATIONS / 01</div><h1>Autonomy is active.<br /><em>Authority is bounded.</em></h1><p>Pactline lets your agent move through routine invoice work while ArmorIQ holds the exact moment an action leaves its captured intent.</p><div className="invoice-input-row"><label className="invoice-input-label">INVOICE ID<input className="invoice-input" list="pactline-invoice-list" value={invoiceId} onChange={(event) => setInvoiceId(event.target.value)} placeholder="INV-044" /><datalist id="pactline-invoice-list">{availableInvoices.map((invoice) => <option key={invoice.invoiceId} value={invoice.invoiceId}>{invoice.vendor}</option>)}</datalist></label><label className="invoice-upload-button">IMPORT JSON<input type="file" accept="application/json,.json" onChange={handleInvoiceFile} /></label></div><div className="hero-actions"><button className="primary-button" onClick={() => void simulateRun()} disabled={pendingAction === "start" || isLoading}>{pendingAction === "start" ? <><TimerReset size={15} className="spin" /> Starting…</> : <><Play size={15} fill="currentColor" /> Run protected demo <ArrowUpRight size={15} /></>}</button><button className="text-button" onClick={() => { setActiveNav("Intent plans"); notify("Intent plans view selected"); }}>View architecture <ChevronRight size={15} /></button>{liveRun && <button className="text-button" onClick={() => void resetRun()} disabled={pendingAction !== null}><TimerReset size={15} /> New run</button>}</div></div>
           <div className="hero-visual"><div className="hero-signal-texture" role="img" aria-label="Abstract authorization signal texture" /><div className="hero-visual-overlay"><div className="signal-ring"><ShieldCheck size={31} /></div><div><div className="micro-label">CURRENT BOUNDARY</div><div className="hero-visual-title">Invoice handling plan</div><div className="hero-visual-meta"><span className="status-dot live" />{isLoading ? "Connecting to Pactline API…" : liveRun ? `${liveRun.plan.status} · ${liveRun.mode}` : "No active run"}</div></div></div></div>

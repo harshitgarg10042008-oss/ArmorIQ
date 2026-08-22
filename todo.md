@@ -213,7 +213,7 @@
 - [ ] Add organization, workspace, user, and run ownership data foundations.
 - [x] Replace broad CORS with configured origin validation and add security headers.
 - [x] Add request validation, rate limiting, correlation IDs, and safe error responses.
-- [ ] Make dashboard secondary views backend-derived and add run reset/history controls.
+- [x] Make dashboard secondary views backend-derived and add run reset/history controls.
 - [ ] Add automated unit/integration tests and CI-ready validation scripts.
 - [x] Add structured observability and health/readiness endpoints.
 - [x] Add deployment and operations documentation/configuration.
@@ -244,3 +244,8 @@
 - [ ] Add UI tests/integration tests for settings, navigation, run reset, approve, and reject.
 - [x] Verify logo, responsive layout, all major routes, and production build.
 - [ ] Save checkpoint and synchronize the SaaS completion changes to GitHub.
+
+## Secondary-view data corrections
+- [x] Replace static Intent Plans labels, workflow text, status labels, and timestamps with backend values.
+- [x] Add a dedicated backend dashboard response for run history, approvals, audit, and intent-plan metadata.
+- [ ] Revalidate reset/history and decision branches with refreshed derived views.

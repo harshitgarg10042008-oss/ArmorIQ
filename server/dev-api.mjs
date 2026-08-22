@@ -9,6 +9,7 @@ import invoiceHandler from "../api/invoices.mjs";
 import healthHandler from "../api/health.mjs";
 import mcpHandler from "../api/mcp.mjs";
 import settingsHandler from "../api/settings.mjs";
+import dashboardHandler from "../api/dashboard.mjs";
 
 const require = createRequire(import.meta.url);
 try {
@@ -39,6 +40,7 @@ app.all("/api/invoices", bridge(invoiceHandler));
 app.all("/api/health", bridge(healthHandler));
 app.all("/api/mcp", bridge(mcpHandler));
 app.all("/api/settings", bridge(settingsHandler));
+app.all("/api/dashboard", bridge(dashboardHandler));
 
 const port = Number(process.env.PACTLINE_API_PORT || 8787);
 app.listen(port, "127.0.0.1", () => {

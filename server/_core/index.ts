@@ -18,6 +18,8 @@ import healthHandler from "../../api/health.mjs";
 import mcpHandler from "../../api/mcp.mjs";
 // @ts-ignore The handlers are shared ESM endpoints used by local and Vercel runtimes.
 import settingsHandler from "../../api/settings.mjs";
+// @ts-ignore The handlers are shared ESM endpoints used by local and Vercel runtimes.
+import dashboardHandler from "../../api/dashboard.mjs";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -51,6 +53,7 @@ async function startServer() {
   app.all("/api/health", healthHandler as any);
   app.all("/api/mcp", mcpHandler as any);
   app.all("/api/settings", settingsHandler as any);
+  app.all("/api/dashboard", dashboardHandler as any);
   // tRPC API
   app.use(
     "/api/trpc",
