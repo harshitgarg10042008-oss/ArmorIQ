@@ -338,7 +338,7 @@
 ## Production roadmap execution
 - [x] Save a stable baseline checkpoint for the current hackathon-ready demo.
 - [x] Document the remaining production roadmap and phase acceptance criteria.
-- [ ] Phase 1: wire active runtime records to Drizzle/MySQL with tenant-safe access.
+- [x] Phase 1: wire active runtime records to Drizzle/MySQL with tenant-safe access.
 - [ ] Phase 2: build real invoice intake and document processing.
 - [ ] Phase 3: add organizations, team roles, and approval assignment.
 - [ ] Phase 4: add real integrations, retries, and safe side-effect delivery.
