@@ -184,3 +184,25 @@
 - [ ] Make reject visibly resolve the active run and refresh all derived views.
 - [ ] Align localhost logo and hero banner asset URLs with the verified design.
 - [ ] Re-test idle, start, held, rejected, and approved states.
+
+## Final completion audit
+- [ ] Confirm the pushed `main` branch is the source used for the Windows demo checkout.
+- [ ] Verify local `.env` values are present only on the demo machine and never committed.
+- [ ] Run the real SDK smoke test and capture sanitized success evidence.
+- [ ] Run the full local flow: start → three allowed tools → ArmorIQ hold → reject.
+- [ ] Run the full local flow: start → three allowed tools → ArmorIQ hold → approve → controlled outbox effect.
+- [ ] Verify ledger, outbox, and audit files after both decision branches.
+- [ ] Verify the deployed MCP endpoint, tool discovery, and ArmorIQ registration/policy evidence.
+- [ ] Decide and document whether the public frontend is needed; do not block the demo if localhost is accepted.
+- [ ] Prepare and rehearse the final one-minute demo recording.
+- [ ] Create and review a maximum-10-slide Round 2 presentation.
+- [ ] Complete final security, honesty, UX, build, and submission-form review.
+
+## Stages 1–3 implementation
+- [x] Route the deliberate out-of-scope email proposal through ArmorIQ SDK authorization before showing the hold.
+- [x] Persist runs, actions, audit events, approval decisions, ledger records, and outbox state durably.
+- [x] Add safe idempotency and restart recovery for run decisions.
+- [x] Add invoice input API with validated JSON invoice upload/selection.
+- [x] Connect the dashboard invoice input to the real start-run request.
+- [ ] Validate allow, hold, reject, approve, persistence, and input-validation paths.
+- [ ] Push stages 1–3 implementation to GitHub.

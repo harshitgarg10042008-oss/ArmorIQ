@@ -1,6 +1,7 @@
 import express from "express";
 import { createRequire } from "node:module";
 import runHandler from "../api/run.mjs";
+import invoiceHandler from "../api/invoices.mjs";
 import mcpHandler from "../api/mcp.mjs";
 
 const require = createRequire(import.meta.url);
@@ -26,6 +27,7 @@ function bridge(handler) {
 }
 
 app.all("/api/run", bridge(runHandler));
+app.all("/api/invoices", bridge(invoiceHandler));
 app.all("/api/mcp", bridge(mcpHandler));
 app.get("/api/health", (_req, res) => res.json({ service: "pactline-local-api", status: "ok" }));
 

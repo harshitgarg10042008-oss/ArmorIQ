@@ -1,49 +1,78 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { DATA_DIR, getInvoice, listInvoices, saveInvoice } from "./pactline-store.mjs";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const FIXTURE = join(ROOT, "../agent/invoice_044.json");
-const DATA_DIR = join(ROOT, "../agent/runtime-data");
 const LEDGER_FILE = join(DATA_DIR, "ledger.json");
 const OUTBOX_FILE = join(DATA_DIR, "outbox.json");
 
 async function readJson(path, fallback) {
   try { return JSON.parse(await readFile(path, "utf8")); } catch { return fallback; }
 }
-
 async function writeJson(path, value) {
   await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, JSON.stringify(value, null, 2) + "\n", "utf8");
+  await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+async function fixtureInvoice() { return readJson(FIXTURE, null); }
+async function requireInvoice(invoiceId) {
+  const stored = await getInvoice(invoiceId);
+  if (stored) return stored;
+  const fixture = await fixtureInvoice();
+  if (!fixture || fixture.invoiceId !== invoiceId) throw new Error(`Invoice not found: ${invoiceId}`);
+  return fixture;
+}
+
+export async function listAvailableInvoices() {
+  const stored = await listInvoices();
+  if (stored.length) return stored;
+  const fixture = await fixtureInvoice();
+  return fixture ? [fixture] : [];
+}
+
+export async function registerInvoice(invoice) {
+  const normalized = {
+    invoiceId: String(invoice.invoiceId || "").trim(),
+    vendor: String(invoice.vendor || "").trim(),
+    amount: Number(invoice.amount),
+    currency: String(invoice.currency || "INR").trim().toUpperCase(),
+    date: String(invoice.date || new Date().toISOString().slice(0, 10)),
+    lineItems: Array.isArray(invoice.lineItems) ? invoice.lineItems : [],
+    source: invoice.source || "operator-input",
+    receivedAt: new Date().toISOString(),
+  };
+  if (!/^INV-[A-Z0-9-]+$/i.test(normalized.invoiceId)) throw new Error("invoiceId must look like INV-044");
+  if (!normalized.vendor || !Number.isFinite(normalized.amount) || normalized.amount <= 0) throw new Error("vendor and a positive amount are required");
+  return saveInvoice(normalized);
 }
 
 export async function readInvoice(invoiceId = "INV-044") {
-  const invoice = await readJson(FIXTURE, null);
-  if (!invoice || invoice.invoiceId !== invoiceId) throw new Error(`Invoice not found: ${invoiceId}`);
+  const invoice = await requireInvoice(invoiceId);
   return { invoiceId: invoice.invoiceId, vendor: invoice.vendor, amount: invoice.amount, currency: invoice.currency, date: invoice.date };
 }
 
 export async function extractFields(invoiceId = "INV-044") {
-  const invoice = await readJson(FIXTURE, null);
-  if (!invoice || invoice.invoiceId !== invoiceId) throw new Error(`Invoice not found: ${invoiceId}`);
-  return { invoiceId: invoice.invoiceId, vendor: invoice.vendor, amount: invoice.amount, currency: invoice.currency, lineItems: invoice.lineItems, confidence: 1 };
+  const invoice = await requireInvoice(invoiceId);
+  return { invoiceId: invoice.invoiceId, vendor: invoice.vendor, amount: invoice.amount, currency: invoice.currency, date: invoice.date, lineItems: invoice.lineItems || [], confidence: invoice.confidence ?? 1, source: invoice.source || "invoice-catalog" };
 }
 
 export async function writeRecord({ invoiceId, vendor, amount, currency = "INR", lineItems = [] }) {
   const ledger = await readJson(LEDGER_FILE, []);
+  const existing = ledger.find((item) => item.invoiceId === invoiceId);
+  if (existing) return { recordId: existing.recordId, store: "runtime-ledger", persisted: true, idempotent: true, writtenAt: existing.writtenAt };
   const record = { recordId: invoiceId, invoiceId, vendor, amount, currency, lineItems, writtenAt: new Date().toISOString() };
-  const next = [...ledger.filter((item) => item.invoiceId !== invoiceId), record];
-  await writeJson(LEDGER_FILE, next);
-  return { recordId: invoiceId, store: "runtime-ledger", persisted: true, writtenAt: record.writtenAt };
+  await writeJson(LEDGER_FILE, [...ledger, record]);
+  return { recordId: invoiceId, store: "runtime-ledger", persisted: true, idempotent: false, writtenAt: record.writtenAt };
 }
 
 export async function sendEmail({ recipient, invoiceId, dataScope, approved = false }) {
   const approvedRecipient = process.env.PACTLINE_APPROVED_RECIPIENT || "finance@company.test";
-  if (!approved || recipient !== approvedRecipient) {
-    return { executed: false, recipient, invoiceId, dataScope, reason: "Email requires an ArmorIQ-approved decision before execution" };
-  }
+  if (!approved || recipient !== approvedRecipient) return { executed: false, recipient, invoiceId, dataScope, reason: "Email requires an ArmorIQ-approved decision before execution" };
   const outbox = await readJson(OUTBOX_FILE, []);
-  const message = { messageId: `msg_${Date.now()}`, recipient, invoiceId, dataScope, sentAt: new Date().toISOString(), transport: "controlled-test-outbox" };
+  const existing = outbox.find((item) => item.invoiceId === invoiceId && item.recipient === recipient);
+  if (existing) return { executed: true, ...existing, idempotent: true };
+  const message = { messageId: `msg_${Date.now()}`, recipient, invoiceId, dataScope, sentAt: new Date().toISOString(), transport: "controlled-test-outbox", idempotent: false };
   await writeJson(OUTBOX_FILE, [...outbox, message]);
   return { executed: true, ...message };
 }

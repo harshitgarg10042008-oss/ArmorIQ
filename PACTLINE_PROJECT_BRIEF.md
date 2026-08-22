@@ -4,9 +4,9 @@
 
 Pactline is an invoice-processing agent designed for **ArmorIQ Problem Statement 1: “Autonomous, until it shouldn’t be.”** Its purpose is not simply to automate invoice work. Its purpose is to let an AI agent proceed autonomously while its actions remain inside a user-approved intent plan, then stop before a side effect when a proposed action leaves that plan.
 
-The current repository contains a polished operator dashboard, a deployed API, a real remote MCP endpoint registered in ArmorIQ, a local deterministic proof, and an SDK-ready adapter. The dashboard and current run API are now data-driven at the application level, but the run API still uses a controlled simulation model and the live ArmorIQ SDK is not yet wired into the actual run execution path. Therefore, the project is a strong integration prototype, not yet a complete live production agent.
+The current repository contains a polished operator dashboard, a deployed API, a real remote MCP endpoint registered in ArmorIQ, a durable runtime store, invoice catalog input, and a server-side ArmorIQ SDK adapter used by the run path. The invoice source and side effects remain controlled for safety, and production authentication, multi-tenant storage, and external mail are not yet implemented. Therefore, the project is a strong live-integration prototype, not yet a complete production SaaS agent.
 
-> **Accurate one-sentence description:** Pactline is an ArmorIQ-registered invoice-agent prototype with a real MCP tool surface, backend-backed run and approval state, and an SDK-ready authorization path; the remaining work is to connect real invoice tools and live SDK decisions so the hold happens through ArmorIQ rather than through the prototype’s local policy model.
+> **Accurate one-sentence description:** Pactline is an ArmorIQ-registered invoice-agent prototype with a real MCP tool surface, backend-backed run and approval state, durable runtime evidence, invoice catalog input, and an ArmorIQ SDK authorization path; the remaining work is production authentication, general document extraction, durable database storage, and external sandbox integrations.
 
 ## 1. What the problem statement is asking
 
@@ -118,8 +118,8 @@ The local preflight now reports all required and optional variables present. Tha
 | `/api/mcp` | Real remote MCP endpoint and tool discovery | Implement actual invoice/file/database/mail effects behind the tools |
 | ArmorIQ registration | Real; agent and MCP are registered | Attach and verify the policy against live SDK traffic |
 | Local deterministic agent | Real local program logic, but intentionally deterministic and SDK-shaped | Replace local authorization decision with actual SDK capture/token/invoke results |
-| SDK adapter | Real adapter code that imports `@armoriq/sdk` and creates a session/plan/check flow | Wire it into the run endpoint and verify a real decision in ArmorIQ observability |
-| API key | Real key has been created and stored locally | Use it in a server-side live SDK test; never expose it |
+| SDK adapter | Real adapter code that imports `@armoriq/sdk`, captures a plan, obtains a token, and authorizes run actions | Verify final live policy decisions in ArmorIQ observability and persist proof metadata |
+| API key | Server-side key configuration is supported and preflight-tested | Verify deployed environment and rotate credentials before production |
 | Audit trail | Real application-level audit entries from the prototype API | Include ArmorIQ decision IDs/proof metadata and durable storage |
 
 The user-facing website is therefore **not “all fake,” but it is not yet fully live either**. Its state transitions are backend-backed, which is an important improvement over a purely hardcoded React demo. However, the backend currently uses a controlled sample invoice and local decision model. The next architectural step is to move the source of truth for action authorization to the ArmorIQ SDK and move tool execution behind the MCP server.
@@ -179,12 +179,12 @@ Pactline has completed the **prototype infrastructure stage**:
 | ArmorIQ MCP registration and tool discovery | Complete |
 | MCP policy draft | Created/configured in the console; activation and live-traffic verification remain |
 | Backend-backed frontend state | Complete at controlled-prototype level |
-| Real ArmorIQ SDK authorization in the run path | Not complete |
-| Real invoice parsing/database/mail effects | Not complete |
-| Durable production persistence | Not complete |
+| Real ArmorIQ SDK authorization in the run path | Implemented; live credentials and policy observability still require final environment verification |
+| Real invoice catalog input, ledger, and controlled outbox effects | Implemented; general PDF/OCR, production database, and external mail remain future work |
+| Durable runtime persistence | Implemented with atomic JSON snapshots for prototype deployment; relational database still required for production |
 | Submission video and PPT | Still to prepare |
 
-The project should now stop adding static visual claims. The best next step is the real SDK smoke test, followed immediately by wiring one safe tool call through the SDK. Once that works, implement the hold path and then the real side-effect proof.
+The project should now stop adding static visual claims. The next step is final live SDK/policy verification, followed by general invoice input, authentication, relational persistence, and sandbox integration hardening.
 
 ## 10. Exact next commands after synchronization
 

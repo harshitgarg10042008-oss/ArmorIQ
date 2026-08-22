@@ -1,6 +1,6 @@
 /* Signal & Stewardship: evidence before decoration, asymmetric command layout, ink + warm paper + Signal Green, exact operator-first copy. */
 import { useEffect, useMemo, useState } from "react";
-import { fetchRunState, startPactlineRun, submitPactlineDecision, type PactlineRun } from "@/lib/pactline-api";
+import { fetchInvoices, fetchRunState, registerInvoice, startPactlineRun, submitPactlineDecision, type PactlineInvoice, type PactlineRun } from "@/lib/pactline-api";
 import {
   ArrowUpRight,
   BadgeCheck,
@@ -72,6 +72,8 @@ export default function Home() {
   const [activeNav, setActiveNav] = useState(() => new URLSearchParams(window.location.search).get("page") || "Overview");
   const [runState, setRunState] = useState<"idle" | "running" | "held" | "approved" | "rejected">("idle");
   const [liveRun, setLiveRun] = useState<PactlineRun | null>(null);
+  const [availableInvoices, setAvailableInvoices] = useState<PactlineInvoice[]>([]);
+  const [invoiceId, setInvoiceId] = useState("INV-044");
   const [apiError, setApiError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [pendingAction, setPendingAction] = useState<"start" | "approve" | "reject" | null>(null);
@@ -92,7 +94,13 @@ export default function Home() {
     }
   };
 
-  useEffect(() => { void loadRunState(); }, []);
+  useEffect(() => {
+    void loadRunState();
+    void fetchInvoices().then(({ invoices }) => {
+      setAvailableInvoices(invoices);
+      if (invoices[0]?.invoiceId) setInvoiceId((current) => current || invoices[0].invoiceId);
+    }).catch(() => setApiError("Could not load the invoice catalog. You can still enter an invoice ID."));
+  }, []);
 
   const stateCopy = useMemo(() => {
     if (runState === "approved") return { label: "Action approved", sub: "Run resumed · live API", tone: "green" };
@@ -116,13 +124,29 @@ export default function Home() {
     window.setTimeout(() => setToast(""), 2600);
   };
 
+  const handleInvoiceFile = async (event: any) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      const invoice = JSON.parse(await file.text()) as PactlineInvoice;
+      const saved = await registerInvoice({ ...invoice, source: file.name });
+      setAvailableInvoices((current) => [saved, ...current.filter((item) => item.invoiceId !== saved.invoiceId)]);
+      setInvoiceId(saved.invoiceId);
+      notify(`Invoice ${saved.invoiceId} added to the catalog`);
+    } catch (error) {
+      setApiError(error instanceof Error ? error.message : "Invoice JSON could not be imported.");
+    } finally {
+      event.target.value = "";
+    }
+  };
+
   const simulateRun = async () => {
     setRunState("running");
     setPendingAction("start");
     setApiError("");
     notify("Intent captured · starting live run");
     try {
-      const nextRun = await startPactlineRun();
+      const nextRun = await startPactlineRun(invoiceId.trim() || undefined);
       setLiveRun(nextRun);
       setRunState(nextRun.status);
       setShowDrawer(true);
@@ -195,7 +219,7 @@ export default function Home() {
 
         {activeNav !== "Overview" ? <PageView page={activeNav} darkMode={darkMode} notify={notify} liveRun={liveRun} onApprove={approve} onReject={reject} /> : <>
         <section className="hero-band">
-          <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-line" />AUTONOMOUS OPERATIONS / 01</div><h1>Autonomy is active.<br /><em>Authority is bounded.</em></h1><p>Pactline lets your agent move through routine invoice work while ArmorIQ holds the exact moment an action leaves its captured intent.</p><div className="hero-actions"><button className="primary-button" onClick={() => void simulateRun()} disabled={pendingAction === "start" || isLoading}>{pendingAction === "start" ? <><TimerReset size={15} className="spin" /> Starting…</> : <><Play size={15} fill="currentColor" /> Run protected demo <ArrowUpRight size={15} /></>}</button><button className="text-button" onClick={() => { setActiveNav("Intent plans"); notify("Intent plans view selected"); }}>View architecture <ChevronRight size={15} /></button></div></div>
+          <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-line" />AUTONOMOUS OPERATIONS / 01</div><h1>Autonomy is active.<br /><em>Authority is bounded.</em></h1><p>Pactline lets your agent move through routine invoice work while ArmorIQ holds the exact moment an action leaves its captured intent.</p><div className="invoice-input-row"><label className="invoice-input-label">INVOICE ID<input className="invoice-input" list="pactline-invoice-list" value={invoiceId} onChange={(event) => setInvoiceId(event.target.value)} placeholder="INV-044" /><datalist id="pactline-invoice-list">{availableInvoices.map((invoice) => <option key={invoice.invoiceId} value={invoice.invoiceId}>{invoice.vendor}</option>)}</datalist></label><label className="invoice-upload-button">IMPORT JSON<input type="file" accept="application/json,.json" onChange={handleInvoiceFile} /></label></div><div className="hero-actions"><button className="primary-button" onClick={() => void simulateRun()} disabled={pendingAction === "start" || isLoading}>{pendingAction === "start" ? <><TimerReset size={15} className="spin" /> Starting…</> : <><Play size={15} fill="currentColor" /> Run protected demo <ArrowUpRight size={15} /></>}</button><button className="text-button" onClick={() => { setActiveNav("Intent plans"); notify("Intent plans view selected"); }}>View architecture <ChevronRight size={15} /></button></div></div>
           <div className="hero-visual"><img src="/manus-storage/intentfence-hero-texture_28f71cca.png" alt="Abstract authorization signal texture" /><div className="hero-visual-overlay"><div className="signal-ring"><ShieldCheck size={31} /></div><div><div className="micro-label">CURRENT BOUNDARY</div><div className="hero-visual-title">Invoice handling plan</div><div className="hero-visual-meta"><span className="status-dot live" />{isLoading ? "Connecting to Pactline API…" : liveRun ? `${liveRun.plan.status} · ${liveRun.mode}` : "No active run"}</div></div></div></div>
         </section>
 
