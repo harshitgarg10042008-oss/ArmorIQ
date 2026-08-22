@@ -60,6 +60,15 @@ export const invoices = mysqlTable("invoices", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+export const pactlineRunSnapshots = mysqlTable("pactlineRunSnapshots", {
+  id: int("id").autoincrement().primaryKey(),
+  workspaceKey: varchar("workspaceKey", { length: 128 }).notNull(),
+  runKey: varchar("runKey", { length: 64 }).notNull().unique(),
+  snapshot: json("snapshot").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export const pactlineRuns = mysqlTable("pactlineRuns", {
   id: int("id").autoincrement().primaryKey(),
   workspaceId: int("workspaceId").notNull(),
@@ -112,6 +121,7 @@ export type Organization = typeof organizations.$inferSelect;
 export type Workspace = typeof workspaces.$inferSelect;
 export type WorkspaceMember = typeof workspaceMembers.$inferSelect;
 export type Invoice = typeof invoices.$inferSelect;
+export type PactlineRunSnapshot = typeof pactlineRunSnapshots.$inferSelect;
 export type PactlineRun = typeof pactlineRuns.$inferSelect;
 export type PactlineAction = typeof pactlineActions.$inferSelect;
 export type PactlineApproval = typeof pactlineApprovals.$inferSelect;
