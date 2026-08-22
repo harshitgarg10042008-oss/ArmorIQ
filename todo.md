@@ -378,4 +378,4 @@
 - [x] Add a safe local document-storage fallback without weakening production managed storage.
 - [x] Preserve source metadata and uploaded bytes for local testing.
 - [x] Validate JSON and PDF uploads plus existing run behavior.
-- [ ] Save checkpoint and synchronize the repair to GitHub.
+- [x] Save checkpoint and synchronize the repair to GitHub.
