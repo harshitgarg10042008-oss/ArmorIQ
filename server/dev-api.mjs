@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "../server/_core/oauth.ts";
@@ -23,7 +24,8 @@ try {
 
 const app = express();
 app.use(express.json());
-registerOAuthRoutes(app);
+if (process.env.OAUTH_SERVER_URL) registerOAuthRoutes(app);
+else console.log("[OAuth] Local demo mode: OAuth routes disabled because OAUTH_SERVER_URL is not configured.");
 app.use("/api/trpc", createExpressMiddleware({ router: appRouter, createContext }));
 
 function bridge(handler) {

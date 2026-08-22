@@ -428,3 +428,44 @@
 - [ ] Verify the deployed MCP endpoint receives uploaded invoice context and executes read, extract, and write actions.
 - [ ] Verify only the unauthorized send_email action is held for INV-045.
 - [ ] Push the deployment repair and provide the required Vercel redeploy step.
+
+## All-actions-held bug repair
+- [ ] Trace why MCP technical errors become held actions in the run state and UI.
+- [ ] Represent technical execution failures separately from ArmorIQ authorization holds.
+- [ ] Ensure a failed precondition stops the run without creating a misleading approval request.
+- [ ] Add regression tests for allowed actions, true authorization hold, and technical MCP failure.
+- [ ] Validate INV-045 locally and push the repair for redeployment.
+
+## Local 502 and stale held-state repair
+- [x] Identify the exact exception causing POST `/api/run` to return 502 locally.
+- [x] Repair the backend runtime path and preserve useful structured error responses.
+- [x] Clear or replace stale run state after a failed start request.
+- [x] Render technical failures distinctly from ArmorIQ authorization holds.
+- [ ] Add regression coverage for the 502 path and stale-state behavior.
+- [ ] Validate the browser flow, save a checkpoint, and push the repair.
+
+## Remaining 502 and cascading-failure repair
+- [ ] Trace the current Windows backend 502 from the terminal exception.
+- [ ] Stop execution immediately after the first technical MCP/SDK failure.
+- [ ] Return a structured backend error that identifies missing credentials, unreachable MCP, or policy failure.
+- [ ] Add regression coverage for the first-failure stop behavior.
+- [ ] Validate the INV-045 allow/hold flow after the backend prerequisite is fixed.
+
+## Post-authentication ArmorIQ/MCP failure
+- [ ] Trace the SDK/MCP call that fails after API-key validation.
+- [ ] Add bounded timeouts and actionable downstream error details to the run API.
+- [ ] Stop attempting later actions after the first failed SDK/MCP action.
+- [ ] Add regression coverage for post-authentication failure and timeout behavior.
+- [ ] Revalidate INV-045 after the deployed MCP endpoint is healthy.
+
+## End-to-end ownership and authentication verification
+- [x] Audit current authentication configuration, protected procedures, session handling, and local auth mode.
+- [ ] Reproduce all current local frontend/backend/SDK errors without relying on user screenshots alone.
+- [ ] Fix authentication and authorization issues that are actionable in code.
+- [ ] Verify core invoice upload, run, hold, reject, approve, audit, and export flows.
+- [ ] Verify deployment configuration and identify only unavoidable user-account actions.
+- [ ] Update the completion assessment and synchronize the final verified state.
+
+## Duplicate API entrypoint cleanup
+- [x] Remove duplicate legacy root API modules that cause Vercel to exceed the Hobby function limit.
+- [x] Confirm the consolidated router and local Express bridge still resolve every API route.
