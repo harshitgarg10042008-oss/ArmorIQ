@@ -10,6 +10,9 @@ import healthHandler from "../api/health.mjs";
 import mcpHandler from "../api/mcp.mjs";
 import settingsHandler from "../api/settings.mjs";
 import dashboardHandler from "../api/dashboard.mjs";
+import profileHandler from "../api/profile.mjs";
+import notificationsHandler from "../api/notifications.mjs";
+import exportHandler from "../api/export.mjs";
 
 const require = createRequire(import.meta.url);
 try {
@@ -41,6 +44,9 @@ app.all("/api/health", bridge(healthHandler));
 app.all("/api/mcp", bridge(mcpHandler));
 app.all("/api/settings", bridge(settingsHandler));
 app.all("/api/dashboard", bridge(dashboardHandler));
+app.all("/api/profile", bridge(profileHandler));
+app.all("/api/notifications", bridge(notificationsHandler));
+app.all("/api/export", bridge(exportHandler));
 
 const port = Number(process.env.PACTLINE_API_PORT || 8787);
 app.listen(port, "127.0.0.1", () => {

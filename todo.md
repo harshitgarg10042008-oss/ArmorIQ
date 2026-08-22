@@ -249,3 +249,19 @@
 - [x] Replace static Intent Plans labels, workflow text, status labels, and timestamps with backend values.
 - [x] Add a dedicated backend dashboard response for run history, approvals, audit, and intent-plan metadata.
 - [ ] Revalidate reset/history and decision branches with refreshed derived views.
+
+## UX, profile, preferences, and reporting
+- [x] Add loading skeletons and retryable error states to the Settings page.
+- [x] Add loading, empty, and error states to dashboard data and secondary views.
+- [x] Add a real profile section with avatar customization and persisted profile data.
+- [x] Add persisted notification preferences with accessible toggle controls.
+- [x] Add backend-backed CSV export for audit trail and run history.
+- [x] Add backend-backed PDF export for audit trail and run history.
+- [x] Add export controls to the relevant dashboard views with loading/error feedback.
+- [ ] Add tests for profile, notification preferences, exports, loading, and error states.
+- [ ] Verify visuals, TypeScript, tests, production build, checkpoint, and GitHub synchronization.
+
+## Settings authorization correction
+- [x] Allow authenticated operators to update their own profile and notification preferences without requiring approver role.
+- [x] Keep workspace boundary settings restricted to the appropriate workspace role.
+- [x] Re-test profile, notification, and export authorization behavior.
