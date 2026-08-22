@@ -181,4 +181,4 @@ export default async function handler(req, res) {
   }
 }
 
-export { createRun, decide };
+export { createRun, decide, operatorContext };

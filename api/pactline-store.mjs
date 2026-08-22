@@ -7,6 +7,7 @@ export const DATA_DIR = join(ROOT, "../agent/runtime-data");
 const RUNS_FILE = join(DATA_DIR, "runs.json");
 const INVOICES_FILE = join(DATA_DIR, "invoices.json");
 const APPROVALS_FILE = join(DATA_DIR, "approvals.json");
+const SETTINGS_FILE = join(DATA_DIR, "settings.json");
 
 async function readJson(file, fallback) {
   try {
@@ -65,6 +66,10 @@ export async function saveInvoice(invoice) {
 export async function listApprovals() {
   return readJson(APPROVALS_FILE, []);
 }
+
+const DEFAULT_SETTINGS = { workspaceName: "Finance Ops", workspaceDescription: "Protected invoice operations", approvalMode: "human-in-the-loop", defaultRecipient: "finance@company.test", retentionDays: 90 };
+export async function getSettings() { return { ...DEFAULT_SETTINGS, ...(await readJson(SETTINGS_FILE, {})) }; }
+export async function saveSettings(patch) { const next = { ...(await getSettings()), ...patch, updatedAt: new Date().toISOString() }; await writeJson(SETTINGS_FILE, next); return next; }
 
 export async function appendApproval(approval) {
   const approvals = await listApprovals();
