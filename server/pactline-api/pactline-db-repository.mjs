@@ -86,11 +86,12 @@ export async function saveDatabaseApproval(approval) {
   const [userRows] = await pool.query("SELECT id FROM users WHERE openId = ? OR email = ? LIMIT 1", [approval.actor || "", approval.actor || ""]);
   const approverUserId = userRows[0]?.id;
   if (!approverUserId) return false;
-  const [existingRows] = await pool.query("SELECT id FROM pactlineApprovals WHERE actionId = ? AND approverUserId = ? AND decision = ? LIMIT 1", [actionId, approverUserId, approval.decision === "approve" ? "approved" : "rejected"]);
+  const decision = approval.decision === "approve" ? "approved" : "rejected";
+  const [existingRows] = await pool.query("SELECT id FROM pactlineApprovals WHERE actionId = ? AND approverUserId = ? AND decision = ? LIMIT 1", [actionId, approverUserId, decision]);
   if (existingRows.length) return true;
   await pool.query(
     "INSERT INTO pactlineApprovals (actionId, approverUserId, decision, comment, createdAt) VALUES (?, ?, ?, ?, ?)",
-    [actionId, approverUserId, approval.decision === "approve" ? "approved" : "rejected", approval.comment || null, new Date(approval.recordedAt || Date.now())],
+    [actionId, approverUserId, decision, approval.comment || null, new Date(approval.recordedAt || Date.now())],
   );
   return true;
 }

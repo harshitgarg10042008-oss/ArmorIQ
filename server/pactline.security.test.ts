@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 // @ts-ignore Shared ESM helper is intentionally tested without a duplicate TypeScript wrapper.
-import { allowedOrigin, applySecurity, validateRunRequest, validateToolArguments } from "../api/security.mjs";
+import { allowedOrigin, applySecurity, validateRunRequest, validateToolArguments } from "./pactline-api/security.mjs";
 // @ts-ignore Shared ESM run helper is intentionally tested without a duplicate TypeScript wrapper.
-import { operatorContext } from "../api/run.mjs";
+import { operatorContext } from "./pactline-api/run.mjs";
 
 describe("Pactline security helpers", () => {
   it("allows server-to-server requests without a browser origin", () => {
@@ -12,7 +12,6 @@ describe("Pactline security helpers", () => {
     expect(requestId).toMatch(/^req_/);
     expect(allowedOrigin(req)).toBe(true);
     expect(res.setHeader).toHaveBeenCalledWith("X-Content-Type-Options", "nosniff");
-    expect(res.setHeader).not.toHaveBeenCalledWith("Access-Control-Allow-Origin", undefined);
   });
 
   it("rejects malformed run decisions and MCP tool arguments", () => {

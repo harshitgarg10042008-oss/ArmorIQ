@@ -1,6 +1,6 @@
-import { allowedOrigin, applySecurity, rateLimit, validateToolArguments } from "../../api/security.mjs";
-import { increment } from "../../api/metrics.mjs";
-import { readInvoice, extractFields, writeRecord, sendEmail } from "../../api/pactline-tools.mjs";
+import { readInvoice, extractFields, writeRecord, sendEmail } from "../../server/pactline-api/pactline-tools.mjs";
+import { allowedOrigin, applySecurity, rateLimit, validateToolArguments } from "../../server/pactline-api/security.mjs";
+import { increment } from "../../server/pactline-api/metrics.mjs";
 
 const SERVER_NAME = process.env.ARMORIQ_MCP_NAME || "pactline-invoice";
 
