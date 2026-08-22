@@ -1,4 +1,5 @@
 import mysql from "mysql2/promise";
+import { saveDatabaseRun } from "./pactline-db-repository.mjs";
 import { getCurrentRun as getJsonCurrentRun, listRuns as listJsonRuns, resetCurrentRun as resetJsonCurrentRun, saveRun as saveJsonRun } from "./pactline-store.mjs";
 
 const workspaceKey = process.env.PACTLINE_WORKSPACE_KEY || "finance-ops";
@@ -64,6 +65,7 @@ export async function saveRuntimeRun(run) {
         "INSERT INTO pactlineRunSnapshots (workspaceKey, runKey, snapshot) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE snapshot = VALUES(snapshot), updatedAt = CURRENT_TIMESTAMP",
         [workspaceKey, run.runId, JSON.stringify(run)],
       );
+      await saveDatabaseRun(run);
       return run;
     } catch (error) {
       console.warn("[RuntimeStore] Write failed; using JSON fallback", error instanceof Error ? error.message : "write failed");

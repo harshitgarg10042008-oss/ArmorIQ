@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { DATA_DIR, getInvoice, listInvoices, saveInvoice } from "./pactline-store.mjs";
+import { getDatabaseInvoice, listDatabaseInvoices, saveDatabaseInvoice } from "./pactline-db-repository.mjs";
 import { storagePut } from "../server/storage.ts";
 import pdfParse from "pdf-parse/lib/pdf-parse.js";
 
@@ -19,6 +20,8 @@ async function writeJson(path, value) {
 }
 async function fixtureInvoice() { return readJson(FIXTURE, null); }
 async function requireInvoice(invoiceId) {
+  const databaseInvoice = await getDatabaseInvoice(invoiceId).catch(() => null);
+  if (databaseInvoice) return databaseInvoice;
   const stored = await getInvoice(invoiceId);
   if (stored) return stored;
   const fixture = await fixtureInvoice();
@@ -27,6 +30,8 @@ async function requireInvoice(invoiceId) {
 }
 
 export async function listAvailableInvoices() {
+  const databaseInvoices = await listDatabaseInvoices().catch(() => []);
+  if (databaseInvoices.length) return databaseInvoices;
   const stored = await listInvoices();
   if (stored.length) return stored;
   const fixture = await fixtureInvoice();
@@ -91,7 +96,7 @@ export async function registerInvoice(invoice) {
   };
   if (!/^INV-[A-Z0-9-]+$/i.test(normalized.invoiceId)) throw new Error("invoiceId must look like INV-044");
   if (!normalized.vendor || !Number.isFinite(normalized.amount) || normalized.amount <= 0) throw new Error("vendor and a positive amount are required");
-  const existing = await getInvoice(normalized.invoiceId);
+  const existing = await getDatabaseInvoice(normalized.invoiceId).catch(() => null) || await getInvoice(normalized.invoiceId);
   if (existing) throw new Error(`Invoice ${normalized.invoiceId} already exists; duplicate upload rejected`);
   if (documentBase64) {
     const allowedTypes = new Set(["application/json", "application/pdf", "image/png", "image/jpeg"]);
@@ -100,7 +105,11 @@ export async function registerInvoice(invoice) {
     normalized.sourceKey = stored.key;
     normalized.sourceUrl = stored.url;
   }
-  return saveInvoice(normalized);
+  const saved = await saveInvoice(normalized);
+  await saveDatabaseInvoice(saved).catch((error) => {
+    if (process.env.DATABASE_URL) throw error;
+  });
+  return saved;
 }
 
 function contextInvoice(invoiceId, context) {
