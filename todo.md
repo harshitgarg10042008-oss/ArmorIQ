@@ -272,3 +272,36 @@
 - [x] Avoid malformed analytics script requests when optional analytics variables are absent.
 - [x] Validate `pnpm dev` startup and `/api/run` reachability on the local stack.
 - [ ] Save checkpoint and synchronize the Windows startup fix.
+
+## Settings localhost authorization bug
+- [x] Diagnose the localhost `/api/profile` 403 shown when saving profile settings.
+- [x] Apply a secure local-development-compatible authorization fix without weakening production authorization.
+- [x] Add or update a regression test for profile read/update authorization.
+- [ ] Validate profile save and reload from the localhost Settings page.
+- [ ] Save checkpoint and synchronize the fix to GitHub.
+
+## Current architecture audit
+- [x] Audit the frontend, backend, ArmorIQ SDK adapter, MCP surface, and durable storage boundaries.
+- [x] Verify the latest GitHub `main` commit and key integration files.
+- [x] Create the current architecture and honest integration-status report.
+- [x] Create and render the end-to-end Pactline architecture flowchart.
+- [x] Save checkpoint and synchronize the architecture files to GitHub.
+
+## Complete local authentication repair
+- [x] Audit the 403 run failure and missing-session behavior across local frontend and API.
+- [x] Implement explicit secure local demo authentication behavior without weakening production authorization.
+- [x] Remove the missing favicon browser error.
+- [x] Add regression coverage for local run authorization and origin handling.
+- [ ] Validate start, hold, reject, approve, and outbox behavior locally.
+- [ ] Save checkpoint and synchronize the complete auth repair to GitHub.
+
+## Simplified local demo and Settings redesign
+- [x] Make `pnpm dev` the only required local startup command after one-time `.env` setup.
+- [x] Make local demo operator authorization explicit and prevent localhost OAuth/session failures.
+- [x] Remove the localhost origin 403 for all dashboard API requests.
+- [x] Add the missing favicon and remove avoidable browser console errors.
+- [x] Redesign Settings page with premium Pactline hierarchy, cards, status indicators, and responsive layout.
+- [x] Preserve backend-backed profile, notification, and workspace persistence in the redesigned Settings page.
+- [x] Add tests for local auth mode and Settings persistence paths.
+- [ ] Verify the complete dashboard run flow and Settings interactions.
+- [ ] Save checkpoint and synchronize all changes to GitHub.
