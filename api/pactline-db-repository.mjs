@@ -1,4 +1,5 @@
 import mysql from "mysql2/promise";
+import { createHash } from "node:crypto";
 
 let poolPromise;
 const workspaceId = Number(process.env.PACTLINE_WORKSPACE_ID || 1);
@@ -67,4 +68,50 @@ export async function saveDatabaseInvoice(invoice) {
     [workspaceId, invoice.invoiceId, invoice.vendor, Math.round(Number(invoice.amount) * 100), invoice.currency, "validated", invoice.sourceKey || null, extractedData],
   );
   return getDatabaseInvoice(invoice.invoiceId);
+}
+
+function eventHash(event, previousHash = "") {
+  return createHash("sha256").update(`${previousHash}|${JSON.stringify(event)}`).digest("hex");
+}
+
+export async function saveDatabaseRun(run) {
+  const pool = await getPool();
+  if (!pool) return false;
+  const invoiceId = run?.invoice?.id;
+  if (!run?.runId || !invoiceId) return false;
+  const invoice = await getDatabaseInvoice(invoiceId);
+  if (!invoice) return false;
+  const [invoiceRows] = await pool.query("SELECT id FROM invoices WHERE workspaceId = ? AND externalId = ? LIMIT 1", [workspaceId, invoiceId]);
+  const relationalInvoiceId = invoiceRows[0]?.id;
+  if (!relationalInvoiceId) return false;
+  const plan = run.plan || {};
+  await pool.query(
+    "INSERT INTO pactlineRuns (workspaceId, invoiceId, runKey, status, planId, planHash, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE status = VALUES(status), planId = VALUES(planId), planHash = VALUES(planHash), updatedAt = CURRENT_TIMESTAMP",
+    [workspaceId, relationalInvoiceId, run.runId, run.status || "running", plan.id || null, plan.planHash || null, new Date(run.createdAt || Date.now())],
+  );
+  const [runRows] = await pool.query("SELECT id FROM pactlineRuns WHERE runKey = ? LIMIT 1", [run.runId]);
+  const relationalRunId = runRows[0]?.id;
+  if (!relationalRunId) return false;
+  const [actionRows] = await pool.query("SELECT COUNT(*) AS count FROM pactlineActions WHERE runId = ?", [relationalRunId]);
+  if (Number(actionRows[0]?.count || 0) === 0) {
+    for (const [index, action] of (run.actions || []).entries()) {
+      await pool.query(
+        "INSERT INTO pactlineActions (runId, actionKey, toolName, target, decision, reason, argumentsHash, proofReference, executed, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [relationalRunId, `${run.runId}:${index + 1}`, action.name || "unknown", action.target || "unknown", action.decision || "held", action.reason || null, null, null, ["allowed", "approved", "executed"].includes(action.decision), new Date(action.timestamp || run.createdAt || Date.now())],
+      );
+    }
+  }
+  const [auditRows] = await pool.query("SELECT COUNT(*) AS count FROM pactlineAuditEvents WHERE runId = ?", [relationalRunId]);
+  if (Number(auditRows[0]?.count || 0) === 0) {
+    let previousHash = "";
+    for (const event of run.audit || []) {
+      const hash = eventHash(event, previousHash);
+      await pool.query(
+        "INSERT INTO pactlineAuditEvents (workspaceId, runId, actorUserId, eventType, payload, previousHash, eventHash, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [workspaceId, relationalRunId, null, event.event || "audit_event", JSON.stringify(event), previousHash || null, hash, new Date(event.timestamp || run.createdAt || Date.now())],
+      );
+      previousHash = hash;
+    }
+  }
+  return true;
 }

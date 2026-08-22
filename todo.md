@@ -407,3 +407,11 @@
 - [x] Enforce unique invoice identifiers at the database layer.
 - [x] Validate syntax, tests, type checking, and production build.
 - [ ] Migrate actions, approvals, audit events, settings, and workspace ownership to relational records.
+
+## Phase 2E — Relational run evidence
+- [x] Persist run headers to `pactlineRuns` when the database is available.
+- [x] Persist action decisions to `pactlineActions` without duplicating a run.
+- [x] Persist tamper-evident audit events to `pactlineAuditEvents`.
+- [x] Keep snapshot and JSON fallback behavior safe when relational persistence is unavailable.
+- [x] Validate syntax, tests, type checking, and production build.
+- [ ] Add relational approval rows, user ownership, workspace membership, and organization isolation.
