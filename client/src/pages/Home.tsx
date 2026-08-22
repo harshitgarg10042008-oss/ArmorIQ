@@ -144,13 +144,20 @@ export default function Home() {
     const file = event.target.files?.[0];
     if (!file) return;
     try {
+      if (!file.name.toLowerCase().endsWith(".json")) throw new Error("For now, upload a structured invoice JSON file with vendor, amount, and lineItems fields.");
       const invoice = JSON.parse(await file.text()) as PactlineInvoice;
-      const saved = await registerInvoice({ ...invoice, source: file.name });
+      const documentBase64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = () => reject(new Error("Invoice document could not be read."));
+        reader.readAsDataURL(file);
+      });
+      const saved = await registerInvoice({ ...invoice, source: file.name, fileName: file.name, mimeType: file.type || "application/json", documentBase64 });
       setAvailableInvoices((current) => [saved, ...current.filter((item) => item.invoiceId !== saved.invoiceId)]);
       setInvoiceId(saved.invoiceId);
-      notify(`Invoice ${saved.invoiceId} added to the catalog`);
+      notify(`Invoice ${saved.invoiceId} uploaded and registered`);
     } catch (error) {
-      setApiError(error instanceof Error ? error.message : "Invoice JSON could not be imported.");
+      setApiError(error instanceof Error ? error.message : "Invoice document could not be imported.");
     } finally {
       event.target.value = "";
     }
@@ -249,7 +256,7 @@ export default function Home() {
 
         {activeNav !== "Overview" ? <PageView page={activeNav} darkMode={darkMode} notify={notify} liveRun={liveRun} history={runHistory} onApprove={approve} onReject={reject} /> : <>
         <section className="hero-band">
-          <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-line" />AUTONOMOUS OPERATIONS / 01</div><h1>Autonomy is active.<br /><em>Authority is bounded.</em></h1><p>Pactline lets your agent move through routine invoice work while ArmorIQ holds the exact moment an action leaves its captured intent.</p><div className="invoice-input-row"><label className="invoice-input-label">INVOICE ID<input className="invoice-input" list="pactline-invoice-list" value={invoiceId} onChange={(event) => setInvoiceId(event.target.value)} placeholder="INV-044" /><datalist id="pactline-invoice-list">{availableInvoices.map((invoice) => <option key={invoice.invoiceId} value={invoice.invoiceId}>{invoice.vendor}</option>)}</datalist></label><label className="invoice-upload-button">IMPORT JSON<input type="file" accept="application/json,.json" onChange={handleInvoiceFile} /></label></div><div className="hero-actions"><button className="primary-button" onClick={() => void simulateRun()} disabled={pendingAction === "start" || isLoading}>{pendingAction === "start" ? <><TimerReset size={15} className="spin" /> Starting…</> : <><Play size={15} fill="currentColor" /> Run protected demo <ArrowUpRight size={15} /></>}</button><button className="text-button" onClick={() => { setActiveNav("Intent plans"); notify("Intent plans view selected"); }}>View architecture <ChevronRight size={15} /></button>{liveRun && <button className="text-button" onClick={() => void resetRun()} disabled={pendingAction !== null}><TimerReset size={15} /> New run</button>}</div></div>
+          <div className="hero-copy"><div className="eyebrow"><span className="eyebrow-line" />AUTONOMOUS OPERATIONS / 01</div><h1>Autonomy is active.<br /><em>Authority is bounded.</em></h1><p>Pactline lets your agent move through routine invoice work while ArmorIQ holds the exact moment an action leaves its captured intent.</p><div className="invoice-input-row"><label className="invoice-input-label">INVOICE ID<input className="invoice-input" list="pactline-invoice-list" value={invoiceId} onChange={(event) => setInvoiceId(event.target.value)} placeholder="INV-044" /><datalist id="pactline-invoice-list">{availableInvoices.map((invoice) => <option key={invoice.invoiceId} value={invoice.invoiceId}>{invoice.vendor}</option>)}</datalist></label><label className="invoice-upload-button">UPLOAD INVOICE<input type="file" accept="application/json,.json" onChange={handleInvoiceFile} /></label></div><div className="hero-actions"><button className="primary-button" onClick={() => void simulateRun()} disabled={pendingAction === "start" || isLoading}>{pendingAction === "start" ? <><TimerReset size={15} className="spin" /> Starting…</> : <><Play size={15} fill="currentColor" /> Run protected demo <ArrowUpRight size={15} /></>}</button><button className="text-button" onClick={() => { setActiveNav("Intent plans"); notify("Intent plans view selected"); }}>View architecture <ChevronRight size={15} /></button>{liveRun && <button className="text-button" onClick={() => void resetRun()} disabled={pendingAction !== null}><TimerReset size={15} /> New run</button>}</div></div>
           <div className="hero-visual"><div className="hero-signal-texture" role="img" aria-label="Abstract authorization signal texture" /><div className="hero-visual-overlay"><div className="signal-ring"><ShieldCheck size={31} /></div><div><div className="micro-label">CURRENT BOUNDARY</div><div className="hero-visual-title">Invoice handling plan</div><div className="hero-visual-meta"><span className="status-dot live" />{isLoading ? "Connecting to Pactline API…" : liveRun ? `${liveRun.plan.status} · ${liveRun.mode}` : "No active run"}</div></div></div></div>
         </section>
 
