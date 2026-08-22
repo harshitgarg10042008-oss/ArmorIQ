@@ -1,0 +1,36 @@
+flowchart LR
+    U[Operator in browser] --> UI[Pactline Control Center<br/>React + Vite<br/>localhost:5173]
+    UI -->|POST /api/run start| PROXY[Vite API proxy]
+    PROXY --> API[Pactline API<br/>Express bridge<br/>127.0.0.1:8787]
+    API --> VALIDATE[Validation + rate limit<br/>origin + operator auth]
+    VALIDATE --> ORCH[Run orchestrator<br/>api/run.mjs]
+    ORCH --> INVOICE[Invoice tools<br/>read + extract + write]
+    INVOICE --> STORE[(Durable JSON store<br/>runs, invoices, audit,<br/>settings, outbox)]
+    ORCH --> SDKADAPTER[ArmorIQ live adapter]
+    SDKADAPTER --> SDK[ArmorIQ SDK v0.6.10<br/>ArmorIQClient]
+    SDK -->|capturePlan + getIntentToken| INTENT[Cryptographically bound<br/>intent token / plan]
+    SDK -->|invoke MCP action + token| MCP[Registered MCP server<br/>pactline-invoice]
+    MCP --> TOOLS[Four tools:<br/>read_invoice<br/>extract_fields<br/>write_record<br/>send_email]
+    TOOLS --> STORE
+    MCP --> DECIDE{Inside captured<br/>intent and policy?}
+    DECIDE -->|allow| CONTINUE[Continue autonomous execution]
+    DECIDE -->|hold| HOLD[Return held action<br/>before side effect]
+    HOLD --> UI
+    UI -->|POST /api/run decide| API
+    API --> HUMAN{Human decision}
+    HUMAN -->|reject| REJECT[Persist rejection<br/>outbox remains empty]
+    HUMAN -->|approve| REAUTHORIZE[Invoke approved recipient<br/>through ArmorIQ SDK again]
+    REAUTHORIZE --> EFFECT[Controlled test outbox effect]
+    REJECT --> STORE
+    EFFECT --> STORE
+    STORE -->|GET /api/run| API
+    API --> UI
+
+    classDef browser fill:#143b36,stroke:#54e0bb,color:#ffffff;
+    classDef backend fill:#1e293b,stroke:#8ba4ff,color:#ffffff;
+    classDef armor fill:#3a275f,stroke:#c8a6ff,color:#ffffff;
+    classDef data fill:#554014,stroke:#ffd166,color:#ffffff;
+    class U,UI browser;
+    class PROXY,API,VALIDATE,ORCH,INVOICE,HOLD,HUMAN,REJECT,REAUTHORIZE,CONTINUE,EFFECT backend;
+    class SDKADAPTER,SDK,INTENT,MCP,TOOLS,DECIDE armor;
+    class STORE data;
