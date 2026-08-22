@@ -466,7 +466,7 @@
 - [x] Redeploy and verify the public Vercel health endpoint after synchronization.
 
 ## Connected Vercel live verification
-- [ ] Inspect the connected Vercel project and current public deployment logs.
-- [ ] Apply any deployment/runtime fix identified by the live logs.
+- [x] Inspect the connected Vercel project and current public deployment logs.
+- [x] Apply any deployment/runtime fix identified by the live logs.
 - [x] Verify public health, MCP discovery, and agent decision endpoints after redeployment.
-- [ ] Update the honest completion score after live verification.
+- [x] Update the honest completion score after live verification.

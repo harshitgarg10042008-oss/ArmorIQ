@@ -14,16 +14,16 @@ The current baseline includes the React/Tailwind control center, the local Expre
 
 ## Current implementation status
 
-**Overall production completion estimate: approximately 65%.** The hackathon-critical control loop is complete; approximately 35% remains for PDF/image extraction, full relational ownership, organization/team administration, real external integrations, and enterprise operations.
+**Overall production completion estimate: approximately 78%.** The hackathon-critical control loop and public Vercel agent/MCP surface are verified; approximately 22% remains for full relational domain ownership, organization/team administration, real external effects, and enterprise operations.
 
 | Roadmap area | Status | What is implemented now |
 |---|---|---|
 | Database-backed runtime | **Complete for run snapshots** | Active run snapshots use the managed MySQL table when `DATABASE_URL` is available, with a safe JSON fallback for local machines without a database. |
 | Structured invoice intake | **Complete** | JSON invoices can be uploaded, validated, registered, stored in managed storage when available, and used as protected-run inputs. |
-| PDF/image extraction | **Pending** | Storage and metadata foundations exist, but OCR and document extraction are not yet implemented. |
-| Organizations and approvals | **Pending** | Basic operator authorization and approve/reject behavior exist; multi-user organizations, invitations, assignment, and escalation remain. |
+| PDF/image extraction | **Implemented with review gates** | Text-PDF extraction and PNG/JPEG OCR are implemented with confidence-aware validation and safe ambiguity handling; provider-specific OCR tuning remains. |
+| Organizations and approvals | **Partial** | Server-side operator authentication, approver-role enforcement, approval persistence, approve/reject behavior, and decision history exist; multi-user organization membership, invitations, assignment, and escalation remain. |
 | Real integrations and effects | **Pending** | The approved effect is still a controlled test outbox, not external email/ERP delivery. |
-| Operations and enterprise readiness | **Pending** | Monitoring, backups, recovery, key rotation, load tests, and production runbooks remain. |
+| Operations and enterprise readiness | **Partial** | Sanitized health diagnostics, structured request IDs, actionable runtime statuses, deployment runbook, and local/public smoke tests exist; monitoring, backups, recovery, rotation, load tests, and full browser integration coverage remain. |
 
 ## Phase 1 — Database-backed runtime
 
